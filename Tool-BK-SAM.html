@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<!--documentreview.law © 2024 Adam J Schwartz, All Rights Reserved.-->
+<!--You may not copy, reproduce, distribute, display, perform, exploit, or otherwise use in any way, whether in commerce or not, any portion of the documentreview.law Appplication without the express written consent of the owner, with the sole exception of use for a legitimate educational purpose (i.e., at or in association with an accredited educational institution), but only if the institution is a non-profit or similar entity and the use is non-commercial.-->
+<html lang="en">
+<head>
+    <!-- CODE HERE  -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>documentreview.law</title>
+    <link rel="stylesheet" href="https://use.typekit.net/hdi0iou.css">
+
+    <!-- Security logo script -->
+    <script type="text/javascript"> 
+        var tlJsHost = ((window.location.protocol === "https:") ? "https://secure.trust-provider.com/" : "http://www.trustlogo.com/");
+        document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <!-- Mammoth.js (for Word documents) -->
+    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+    <!-- SheetJS (for Excel files) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+            background-color: rgba(52,50,62,1.00);
+            display: flex;
+            flex-direction: column;
+        }
+        #toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            color: white;
+            padding: 10px;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            font-family: "apparat", serif;
+font-weight: 700;
+font-style: normal;
+        padding-bottom: 20px;
+
+        }
+        #docreview-logo {
+            position: absolute;
+            bottom: 50px; /* Provide enough space for the security logo beneath */
+            right: 20px;
+            z-index: 1000;
+            border-radius: 10px;
+        }
+        #docreview-logo img {
+            border-radius: 10px;
+            width: 250px;
+        }
+        #content {
+            display: flex;
+            height: calc(100% - 50px);
+            overflow: hidden;
+            padding-top: 40px;
+        }
+        #main-content {
+            flex-grow: 1;
+            overflow: auto;
+            position: relative;
+            text-align: center;
+        }
+        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
+            width: 8.5in;
+            height: 11in;
+            margin: auto;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        #pdf-viewer canvas {
+            width: 100%;
+            height: 100%;
+        }
+        #docx-viewer, #xlsx-viewer, #txt-viewer {
+            background-color: white;
+            overflow-y: auto;
+            text-align: left;
+        }
+        #image-viewer {
+            max-width: 100%;
+            max-height: 100%;
+            transform-origin: center;
+            transition: transform 0.2s ease;
+        }
+        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
+            z-index: 10; /* Ensure viewers have a lower z-index */
+        }
+        #security-logo {
+            position: absolute;
+            bottom: 10px; /* Directly beneath the docreview logo */
+            right: 20px;
+            z-index: 1000;
+            display: block;
+        }
+        }
+        #security-logo img {
+            width: 100px; /* Adjust size as necessary */
+        }
+        button, select, {
+            padding: 0px 2px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+text-align: center;
+        }
+         input[type="text"] {padding: 0px 2px;
+            margin: 2px;
+            border-radius: 4px;
+            background-color: rgba(255,255,255,.4);
+            font-size: 16px;
+            color: rgba(255,255,255,.8);
+            font-family: "apparat-light", serif;
+font-weight: 700;
+font-style: normal;
+        }
+        button { width: 35px; border: 2px solid rgba(255,255,255,.8); border-radius:4px; background-color: rgba(255,255,255,.5); font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal; font-size:12px; text-align: center;}
+        button:hover {
+            background-color: rgba(255,255,255,.8);
+        }
+        button:active {
+            background-color: rgba(255,255,255,.3);
+        }
+        ::placeholder {
+            color: rgba(255,255,255,.8);
+            font-family: "apparat-light", serif;
+font-weight: 700;
+font-style: normal;
+            opacity: 1; /* Firefox */
+        }
+        ::-ms-input-placeholder { /* Edge 12 -18 */
+        font-family: "apparat-light", serif;
+font-weight: 700;
+font-style: normal;
+          color: white;
+        }
+        #search-text {
+            border: 2px solid white;
+            font-family: "apparat-light", serif;
+font-weight: 700;
+font-style: normal;
+        }
+        #document-select {
+            border: 2px solid white;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+        #search-results-container {
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            overflow: auto;
+            padding: 20px;
+            border-left: 1px solid rgba(255,255,255,.8);
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+            color: rgba(255,255,255,.8);
+            background-color: rgba(52, 50, 62, 1);
+            position: relative;
+        }
+        #search-results, #pinned-docs {
+            flex-grow: 1;
+            max-height: 50vh; /* Set max height to 50% of the viewport height */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+        a {
+            color: white;
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+        a:hover {
+            color: yellow;
+        }
+        /* Help window */
+        #help-window {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 350px;
+            padding: 10px 30px 10px 30px;
+            background-color: rgba(255,255,255,1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            color: #222222;
+            border-radius: 10px;
+            display: none; /* Hidden by default */
+            z-index: 10000;
+            text-align: center;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+        button:disabled {
+            background-color: rgba(255,255,255,.3);
+            border: 2px solid rgba(255,255,255,.3);
+            cursor: not-allowed;
+        }
+        #help-window ul {
+            text-align: left;
+            list-style-type: none;
+            padding: 0;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+        #help-window ul li {
+            text-align: left;
+            margin-bottom: 10px;
+            font-family: "apparat-light", serif;
+font-weight: 400;
+font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button id="folder-select">&#x1F4C2;</button>
+        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff" style="display: none; text-size: 36px;">&nbsp;&nbsp;
+        <button id="prev-doc">&#x23ee;</button>
+        <select id="document-select" style="min-width: 140px; max-width: 140px;"></select>
+        <button id="next-doc">&#x23ed;</button>&nbsp;&nbsp;
+        <button id="prev-page">&#x25c0;</button>
+        <span style="padding-top:3px; font-weight: 700; text-decoration: underline;">Page: <span id="page-num"></span> / <span id="page-count"></span></span>
+        <button id="next-page">&#x25b6;</button>&nbsp;&nbsp;
+        <button id="zoom-out">&#x2796;</button>
+        <button id="zoom-in">&#x2795;</button>
+        <button id="rotate">&#x1F504;</button>&nbsp;&nbsp;
+        <input type="text" id="search-text" placeholder="Search...">
+        <button id="search-doc">&#128270;</button>
+        <button id="search" style="width:60px;">&#128270;&#128270;</button>&nbsp;&nbsp;
+        <button id="flag-doc">&#x1f4cc;</button>
+        <button id="export-list" style="width:60px;">&#x1f4cc;&#x2b07;</button>&nbsp;&nbsp;
+        <button id="help-button">&#10067;</button>
+    </div>
+
+    <div id="content">
+        <div id="main-content">
+            <div id="pdf-viewer">
+                <canvas id="pdf-canvas"></canvas>
+            </div>
+            <div id="docx-viewer"></div>
+            <div id="xlsx-viewer"></div>
+            <div id="txt-viewer"></div>
+            <img id="image-viewer"/>
+        </div>
+        <div id="search-results-container">
+            <div id="search-results">
+                <h4 style="text-decoration: underline;">Search Results</h4>
+                <ul id="results-list"></ul>
+            </div>
+            <div id="pinned-docs">
+                <h4 style="text-decoration: underline;">Pinned Documents</h4>
+                <ul id="pinned-list"></ul>
+            </div>
+            <div id="docreview-logo">
+                <img src="https://documentreview.law/lebel-investigations/IMG_1112.jpg" alt="Doc Review Logo">
+            </div>
+            <div id="security-logo">
+                <img src="IMG_1139.png" alt="Security Logo">
+            </div>
+        </div>
+    </div>
+
+    <!-- Help window content -->
+    <div id="help-window">
+        <h5 style="font-size:18px; margin: 10px 0; padding: 0;">We're here to help! Have a question not answered below?</h5><a href="https://documentreview.law/contact/" target="_new" style="color:#0bd14b; font-weight: 600; text-align:center; font-size:18px;">Contact Us Here.</a>
+        <ul>
+            <li>&#x1F4C2; - Open Folder/Files</li>
+            <li>&#x23ee; - Previous Document</li>
+            <li>&#x23ed; - Next Document</li>
+            <li>&#x25c0; - Previous Page<sup>*</sup></li>
+            <li>&#x25b6; - Next Page<sup>*</sup></li>
+            <li> &#x2796; / &#x2795;  - Zoom<sup>*</sup></li>
+            <li>&#x1F504; - Rotate<sup>*</sup></li>
+            <li>&#128270; - Search Within Document</li>
+            <li>&#128270;&#128270; - Search Across Documents</li>
+            <li>&#x1f4cc; - Pin Document</li>
+            <li>&#x1f4cc;&#x2b07; - Export List of Pinned Docs (.csv)</li><br>
+            <li><sup>*</sup>&nbsp;<i>Only for PDFs and Image Files</i></li>
+        </ul>
+        <div style="text-align: center; padding: 0; margin: 0;">
+    <button id="close-help" style="color:#0bd14b; font-weight: 600; font-size:18px; background:none; border:none; cursor:pointer; text-decoration: underline; padding: 0; margin: 0;">Close</button>
+</div>
+    </div>
+    <script>
+    // Copyright alert
+    alert('ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. © 2024 Adam J Schwartz, All Rights Reserved');
+
+        // Help button functionality
+        document.getElementById('help-button').addEventListener('click', function() {
+            const helpWindow = document.getElementById('help-window');
+            helpWindow.style.display = 'block';
+        });
+
+        // Close help window
+        document.getElementById('close-help').addEventListener('click', function() {
+            const helpWindow = document.getElementById('help-window');
+            helpWindow.style.display = 'none';
+        });
+
+        let pdfDoc = null,
+            pageNum = 1,
+            pageCount = 0,
+            zoomLevel = 1.25,
+            rotationAngle = 0,
+            currentDocIndex = 0,
+            canvas = document.getElementById('pdf-canvas'),
+            ctx = canvas.getContext('2d'),
+            fileArray = [],
+            pinnedDocs = [];
+
+        // Load selected document
+function loadDocument(index) {
+    if (index < 0 || index >= fileArray.length) return;
+    currentDocIndex = index;
+    const file = fileArray[index];
+
+    // Hide all viewers before loading a new document
+    hideAllViewers();
+
+    // Determine if the file is a PDF, image, or other document type
+    const isPDF = file.type === 'pdf';
+    const isImage = file.type === 'image';
+
+    // Enable or disable navigation, zoom, and rotate buttons based on the file type
+    document.getElementById('prev-page').disabled = !isPDF; // Disable page navigation for non-PDFs
+    document.getElementById('next-page').disabled = !isPDF; // Disable page navigation for non-PDFs
+    document.getElementById('zoom-in').disabled = !(isPDF || isImage); // Enable for PDFs and images only
+    document.getElementById('zoom-out').disabled = !(isPDF || isImage); // Enable for PDFs and images only
+    document.getElementById('rotate').disabled = !(isPDF || isImage); // Enable for PDFs and images only
+
+    if (isPDF) {
+        displayPDF(file.url);
+    } else if (file.type === 'docx') {
+        displayDocx(file.url);
+    } else if (file.type === 'xlsx') {
+        displayXlsx(file.url);
+    } else if (file.type === 'txt') {
+        displayTxtFile(file.url);
+    } else if (isImage) {
+        displayImage(file.url);
+    }
+
+    document.getElementById('document-select').value = index;
+}
+
+
+
+        // Hide all viewers
+        function hideAllViewers() {
+            document.getElementById('pdf-viewer').style.display = 'none';
+            document.getElementById('docx-viewer').style.display = 'none';
+            document.getElementById('xlsx-viewer').style.display = 'none';
+            document.getElementById('txt-viewer').style.display = 'none';
+            document.getElementById('image-viewer').style.display = 'none';
+        }
+
+        // Display PDF files
+        function displayPDF(fileUrl) {
+            document.getElementById('pdf-viewer').style.display = 'block';
+            pdfjsLib.getDocument(fileUrl).promise.then(pdfDoc_ => {
+                pdfDoc = pdfDoc_;
+                pageCount = pdfDoc.numPages;
+                document.getElementById('page-count').textContent = pageCount;
+                pageNum = 1; 
+                rotationAngle = 0; 
+                renderPage(pageNum);
+            });
+        }
+        // Display Word documents (.docx) using Mammoth.js
+        function displayDocx(fileUrl) {
+            document.getElementById('docx-viewer').style.display = 'block';
+            fetch(fileUrl)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => mammoth.convertToHtml({ arrayBuffer }))
+                .then(result => {
+                    document.getElementById('docx-viewer').innerHTML = result.value;
+                })
+                .catch(console.error);
+        }
+        // Display Excel documents (.xlsx) using SheetJS
+        function displayXlsx(fileUrl) {
+            document.getElementById('xlsx-viewer').style.display = 'block';
+            fetch(fileUrl)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const html = XLSX.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+                    document.getElementById('xlsx-viewer').innerHTML = html;
+                })
+                .catch(console.error);
+        }
+        // Display text (.txt) files
+        function displayTxtFile(fileUrl) {
+            document.getElementById('txt-viewer').style.display = 'block';
+            fetch(fileUrl)
+                .then(response => response.text())
+                .then(text => {
+                    document.getElementById('txt-viewer').innerText = text;
+                })
+                .catch(console.error);
+        }
+        // Display images
+        function displayImage(fileUrl) {
+            document.getElementById('image-viewer').style.display = 'block';
+            document.getElementById('image-viewer').src = fileUrl;
+        }
+        // Function to render a PDF page with zoom and rotation
+function renderPage(num) {
+    pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({ scale: zoomLevel, rotation: rotationAngle });
+
+        // Adjust the canvas size based on the new viewport (to prevent squishing)
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        // Adjust the container's dimensions to fit the rotated/zoomed canvas
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+
+        const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+        page.render(renderContext).promise.then(() => {
+            document.getElementById('page-num').textContent = num;
+        });
+    });
+}
+
+// Zoom In and Zoom Out functions
+document.getElementById('zoom-in').addEventListener('click', () => {
+    if (fileArray[currentDocIndex].type === 'pdf') {
+        zoomLevel = Math.min(zoomLevel + 0.25, 3);  // Max zoom level is 3
+        renderPage(pageNum);
+    } else if (fileArray[currentDocIndex].type === 'image') {
+        zoomLevel = Math.min(zoomLevel + 0.25, 3);  // Max zoom level for images
+        adjustImageViewer();
+    }
+});
+
+document.getElementById('zoom-out').addEventListener('click', () => {
+    if (fileArray[currentDocIndex].type === 'pdf') {
+        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);  // Min zoom level is 0.5
+        renderPage(pageNum);
+    } else if (fileArray[currentDocIndex].type === 'image') {
+        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);  // Min zoom level for images
+        adjustImageViewer();
+    }
+});
+
+    // Rotate function
+    document.getElementById('rotate').addEventListener('click', () => {
+        rotationAngle = (rotationAngle + 90) % 360;  // Rotate by 90 degrees clockwise
+        if (fileArray[currentDocIndex].type === 'pdf') {
+            renderPage(pageNum);  // Re-render the page after rotation
+        } else if (fileArray[currentDocIndex].type === 'image') {
+            adjustImageViewer();  // Rotate image
+        }
+    });
+    // Function to adjust the image viewer with zoom and rotation
+    function adjustImageViewer() {
+    const imageViewer = document.getElementById('image-viewer');
+    imageViewer.style.transform = `scale(${zoomLevel}) rotate(${rotationAngle}deg)`;
+    imageViewer.style.maxWidth = `${100 * zoomLevel}%`;
+    imageViewer.style.maxHeight = `${100 * zoomLevel}%`;
+}
+        // Page navigation for PDFs
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (pageNum > 1) {
+                pageNum--;
+                renderPage(pageNum);
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (pageNum < pageCount) {
+                pageNum++;
+                renderPage(pageNum);
+            }
+        });
+
+        // Implement folder select button
+        document.getElementById('folder-select').addEventListener('click', () => {
+            document.getElementById('file-input').click();  // Trigger file input click
+        });
+
+        // Handle file uploads
+        document.getElementById('file-input').addEventListener('change', (event) => {
+            fileArray = [];
+            for (const file of event.target.files) {
+                const url = URL.createObjectURL(file);
+                let type = '';
+
+                if (file.name.endsWith('.pdf')) {
+                    type = 'pdf';
+                } else if (/\.(docx)$/i.test(file.name)) {
+                    type = 'docx';
+                } else if (/\.(xlsx)$/i.test(file.name)) {
+                    type = 'xlsx';
+                } else if (file.name.endsWith('.txt')) {
+                    type = 'txt';
+                } else if (/\.(jpeg|jpg|png|gif|tiff)$/i.test(file.name)) {
+                    type = 'image';
+                }
+
+                fileArray.push({ name: file.name, url: url, type: type });
+            }
+
+            populateDocumentSelect();
+            if (fileArray.length > 0) {
+                loadDocument(0); // Load the first document by default
+            }
+        });
+
+        // Populate dropdown with documents
+        function populateDocumentSelect() {
+            const docSelect = document.getElementById('document-select');
+            docSelect.innerHTML = ''; // Clear previous options
+            fileArray.sort((a, b) => a.name.localeCompare(b.name));
+            fileArray.forEach((file, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = file.name;
+                docSelect.appendChild(option);
+            });
+
+            // Add event listener for dropdown selection
+            docSelect.addEventListener('change', (event) => {
+                loadDocument(parseInt(event.target.value));
+            });
+        }
+
+        // Implement document pinning
+        document.getElementById('flag-doc').addEventListener('click', () => {
+            const currentDoc = fileArray[currentDocIndex];
+            if (!pinnedDocs.includes(currentDoc)) {
+                pinnedDocs.push(currentDoc);
+                updatePinnedDocsList();
+            }
+        });
+
+        // Update pinned documents list with clickable links
+        function updatePinnedDocsList() {
+            const pinnedList = document.getElementById('pinned-list');
+            pinnedList.innerHTML = ''; // Clear previous list
+            pinnedDocs.forEach((doc, index) => {
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.textContent = doc.name;
+                link.href = "#";
+                link.style.color = 'white'; // Ensure the links are white
+                link.addEventListener('click', () => loadDocument(fileArray.indexOf(doc)));
+                li.appendChild(link);
+                pinnedList.appendChild(li);
+            });
+        }
+
+        // Export pinned documents list as CSV
+        document.getElementById('export-list').addEventListener('click', () => {
+            if (pinnedDocs.length === 0) {
+                alert("No pinned documents to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Document Name\n"; // Header row
+
+            pinnedDocs.forEach(doc => {
+                csvContent += `${doc.name}\n`; // Add each pinned document's name
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "pinned_documents.csv");
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Implement navigation for documents (Next and Previous)
+        document.getElementById('prev-doc').addEventListener('click', () => {
+            if (currentDocIndex > 0) {
+                loadDocument(currentDocIndex - 1);
+            }
+        });
+
+        document.getElementById('next-doc').addEventListener('click', () => {
+            if (currentDocIndex < fileArray.length - 1) {
+                loadDocument(currentDocIndex + 1);
+            }
+        });
+
+        // Implement search across all documents
+document.getElementById('search').addEventListener('click', () => {
+    const searchText = document.getElementById('search-text').value.toLowerCase();
+    const resultsList = document.getElementById('results-list');
+    resultsList.innerHTML = ''; // Clear previous search results
+
+    let found = false;  // Track if matches are found
+    let searchPromises = [];
+
+    fileArray.forEach((file, index) => {
+        if (file.type === 'pdf') {
+            // Search through PDFs
+            const promise = pdfjsLib.getDocument(file.url).promise.then(pdfDoc_ => {
+                return pdfDoc_.getPage(1).then(page => {
+                    return page.getTextContent().then(textContent => {
+                        const text = textContent.items.map(item => item.str).join(' ');
+                        if (text.toLowerCase().includes(searchText)) {
+                            found = true;
+                            const li = document.createElement('li');
+                            const link = document.createElement('a');
+                            link.textContent = file.name;
+                            link.href = "#";
+                            link.style.color = 'white';
+                            link.addEventListener('click', () => loadDocument(index));
+                            li.appendChild(link);
+                            resultsList.appendChild(li);
+                        }
+                    });
+                });
+            });
+            searchPromises.push(promise);
+
+        } else if (file.type === 'txt') {
+            // Search through .txt files
+            const promise = fetch(file.url)
+                .then(response => response.text())
+                .then(text => {
+                    if (text.toLowerCase().includes(searchText)) {
+                        found = true;
+                        const li = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.textContent = file.name;
+                        link.href = "#";
+                        link.style.color = 'white';
+                        link.addEventListener('click', () => loadDocument(index));
+                        li.appendChild(link);
+                        resultsList.appendChild(li);
+                    }
+                });
+            searchPromises.push(promise);
+
+        } else if (file.type === 'docx') {
+            // Search through .docx files
+            const promise = fetch(file.url)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => mammoth.extractRawText({ arrayBuffer }))
+                .then(result => {
+                    const text = result.value;
+                    if (text.toLowerCase().includes(searchText)) {
+                        found = true;
+                        const li = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.textContent = file.name;
+                        link.href = "#";
+                        link.style.color = 'white';
+                        link.addEventListener('click', () => loadDocument(index));
+                        li.appendChild(link);
+                        resultsList.appendChild(li);
+                    }
+                });
+            searchPromises.push(promise);
+
+        } else if (file.type === 'xlsx') {
+            // Search through .xlsx files using SheetJS
+            const promise = fetch(file.url)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const text = XLSX.utils.sheet_to_csv(worksheet);
+                        if (text.toLowerCase().includes(searchText)) {
+                            found = true;
+                            const li = document.createElement('li');
+                            const link = document.createElement('a');
+                            link.textContent = file.name;
+                            link.href = "#";
+                            link.style.color = 'white';
+                            link.addEventListener('click', () => loadDocument(index));
+                            li.appendChild(link);
+                            resultsList.appendChild(li);
+                        }
+                    });
+                });
+            searchPromises.push(promise);
+        }
+    });
+
+    // After all searches are done, check if any match was found
+    Promise.all(searchPromises).then(() => {
+        if (!found) {
+            const li = document.createElement('li');
+            li.textContent = "No matches found";
+            li.style.color = 'white';
+            resultsList.appendChild(li);
+        }
+    });
+});
+
+
+        // Implement search within the current document
+        document.getElementById('search-doc').addEventListener('click', () => {
+            const searchText = document.getElementById('search-text').value.toLowerCase();
+            const resultsList = document.getElementById('results-list');
+            resultsList.innerHTML = ''; // Clear previous search results
+
+            if (fileArray[currentDocIndex].type === 'pdf') {
+                let matches = [];
+
+                for (let i = 1; i <= pageCount; i++) {
+                    pdfDoc.getPage(i).then(page => {
+                        page.getTextContent().then(textContent => {
+                            const text = textContent.items.map(item => item.str).join(' ');
+                            if (text.toLowerCase().includes(searchText)) {
+                                matches.push(i);
+                                const li = document.createElement('li');
+                                const link = document.createElement('a');
+                                link.textContent = `Page ${i}`;
+                                link.href = "#";
+                                link.style.color = 'white';
+                                link.addEventListener('click', () => {
+                                    pageNum = i;
+                                    renderPage(pageNum);
+                                });
+                                li.appendChild(link);
+                                resultsList.appendChild(li);
+                            }
+                        });
+                    });
+                }
+                
+            } else if (fileArray[currentDocIndex].type === 'txt') {
+                fetch(fileArray[currentDocIndex].url)
+                    .then(response => response.text())
+                    .then(text => {
+                        const lines = text.split('\n');
+                        lines.forEach((line, index) => {
+                            if (line.toLowerCase().includes(searchText)) {
+                                const li = document.createElement('li');
+                                li.textContent = `Line ${index + 1}: ${line}`;
+                                li.style.color = 'white';
+                                resultsList.appendChild(li);
+                            }
+                        });
+                        if (resultsList.innerHTML === '') {
+                            resultsList.innerHTML = '<li>No matches found</li>';
+                        }
+                    });
+            
+            } else {
+                resultsList.innerHTML = '<li>Search is not supported for this file type</li>';
+            }
+        });
+
+        // Search on Enter key
+        document.getElementById('search-text').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                document.getElementById('search-doc').click();
+            }
+        });
+    </script>
+
+</body>
+</html>
