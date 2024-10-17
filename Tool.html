@@ -259,18 +259,40 @@ font-style: normal;
             margin-left: 10px;
         }
 
-        #tag-list li {
-            cursor: pointer;
-            padding: 5px;
+        #tag-list {
+            padding: 0 0 0 5px;
         }
 
+        #tag-list li {
+            display: unset;
+            text-align: left;
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            border: 1px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        /* Highlight the selected tag */
         #tag-list li.selected {
-            background-color: #007BFF;
+            background-color: #0056b3;
             color: white;
         }
 
         #tag-input {
             color: black; /* Sets the text color to black */
+        }
+
+        /* Style for assigned tags in pinned documents */
+        .assigned-tag {
+            display: inline-block;
+            text-align: left;
+            padding: 2px 5px;
+            margin-right: 5px;
+            margin-bottom: 4px;
+            border: 1px solid black;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -328,12 +350,13 @@ font-style: normal;
     <div id="tag-popup" style="display:none;">
         <h3>Manage Tags</h3>
         <input type="text" id="tag-input" placeholder="Enter tag name">
-        <input type="color" id="tag-color" value="#007BFF"> <!-- Color picker input -->
+        <input type="color" id="tag-color" value="#007BFF">
+        <span id="error-message" style="color: red; display: none;"></span> <!-- Error message -->
         <button id="save-tag">Save</button>
         <button id="edit-tag">Edit</button>
         <button id="delete-tag">Delete</button>
         <button id="close-tag-popup">Close</button>
-        <ul id="tag-list"></ul> <!-- Display existing tags here -->
+        <ul id="tag-list"></ul>
     </div>
 
     <!-- Help window content -->
@@ -400,8 +423,21 @@ font-style: normal;
         document.getElementById('save-tag').addEventListener('click', () => {
             const tagName = document.getElementById('tag-input').value.trim();
             const tagColor = document.getElementById('tag-color').value;
+            const errorMessage = document.getElementById('error-message');
+
+            // Clear any previous error message
+            errorMessage.style.display = 'none';
 
             if (!tagName) return;
+
+            // Check for duplicates (case-insensitive)
+            const tagExists = tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase());
+            if (tagExists && selectedTagIndex === null) {
+                // Display error message if duplicate (only for new tags)
+                errorMessage.textContent = "A tag with this name already exists.";
+                errorMessage.style.display = 'block';
+                return;
+            }
 
             if (selectedTagIndex !== null) {
                 tags[selectedTagIndex] = { name: tagName, color: tagColor };
@@ -415,6 +451,7 @@ font-style: normal;
             selectedTagIndex = null;
             updateTagList();
             updateTagDropdown();
+            errorMessage.style.display = 'none'; // Hide error message after successful save
         });
 
         // Edit the selected tag
@@ -458,11 +495,7 @@ font-style: normal;
                 const li = document.createElement('li');
                 li.textContent = tag.name;
                 li.style.backgroundColor = tag.color;
-                li.style.color = 'white';
-                li.style.padding = '2px 5px';
-                li.style.borderRadius = '3px';
-                li.style.marginBottom = '5px';
-                li.style.cursor = 'pointer';
+                li.style.color = getContrastColor(tag.color);
                 li.addEventListener('click', () => {
                     document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
                     li.classList.add('selected');
@@ -524,13 +557,9 @@ font-style: normal;
                     doc.tags.forEach(assignedTag => {
                         const tagSpan = document.createElement('span');
                         tagSpan.textContent = assignedTag.name;
+                        tagSpan.className = 'assigned-tag';
                         tagSpan.style.backgroundColor = assignedTag.color;
-                        tagSpan.style.color = 'white';
-                        tagSpan.style.padding = '2px 5px';
-                        tagSpan.style.borderRadius = '3px';
-                        tagSpan.style.marginRight = '5px';
-                        tagSpan.style.display = 'inline-block';
-                        tagSpan.style.position = 'relative';
+                        tagSpan.style.color = getContrastColor(assignedTag.color);
 
                         const removeIcon = document.createElement('span');
                         removeIcon.textContent = '✖';
@@ -1016,6 +1045,25 @@ document.getElementById('search').addEventListener('click', () => {
                 document.getElementById('search-doc').click();
             }
         });
+
+        // Helper function to determine text color based on background color
+        function getContrastColor(hexcolor) {
+            // If a leading # is provided, remove it
+            if (hexcolor.slice(0, 1) === '#') {
+                hexcolor = hexcolor.slice(1);
+            }
+
+            // Convert to RGB value
+            var r = parseInt(hexcolor.substr(0,2),16);
+            var g = parseInt(hexcolor.substr(2,2),16);
+            var b = parseInt(hexcolor.substr(4,2),16);
+
+            // Get YIQ ratio
+            var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+
+            // Check contrast
+            return (yiq >= 128) ? 'black' : 'white';
+        }
     </script>
 
 </body>
