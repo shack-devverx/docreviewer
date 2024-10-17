@@ -3,7 +3,7 @@
 <!--You may not copy, reproduce, distribute, display, perform, exploit, or otherwise use in any way, whether in commerce or not, any portion of the documentreview.law Appplication without the express written consent of the owner, with the sole exception of use for a legitimate educational purpose (i.e., at or in association with an accredited educational institution), but only if the institution is a non-profit or similar entity and the use is non-commercial.-->
 <html lang="en">
 <head>
-    <!-- CODE HERE  -->
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>documentreview.law</title>
@@ -21,17 +21,6 @@
     <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
     <!-- SheetJS (for Excel files) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-    <!-- Add jQuery before PptxJS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- PptxJS (for PowerPoint files) -->
-    <script src="https://cdn.jsdelivr.net/gh/meshesha/PPTXjs/dist/pptxjs.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/meshesha/PPTXjs/dist/pptxjs.css">
-
-    <!-- Add pptx2html library -->
-    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptx2html@latest/dist/pptx2html.bundle.js"></script>
-
-    <!-- JSZip library for PPTX analysis -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 
     <style>
         body, html {
@@ -86,7 +75,7 @@ font-style: normal;
             position: relative;
             text-align: center;
         }
-        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer, #pptx-viewer {
+        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
             width: 8.5in;
             height: 11in;
             margin: auto;
@@ -98,7 +87,7 @@ font-style: normal;
             width: 100%;
             height: 100%;
         }
-        #docx-viewer, #xlsx-viewer, #txt-viewer, #pptx-viewer {
+        #docx-viewer, #xlsx-viewer, #txt-viewer {
             background-color: white;
             overflow-y: auto;
             text-align: left;
@@ -109,7 +98,7 @@ font-style: normal;
             transform-origin: center;
             transition: transform 0.2s ease;
         }
-        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer, #pptx-viewer {
+        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
             z-index: 10; /* Ensure viewers have a lower z-index */
         }
         #security-logo {
@@ -249,6 +238,40 @@ font-style: normal;
 font-weight: 400;
 font-style: normal;
         }
+        #tag-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #FFF;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        #tag-popup input, #tag-popup button {
+            margin: 5px;
+            padding: 5px;
+        }
+
+        .tag-dropdown {
+            margin-left: 10px;
+        }
+
+        #tag-list li {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        #tag-list li.selected {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        #tag-input {
+            color: black; /* Sets the text color to black */
+        }
     </style>
 </head>
 <body>
@@ -269,6 +292,7 @@ font-style: normal;
         <button id="search" style="width:60px;">&#128270;&#128270;</button>&nbsp;&nbsp;
         <button id="flag-doc">&#x1f4cc;</button>
         <button id="export-list" style="width:60px;">&#x1f4cc;&#x2b07;</button>&nbsp;&nbsp;
+        <button id="add-tag" style="width:60px;">Manage Tags</button>
         <button id="help-button">&#10067;</button>
     </div>
 
@@ -281,7 +305,6 @@ font-style: normal;
             <div id="xlsx-viewer"></div>
             <div id="txt-viewer"></div>
             <img id="image-viewer"/>
-            <div id="pptx-viewer"></div>
         </div>
         <div id="search-results-container">
             <div id="search-results">
@@ -299,6 +322,17 @@ font-style: normal;
                 <img src="IMG_1139.png" alt="Security Logo">
             </div>
         </div>
+    </div>
+
+    <!-- Add this new div for tag management popup -->
+    <div id="tag-popup" style="display:none;">
+        <h3>Manage Tags</h3>
+        <input type="text" id="tag-input" placeholder="Enter tag name">
+        <button id="save-tag">Save</button>
+        <button id="edit-tag">Edit</button>
+        <button id="delete-tag">Delete</button>
+        <button id="close-tag-popup">Close</button>
+        <ul id="tag-list"></ul>
     </div>
 
     <!-- Help window content -->
@@ -349,6 +383,92 @@ font-style: normal;
             fileArray = [],
             pinnedDocs = [];
 
+        let tags = JSON.parse(localStorage.getItem('tags')) || []; // Load tags from local storage or initialize an empty array
+        let selectedTagIndex = null; // Track the index of the tag being edited
+
+        // Show the tag popup when Add Tag button is clicked
+        document.getElementById('add-tag').addEventListener('click', () => {
+            document.getElementById('tag-popup').style.display = 'block';
+            document.getElementById('tag-input').value = ''; // Clear the input field
+            selectedTagIndex = null; // Reset selected tag index
+            updateTagList(); // Display the updated tag list
+        });
+
+        // Save a new tag or update an existing tag
+        document.getElementById('save-tag').addEventListener('click', () => {
+            const tagName = document.getElementById('tag-input').value.trim();
+            if (!tagName) return; // Prevent empty tags
+
+            if (selectedTagIndex !== null) {
+                // Update the selected tag
+                tags[selectedTagIndex] = tagName;
+            } else {
+                // Add a new tag
+                tags.push(tagName);
+            }
+
+            saveTagsToLocalStorage(); // Save the updated tags array to local storage
+            document.getElementById('tag-input').value = ''; // Clear the input field
+            selectedTagIndex = null; // Reset selected tag index
+            updateTagList(); // Refresh the tag list display
+        });
+
+        // Edit the selected tag
+        document.getElementById('edit-tag').addEventListener('click', () => {
+            const selectedTag = document.querySelector('#tag-list .selected');
+            if (selectedTag) {
+                document.getElementById('tag-input').value = selectedTag.textContent;
+                selectedTagIndex = tags.indexOf(selectedTag.textContent); // Track the selected tag index for editing
+            } else {
+                alert("Please select a tag to edit.");
+            }
+        });
+
+        // Delete the selected tag
+        document.getElementById('delete-tag').addEventListener('click', () => {
+            if (selectedTagIndex !== null) {
+                tags.splice(selectedTagIndex, 1); // Remove the tag from the array
+                saveTagsToLocalStorage(); // Save the updated tags array to local storage
+                document.getElementById('tag-input').value = ''; // Clear the input field
+                selectedTagIndex = null; // Reset selected tag index
+                updateTagList(); // Refresh the tag list display
+            } else {
+                alert("Please select a tag to delete.");
+            }
+        });
+
+        // Close the tag popup
+        document.getElementById('close-tag-popup').addEventListener('click', () => {
+            document.getElementById('tag-popup').style.display = 'none';
+        });
+
+        // Update the displayed tag list and add selection functionality
+        function updateTagList() {
+            const tagList = document.getElementById('tag-list');
+            tagList.innerHTML = ''; // Clear previous list
+
+            tags.forEach((tag, index) => {
+                const li = document.createElement('li');
+                li.textContent = tag;
+                li.addEventListener('click', () => {
+                    document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
+                    li.classList.add('selected'); // Highlight the selected item
+                    selectedTagIndex = index; // Set the index of the selected tag
+                });
+                tagList.appendChild(li);
+            });
+        }
+
+        // Save tags to local storage
+        function saveTagsToLocalStorage() {
+            localStorage.setItem('tags', JSON.stringify(tags)); // Convert the tags array to a string and save it
+        }
+
+        // Load the tags when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTagList(); // Display the tags from local storage
+        });
+
         // Load selected document
 function loadDocument(index) {
     if (index < 0 || index >= fileArray.length) return;
@@ -361,14 +481,13 @@ function loadDocument(index) {
     // Determine if the file is a PDF, image, or other document type
     const isPDF = file.type === 'pdf';
     const isImage = file.type === 'image';
-    const isPPTX = file.type === 'pptx';
 
     // Enable or disable navigation, zoom, and rotate buttons based on the file type
-    document.getElementById('prev-page').disabled = !(isPDF);
-    document.getElementById('next-page').disabled = !(isPDF);
-    document.getElementById('zoom-in').disabled = !(isPDF || isImage);
-    document.getElementById('zoom-out').disabled = !(isPDF || isImage);
-    document.getElementById('rotate').disabled = !(isPDF || isImage);
+    document.getElementById('prev-page').disabled = !isPDF; // Disable page navigation for non-PDFs
+    document.getElementById('next-page').disabled = !isPDF; // Disable page navigation for non-PDFs
+    document.getElementById('zoom-in').disabled = !(isPDF || isImage); // Enable for PDFs and images only
+    document.getElementById('zoom-out').disabled = !(isPDF || isImage); // Enable for PDFs and images only
+    document.getElementById('rotate').disabled = !(isPDF || isImage); // Enable for PDFs and images only
 
     if (isPDF) {
         displayPDF(file.url);
@@ -380,8 +499,6 @@ function loadDocument(index) {
         displayTxtFile(file.url);
     } else if (isImage) {
         displayImage(file.url);
-    } else if (isPPTX) {
-        displayPPTX(file);
     }
 
     document.getElementById('document-select').value = index;
@@ -396,7 +513,6 @@ function loadDocument(index) {
             document.getElementById('xlsx-viewer').style.display = 'none';
             document.getElementById('txt-viewer').style.display = 'none';
             document.getElementById('image-viewer').style.display = 'none';
-            document.getElementById('pptx-viewer').style.display = 'none';
         }
 
         // Display PDF files
@@ -546,11 +662,9 @@ document.getElementById('zoom-out').addEventListener('click', () => {
                     type = 'txt';
                 } else if (/\.(jpeg|jpg|png|gif|tiff)$/i.test(file.name)) {
                     type = 'image';
-                } else if (/\.(pptx)$/i.test(file.name)) {
-                    type = 'pptx';
                 }
 
-                fileArray.push({ name: file.name, url: url, type: type, size: file.size, lastModified: file.lastModified, file: file });
+                fileArray.push({ name: file.name, url: url, type: type });
             }
 
             populateDocumentSelect();
@@ -734,18 +848,6 @@ document.getElementById('search').addEventListener('click', () => {
                     });
                 });
             searchPromises.push(promise);
-        } else if (file.type === 'pptx') {
-            // For PPTX files, we can't search the content directly
-            // Instead, we'll just add it to the results list
-            const li = document.createElement('li');
-            const link = document.createElement('a');
-            link.textContent = `${file.name} (PPTX - content not searchable)`;
-            link.href = "#";
-            link.style.color = 'white';
-            link.addEventListener('click', () => loadDocument(index));
-            li.appendChild(link);
-            resultsList.appendChild(li);
-            found = true;
         }
     });
 
@@ -810,28 +912,6 @@ document.getElementById('search').addEventListener('click', () => {
                         }
                     });
             
-            } else if (fileArray[currentDocIndex].type === 'pptx') {
-                let pptxjs = new PPTXjs();
-                pptxjs.init({
-                    pptxFileUrl: fileArray[currentDocIndex].url,
-                    element: document.createElement('div'), // Temporary element
-                    slideMode: false,
-                    success: function(result) {
-                        const text = result.slides.map(slide => slide.text).join(' ');
-                        const lines = text.split('\n');
-                        lines.forEach((line, index) => {
-                            if (line.toLowerCase().includes(searchText)) {
-                                const li = document.createElement('li');
-                                li.textContent = `Slide ${index + 1}: ${line}`;
-                                li.style.color = 'white';
-                                resultsList.appendChild(li);
-                            }
-                        });
-                        if (resultsList.innerHTML === '') {
-                            resultsList.innerHTML = '<li>No matches found</li>';
-                        }
-                    }
-                });
             } else {
                 resultsList.innerHTML = '<li>Search is not supported for this file type</li>';
             }
@@ -844,98 +924,54 @@ document.getElementById('search').addEventListener('click', () => {
             }
         });
 
-        // Update displayPPTX function
-        function displayPPTX(file) {
-            console.log("fileMetadata:", file);
-            
-            const pptxViewer = document.getElementById('pptx-viewer');
-            pptxViewer.style.display = 'block';
-            pptxViewer.innerHTML = `
-                <div style="padding: 20px; background-color: white; color: black;">
-                    <h2>${file.name}</h2>
-                    <p>Loading PowerPoint presentation...</p>
-                </div>
-            `;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const arrayBuffer = e.target.result;
+        // Modify the updatePinnedDocsList function to include tag dropdown
+        function updatePinnedDocsList() {
+            const pinnedList = document.getElementById('pinned-list');
+            pinnedList.innerHTML = ''; // Clear previous list
+            pinnedDocs.forEach((doc, index) => {
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.textContent = doc.name;
+                link.href = "#";
+                link.style.color = 'white';
+                link.addEventListener('click', () => loadDocument(fileArray.indexOf(doc)));
                 
-                // Use pptx2html to convert and render content
-                pptx2html(arrayBuffer)
-                    .then((htmlOutput) => {
-                        pptxViewer.innerHTML = `
-                            <div style="padding: 20px; background-color: white; color: black;">
-                                <h2>${file.name}</h2>
-                                ${htmlOutput}
-                            </div>
-                        `;
-                    })
-                    .catch(error => {
-                        console.error("PPTX rendering error:", error);
-                        pptxViewer.innerHTML = `
-                            <div style="padding: 20px; background-color: white; color: black;">
-                                <h2>${file.name}</h2>
-                                <p>Error displaying PowerPoint content: ${error.message}</p>
-                            </div>
-                        `;
-                    });
-            };
-
-            // Try to get the File object from either file.file or file itself
-            const fileToRead = file.file instanceof Blob ? file.file : 
-                               file instanceof Blob ? file : null;
-
-            if (fileToRead) {
-                reader.readAsArrayBuffer(fileToRead);
-            } else {
-                console.error("Invalid file object:", file);
-                pptxViewer.innerHTML = `
-                    <div style="padding: 20px; background-color: white; color: black;">
-                        <h2>${file.name}</h2>
-                        <p>Error: Unable to read the PowerPoint file.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Function to analyze zip content (PPTX files are essentially zip files)
-        function analyzeZipContent(arrayBuffer) {
-            return new Promise((resolve, reject) => {
-                const zip = new JSZip();
-                zip.loadAsync(arrayBuffer).then(function(zip) {
-                    let slideCount = 0;
-                    let imageCount = 0;
-
-                    zip.forEach(function (relativePath, zipEntry) {
-                        if (relativePath.startsWith('ppt/slides/')) {
-                            slideCount++;
-                        }
-                        if (relativePath.startsWith('ppt/media/')) {
-                            imageCount++;
-                        }
-                    });
-
-                    resolve({slideCount, imageCount});
-                }).catch(function(error) {
-                    reject(error);
+                const tagDropdown = document.createElement('select');
+                tagDropdown.className = 'tag-dropdown';
+                tagDropdown.innerHTML = `<option value="">Select Tag</option>${tags.map(tag => `<option value="${tag}">${tag}</option>`).join('')}`;
+                tagDropdown.addEventListener('change', (e) => {
+                    doc.tag = e.target.value;
                 });
+
+                li.appendChild(link);
+                li.appendChild(tagDropdown);
+                pinnedList.appendChild(li);
             });
         }
 
-        function displayPPTXFallback(fileMetadata) {
-            const pptxViewer = document.getElementById('pptx-viewer');
-            pptxViewer.style.display = 'block';
-            pptxViewer.innerHTML = `
-                <div style="padding: 20px; background-color: white; color: black;">
-                    <h2>${fileMetadata.name}</h2>
-                    <p>This is a PowerPoint presentation file.</p>
-                    <p>File size: ${(fileMetadata.size / 1024 / 1024).toFixed(2)} MB</p>
-                    <p>Last modified: ${new Date(fileMetadata.lastModified).toLocaleString()}</p>
-                    <p>Note: Full preview is not available. Please use Microsoft PowerPoint or a compatible viewer to open this file.</p>
-                </div>
-            `;
-        }
+        // Modify the export function to include tags
+        document.getElementById('export-list').addEventListener('click', () => {
+            if (pinnedDocs.length === 0) {
+                alert("No pinned documents to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Document Name,Tag\n"; // Header row
+
+            pinnedDocs.forEach(doc => {
+                csvContent += `${doc.name},${doc.tag || ''}\n`; // Add each pinned document's name and tag
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "pinned_documents.csv");
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        });
     </script>
 
 </body>
