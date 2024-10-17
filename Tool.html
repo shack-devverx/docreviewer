@@ -264,14 +264,18 @@ font-style: normal;
         }
 
         #tag-list li {
-            display: unset;
-            text-align: left;
+            display: inline-block;
             padding: 4px 8px;
-            margin-bottom: 4px;
+            margin: 4px;
             border: 1px solid black;
             border-radius: 4px;
             cursor: pointer;
-            margin-left: 5px;
+            transition: border 0.2s; /* Smooth transition for border change */
+        }
+
+        /* Style for the selected tag */
+        #tag-list li.selected {
+            border: 2px solid black; /* Thicker border for selected tag */
         }
 
         /* Highlight the selected tag */
@@ -484,25 +488,37 @@ font-style: normal;
         // Close the tag popup
         document.getElementById('close-tag-popup').addEventListener('click', () => {
             document.getElementById('tag-popup').style.display = 'none';
+            selectedTagIndex = null;
+            document.getElementById('tag-input').value = '';
+            document.getElementById('tag-color').value = '#007BFF';
+            document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
         });
 
-        // Update the displayed tag list with color
+        // Function to update the displayed tag list with selection functionality
         function updateTagList() {
             const tagList = document.getElementById('tag-list');
-            tagList.innerHTML = '';
+            tagList.innerHTML = ''; // Clear previous list
 
             tags.forEach((tag, index) => {
                 const li = document.createElement('li');
                 li.textContent = tag.name;
                 li.style.backgroundColor = tag.color;
                 li.style.color = getContrastColor(tag.color);
+
+                // Add click event to toggle the selected state
                 li.addEventListener('click', () => {
+                    // Remove 'selected' class from all tags
                     document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
+
+                    // Add 'selected' class to the clicked tag
                     li.classList.add('selected');
                     selectedTagIndex = index;
+
+                    // Update input fields with selected tag data
                     document.getElementById('tag-input').value = tag.name;
                     document.getElementById('tag-color').value = tag.color;
                 });
+
                 tagList.appendChild(li);
             });
         }
@@ -848,8 +864,8 @@ document.getElementById('zoom-out').addEventListener('click', () => {
             csvContent += "Document Name,Tags\n";
 
             pinnedDocs.forEach(doc => {
-                const tags = doc.tags ? doc.tags.map(tag => tag.name).join(';') : '';
-                csvContent += `${doc.name},${tags}\n`;
+                const tagNames = doc.tags ? doc.tags.map(tag => tag.name).join(', ') : ''; // Join tags with commas
+                csvContent += `${doc.name},"${tagNames}"\n`; // Wrap tag names in quotes
             });
 
             const encodedUri = encodeURI(csvContent);
