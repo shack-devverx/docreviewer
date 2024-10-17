@@ -328,11 +328,12 @@ font-style: normal;
     <div id="tag-popup" style="display:none;">
         <h3>Manage Tags</h3>
         <input type="text" id="tag-input" placeholder="Enter tag name">
+        <input type="color" id="tag-color" value="#007BFF"> <!-- Color picker input -->
         <button id="save-tag">Save</button>
         <button id="edit-tag">Edit</button>
         <button id="delete-tag">Delete</button>
         <button id="close-tag-popup">Close</button>
-        <ul id="tag-list"></ul>
+        <ul id="tag-list"></ul> <!-- Display existing tags here -->
     </div>
 
     <!-- Help window content -->
@@ -381,44 +382,48 @@ font-style: normal;
             canvas = document.getElementById('pdf-canvas'),
             ctx = canvas.getContext('2d'),
             fileArray = [],
-            pinnedDocs = [];
+            pinnedDocs = JSON.parse(localStorage.getItem('pinnedDocs')) || [];
 
-        let tags = JSON.parse(localStorage.getItem('tags')) || []; // Load tags from local storage or initialize an empty array
-        let selectedTagIndex = null; // Track the index of the tag being edited
+        let tags = JSON.parse(localStorage.getItem('tags')) || [];
+        let selectedTagIndex = null;
 
         // Show the tag popup when Add Tag button is clicked
         document.getElementById('add-tag').addEventListener('click', () => {
             document.getElementById('tag-popup').style.display = 'block';
-            document.getElementById('tag-input').value = ''; // Clear the input field
-            selectedTagIndex = null; // Reset selected tag index
-            updateTagList(); // Display the updated tag list
+            document.getElementById('tag-input').value = '';
+            document.getElementById('tag-color').value = '#007BFF';
+            selectedTagIndex = null;
+            updateTagList();
         });
 
-        // Save a new tag or update an existing tag
+        // Save a new or edited tag with color
         document.getElementById('save-tag').addEventListener('click', () => {
             const tagName = document.getElementById('tag-input').value.trim();
-            if (!tagName) return; // Prevent empty tags
+            const tagColor = document.getElementById('tag-color').value;
+
+            if (!tagName) return;
 
             if (selectedTagIndex !== null) {
-                // Update the selected tag
-                tags[selectedTagIndex] = tagName;
+                tags[selectedTagIndex] = { name: tagName, color: tagColor };
             } else {
-                // Add a new tag
-                tags.push(tagName);
+                tags.push({ name: tagName, color: tagColor });
             }
 
-            saveTagsToLocalStorage(); // Save the updated tags array to local storage
-            document.getElementById('tag-input').value = ''; // Clear the input field
-            selectedTagIndex = null; // Reset selected tag index
-            updateTagList(); // Refresh the tag list display
+            saveTagsToLocalStorage();
+            document.getElementById('tag-input').value = '';
+            document.getElementById('tag-color').value = '#007BFF';
+            selectedTagIndex = null;
+            updateTagList();
+            updateTagDropdown();
         });
 
         // Edit the selected tag
         document.getElementById('edit-tag').addEventListener('click', () => {
             const selectedTag = document.querySelector('#tag-list .selected');
             if (selectedTag) {
-                document.getElementById('tag-input').value = selectedTag.textContent;
-                selectedTagIndex = tags.indexOf(selectedTag.textContent); // Track the selected tag index for editing
+                const tag = tags[selectedTagIndex];
+                document.getElementById('tag-input').value = tag.name;
+                document.getElementById('tag-color').value = tag.color;
             } else {
                 alert("Please select a tag to edit.");
             }
@@ -427,11 +432,13 @@ font-style: normal;
         // Delete the selected tag
         document.getElementById('delete-tag').addEventListener('click', () => {
             if (selectedTagIndex !== null) {
-                tags.splice(selectedTagIndex, 1); // Remove the tag from the array
-                saveTagsToLocalStorage(); // Save the updated tags array to local storage
-                document.getElementById('tag-input').value = ''; // Clear the input field
-                selectedTagIndex = null; // Reset selected tag index
-                updateTagList(); // Refresh the tag list display
+                tags.splice(selectedTagIndex, 1);
+                saveTagsToLocalStorage();
+                document.getElementById('tag-input').value = '';
+                document.getElementById('tag-color').value = '#007BFF';
+                selectedTagIndex = null;
+                updateTagList();
+                updateTagDropdown();
             } else {
                 alert("Please select a tag to delete.");
             }
@@ -442,18 +449,26 @@ font-style: normal;
             document.getElementById('tag-popup').style.display = 'none';
         });
 
-        // Update the displayed tag list and add selection functionality
+        // Update the displayed tag list with color
         function updateTagList() {
             const tagList = document.getElementById('tag-list');
-            tagList.innerHTML = ''; // Clear previous list
+            tagList.innerHTML = '';
 
             tags.forEach((tag, index) => {
                 const li = document.createElement('li');
-                li.textContent = tag;
+                li.textContent = tag.name;
+                li.style.backgroundColor = tag.color;
+                li.style.color = 'white';
+                li.style.padding = '2px 5px';
+                li.style.borderRadius = '3px';
+                li.style.marginBottom = '5px';
+                li.style.cursor = 'pointer';
                 li.addEventListener('click', () => {
                     document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
-                    li.classList.add('selected'); // Highlight the selected item
-                    selectedTagIndex = index; // Set the index of the selected tag
+                    li.classList.add('selected');
+                    selectedTagIndex = index;
+                    document.getElementById('tag-input').value = tag.name;
+                    document.getElementById('tag-color').value = tag.color;
                 });
                 tagList.appendChild(li);
             });
@@ -461,12 +476,105 @@ font-style: normal;
 
         // Save tags to local storage
         function saveTagsToLocalStorage() {
-            localStorage.setItem('tags', JSON.stringify(tags)); // Convert the tags array to a string and save it
+            localStorage.setItem('tags', JSON.stringify(tags));
         }
 
-        // Load the tags when the page loads
+        // Function to update the dropdown dynamically with the latest tags
+        function updateTagDropdown() {
+            document.querySelectorAll('.tag-dropdown').forEach(dropdown => {
+                dropdown.innerHTML = '<option value="">Select Tag</option>';
+                tags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.name;
+                    option.textContent = tag.name;
+                    dropdown.appendChild(option);
+                });
+            });
+        }
+
+        // Display pinned documents and enable tag assignment with color and remove icon
+        function updatePinnedDocsList() {
+            const pinnedList = document.getElementById('pinned-list');
+            pinnedList.innerHTML = '';
+
+            pinnedDocs.forEach((doc, docIndex) => {
+                const li = document.createElement('li');
+                li.textContent = doc.name;
+
+                const dropdown = document.createElement('select');
+                dropdown.classList.add('tag-dropdown');
+                dropdown.innerHTML = '<option value="">Select Tag</option>';
+                tags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.name;
+                    option.textContent = tag.name;
+                    dropdown.appendChild(option);
+                });
+                dropdown.addEventListener('change', () => {
+                    const selectedTag = tags.find(tag => tag.name === dropdown.value);
+                    if (selectedTag) {
+                        addTagToDocument(doc, selectedTag);
+                    }
+                    dropdown.value = ''; // Reset dropdown after selection
+                });
+
+                const tagContainer = document.createElement('div');
+                tagContainer.style.marginTop = '5px';
+                if (doc.tags) {
+                    doc.tags.forEach(assignedTag => {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.textContent = assignedTag.name;
+                        tagSpan.style.backgroundColor = assignedTag.color;
+                        tagSpan.style.color = 'white';
+                        tagSpan.style.padding = '2px 5px';
+                        tagSpan.style.borderRadius = '3px';
+                        tagSpan.style.marginRight = '5px';
+                        tagSpan.style.display = 'inline-block';
+                        tagSpan.style.position = 'relative';
+
+                        const removeIcon = document.createElement('span');
+                        removeIcon.textContent = '✖';
+                        removeIcon.style.marginLeft = '5px';
+                        removeIcon.style.cursor = 'pointer';
+                        removeIcon.addEventListener('click', () => removeTagFromDocument(doc, assignedTag));
+
+                        tagSpan.appendChild(removeIcon);
+                        tagContainer.appendChild(tagSpan);
+                    });
+                }
+
+                li.appendChild(dropdown);
+                li.appendChild(tagContainer);
+                pinnedList.appendChild(li);
+            });
+
+            savePinnedDocsToLocalStorage();
+        }
+
+        // Add tag to a document
+        function addTagToDocument(doc, tag) {
+            if (!doc.tags) doc.tags = [];
+            if (!doc.tags.some(t => t.name === tag.name)) {
+                doc.tags.push(tag);
+                updatePinnedDocsList();
+            }
+        }
+
+        // Remove tag from a document
+        function removeTagFromDocument(doc, tag) {
+            doc.tags = doc.tags.filter(t => t.name !== tag.name);
+            updatePinnedDocsList();
+        }
+
+        // Save pinned documents to local storage
+        function savePinnedDocsToLocalStorage() {
+            localStorage.setItem('pinnedDocs', JSON.stringify(pinnedDocs));
+        }
+
+        // Load the tags and pinned documents when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            updateTagList(); // Display the tags from local storage
+            updateTagList();
+            updatePinnedDocsList();
         });
 
         // Load selected document
@@ -700,22 +808,6 @@ document.getElementById('zoom-out').addEventListener('click', () => {
             }
         });
 
-        // Update pinned documents list with clickable links
-        function updatePinnedDocsList() {
-            const pinnedList = document.getElementById('pinned-list');
-            pinnedList.innerHTML = ''; // Clear previous list
-            pinnedDocs.forEach((doc, index) => {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.textContent = doc.name;
-                link.href = "#";
-                link.style.color = 'white'; // Ensure the links are white
-                link.addEventListener('click', () => loadDocument(fileArray.indexOf(doc)));
-                li.appendChild(link);
-                pinnedList.appendChild(li);
-            });
-        }
-
         // Export pinned documents list as CSV
         document.getElementById('export-list').addEventListener('click', () => {
             if (pinnedDocs.length === 0) {
@@ -724,16 +816,17 @@ document.getElementById('zoom-out').addEventListener('click', () => {
             }
 
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Document Name\n"; // Header row
+            csvContent += "Document Name,Tags\n";
 
             pinnedDocs.forEach(doc => {
-                csvContent += `${doc.name}\n`; // Add each pinned document's name
+                const tags = doc.tags ? doc.tags.map(tag => tag.name).join(';') : '';
+                csvContent += `${doc.name},${tags}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "pinned_documents.csv");
+            link.setAttribute("download", "pinned_documents_with_tags.csv");
             document.body.appendChild(link);
 
             link.click();
@@ -922,55 +1015,6 @@ document.getElementById('search').addEventListener('click', () => {
             if (event.key === 'Enter') {
                 document.getElementById('search-doc').click();
             }
-        });
-
-        // Modify the updatePinnedDocsList function to include tag dropdown
-        function updatePinnedDocsList() {
-            const pinnedList = document.getElementById('pinned-list');
-            pinnedList.innerHTML = ''; // Clear previous list
-            pinnedDocs.forEach((doc, index) => {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.textContent = doc.name;
-                link.href = "#";
-                link.style.color = 'white';
-                link.addEventListener('click', () => loadDocument(fileArray.indexOf(doc)));
-                
-                const tagDropdown = document.createElement('select');
-                tagDropdown.className = 'tag-dropdown';
-                tagDropdown.innerHTML = `<option value="">Select Tag</option>${tags.map(tag => `<option value="${tag}">${tag}</option>`).join('')}`;
-                tagDropdown.addEventListener('change', (e) => {
-                    doc.tag = e.target.value;
-                });
-
-                li.appendChild(link);
-                li.appendChild(tagDropdown);
-                pinnedList.appendChild(li);
-            });
-        }
-
-        // Modify the export function to include tags
-        document.getElementById('export-list').addEventListener('click', () => {
-            if (pinnedDocs.length === 0) {
-                alert("No pinned documents to export.");
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Document Name,Tag\n"; // Header row
-
-            pinnedDocs.forEach(doc => {
-                csvContent += `${doc.name},${doc.tag || ''}\n`; // Add each pinned document's name and tag
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "pinned_documents.csv");
-            document.body.appendChild(link);
-
-            link.click();
-            document.body.removeChild(link);
         });
     </script>
 
