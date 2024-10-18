@@ -506,14 +506,12 @@ font-style: normal;
         let tags = JSON.parse(localStorage.getItem('tags')) || [];
         let selectedTagIndex = null;
 
-        // Set a maximum tag limit
-        const MAX_TAGS = 9;
-
         // Show the tag popup when Add Tag button is clicked
         document.getElementById('add-tag').addEventListener('click', () => {
             document.getElementById('tag-popup').style.display = 'block';
             document.getElementById('tag-input').value = '';
             document.getElementById('tag-color').value = '#007BFF';
+            document.getElementById('error-message').style.display = 'none';  // Hide error message on popup open
             selectedTagIndex = null;
             updateTagList();
         });
@@ -524,7 +522,8 @@ font-style: normal;
         });
 
         // Save a new or edited tag with color
-        document.getElementById('save-tag').addEventListener('click', () => {
+        document.getElementById('save-tag').addEventListener('click', (event) => {
+            event.stopPropagation();  // Prevent closing the alert on button click
             const tagName = document.getElementById('tag-input').value.trim();
             const tagColor = document.getElementById('tag-color').value;
             const errorMessage = document.getElementById('error-message');
@@ -536,23 +535,23 @@ font-style: normal;
                 return;
             }
 
-            // Hide error message after success
-            errorMessage.style.display = 'none';
-
             // Check if the maximum number of tags has been reached
-            if (tags.length >= MAX_TAGS && selectedTagIndex === null) {
-                errorMessage.textContent = `You can only create a maximum of ${MAX_TAGS} tags.`;
+            if (tags.length >= 9 && selectedTagIndex === null) {
+                errorMessage.textContent = "You can only create a maximum of 9 tags.";
                 errorMessage.style.display = 'block';
                 return;
             }
 
-            // Check for duplicates (case-insensitive)
+            // Check for duplicates
             const tagExists = tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase());
             if (tagExists && selectedTagIndex === null) {
                 errorMessage.textContent = "A tag with this name already exists.";
                 errorMessage.style.display = 'block';
                 return;
             }
+
+            // Clear error message upon successful tag creation
+            errorMessage.style.display = 'none';
 
             if (selectedTagIndex !== null) {
                 // Update the selected tag
@@ -571,23 +570,42 @@ font-style: normal;
         });
 
         // Delete the selected tag when trash icon is clicked
-        document.getElementById('delete-tag').addEventListener('click', () => {
+        document.getElementById('delete-tag').addEventListener('click', (event) => {
+            event.stopPropagation();  // Prevent closing the alert on button click
+            const errorMessage = document.getElementById('error-message');
+
             if (selectedTagIndex !== null) {
                 tags.splice(selectedTagIndex, 1);
                 saveTagsToLocalStorage();
                 updateTagList();
+                updateTagDropdown();
                 selectedTagIndex = null;
                 document.getElementById('tag-input').value = '';
                 document.getElementById('tag-color').value = '#007BFF';
+                errorMessage.style.display = 'none';  // Clear any previous error message
             } else {
-                alert("Please select a tag to delete.");
+                errorMessage.textContent = "Please select a tag to delete.";
+                errorMessage.style.display = 'block';
             }
+        });
+
+        // Function to hide the alert when clicking anywhere in the pop-up
+        document.getElementById('tag-popup').addEventListener('click', () => {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';  // Hide the error message
+        });
+
+        // Function to prevent hiding the alert when clicking on input fields or buttons
+        document.querySelectorAll('#tag-popup input, #tag-popup button').forEach(element => {
+            element.addEventListener('click', (event) => {
+                event.stopPropagation();  // Prevent event bubbling to the parent
+            });
         });
 
         // Function to update the displayed tag list
         function updateTagList() {
             const tagList = document.getElementById('tag-list');
-            tagList.innerHTML = ''; // Clear previous list
+            tagList.innerHTML = '';  // Clear previous list
 
             tags.forEach((tag, index) => {
                 const li = document.createElement('li');
@@ -596,7 +614,9 @@ font-style: normal;
                 li.style.color = getContrastColor(tag.color);
 
                 // Add click event to toggle the selected state
-                li.addEventListener('click', () => {
+                li.addEventListener('click', (event) => {
+                    event.stopPropagation();  // Prevent closing the alert when clicking on tags
+
                     // Remove 'selected' class from all tags
                     document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
 
@@ -615,7 +635,6 @@ font-style: normal;
 
         // Helper function to determine text color based on background
         function getContrastColor(hexcolor) {
-            // If a leading # is provided, remove it
             hexcolor = hexcolor.replace('#', '');
             const r = parseInt(hexcolor.substr(0, 2), 16);
             const g = parseInt(hexcolor.substr(2, 2), 16);
@@ -641,6 +660,13 @@ font-style: normal;
                 });
             });
         }
+
+        // Load tags from local storage when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTagList();
+            updateTagDropdown();
+            updatePinnedDocsList();
+        });
 
         // Update the list of pinned documents
         function updatePinnedDocsList() {
