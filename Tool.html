@@ -247,45 +247,108 @@ font-style: normal;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 300px;
             z-index: 10;
+            font-family: Arial, sans-serif;
+            display: none;
         }
 
-        #tag-popup input, #tag-popup button {
-            margin: 5px;
+        /* Title Styling */
+        #tag-popup h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Popup Content */
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px; /* Adjusted size */
+            transition: transform 0.3s ease;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-button:hover {
+            transform: scale(1.2);
+        }
+
+        /* Close Button */
+        .close-btn {
+            font-size: 18px; /* Slightly smaller size */
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            color: #ff3333;
+        }
+
+        /* Input Fields */
+        #tag-input {
             padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            color: black; /* Text color is black */
         }
 
-        .tag-dropdown {
-            margin-left: 10px;
+        #tag-color {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
+        /* Tag List Styling */
         #tag-list {
-            padding: 0 0 0 5px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         #tag-list li {
-            display: inline-block;
-            padding: 4px 8px;
-            margin: 4px;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: border 0.2s; /* Smooth transition for border change */
-        }
-
-        /* Style for the selected tag */
-        #tag-list li.selected {
-            border: 2px solid black; /* Thicker border for selected tag */
-        }
-
-        /* Highlight the selected tag */
-        #tag-list li.selected {
-            background-color: #0056b3;
+            background-color: #007BFF;
             color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        #tag-input {
-            color: black; /* Sets the text color to black */
+        /* Selected Tag Border */
+        #tag-list li.selected {
+            border: 2px solid #333;
+        }
+
+        /* Hover Effects */
+        #tag-list li:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            #tag-popup {
+                width: 90%;
+            }
         }
 
         /* Style for assigned tags in pinned documents */
@@ -316,10 +379,33 @@ font-style: normal;
         <input type="text" id="search-text" placeholder="Search...">
         <button id="search-doc">&#128270;</button>
         <button id="search" style="width:60px;">&#128270;&#128270;</button>&nbsp;&nbsp;
-        <button id="flag-doc">&#x1f4cc;</button>
-        <button id="export-list" style="width:60px;">&#x1f4cc;&#x2b07;</button>&nbsp;&nbsp;
-        <button id="add-tag" style="width:60px;">Manage Tags</button>
-        <button id="help-button">&#10067;</button>
+        <!-- <button id="flag-doc">&#x1f4cc;</button> -->
+        <button id="flag-doc"><?xml version="1.0" encoding="utf-8"?>
+            <!-- License: PD. Made by stephenhutchings: https://github.com/stephenhutchings/typicons.font -->
+            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M.826 16c-.37-.16-.43-.43-.18-.75 1.15-1.45 2.37-2.84 3.69-4.13.63-.62 1.25-1.24 1.88-1.88-.04-.05-.08-.09-.12-.13-.82-.83-1.65-1.65-2.47-2.48-.26-.26-.26-.49.01-.74.7-.64 1.75-.69 2.51-.11.03.03.07.05.11.08l4.66-4c-.15-.29-.21-.59-.16-.91.05-.34.2-.62.45-.85.14-.13.35-.13.51-.02.04.03.07.06.11.09 1.45 1.45 2.9 2.9 4.36 4.35.13.13.21.26.15.45a.5.5 0 0 1-.11.2c-.41.43-1.07.55-1.61.31-.08-.03-.13-.05-.2.03-1.29 1.51-2.59 3.02-3.89 4.53-.01.02-.02.03-.04.06.28.34.46.72.48 1.16.04.6-.16 1.1-.58 1.53-.18.19-.43.17-.64-.03-.79-.78-1.57-1.57-2.35-2.35-.04-.04-.07-.09-.11-.15-.07.06-.11.11-.16.15-1.31 1.29-2.57 2.63-3.96 3.84-.64.56-1.3 1.09-1.96 1.63-.07.05-.15.09-.23.13h-.16z" fill="#FF000D"/></g><defs><clipPath id="a"><path fill="#fff" d="M.496 0h15.85v16H.496z"/></clipPath></defs></svg>
+        
+        </button>
+        <button id="add-tag" >
+            
+            <svg width="18" height="18" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M.692 9.136v-.329c.071-.402.317-.692.597-.971 2.319-2.311 4.632-4.63 6.954-6.94.165-.165.378-.286.583-.403.125-.073.276-.1.417-.147h5.62c.014.006.026.016.041.019.692.137 1.095.626 1.095 1.337q.002 2.577 0 5.155c0 .457-.162.864-.483 1.187q-3.591 3.602-7.198 7.193c-.143.143-.33.265-.52.334-.54.197-1.002.033-1.398-.364q-2.549-2.554-5.105-5.103c-.28-.278-.529-.566-.602-.968zm11.463-3.689c.679.026 1.265-.544 1.292-1.257.026-.68-.543-1.265-1.257-1.292-.68-.025-1.278.543-1.29 1.258-.01.673.495 1.26 1.255 1.292" fill="#FF000D"/></g><defs><clipPath id="a"><path fill="#fff" d="M.346 0h16v16h-16z"/></clipPath></defs></svg>
+        
+        </button>
+        <button id="export-list" style="width:35px;">
+            
+            <svg width="20" height="20" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill="#FF000D" fill-rule="evenodd" d="M14 9a1 1 0 0 1 1 1v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a1 1 0 0 1 2 0v3h10v-3a1 1 0 0 1 1-1M8 1a1 1 0 0 1 1 1v4.586l1.293-1.293a1 1 0 1 1 1.414 1.414L8 10.414 4.293 6.707a1 1 0 0 1 1.414-1.414L7 6.586V2a1 1 0 0 1 1-1"/></svg>
+        
+        </button>
+        <button id="unpin-all" title="Unpin All Documents">
+
+            <svg fill="#FF000D" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg>
+
+        </button>
+        <button id="help-button">
+
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.313 0C5.82 0 4.203 1.022 2.935 2.845a.75.75 0 0 0 .162 1.027l1.348 1.022a.75.75 0 0 0 1.039-.13c.783-.98 1.363-1.545 2.586-1.545.961 0 2.15.619 2.15 1.551 0 .705-.581 1.067-1.53 1.599-1.107.62-2.572 1.393-2.572 3.325V10c0 .414.335.75.75.75h2.264a.75.75 0 0 0 .75-.75v-.18c0-1.34 3.915-1.396 3.915-5.02 0-2.73-2.831-4.8-5.484-4.8M8 11.67a2.167 2.167 0 0 0-2.165 2.165C5.835 15.03 6.806 16 8 16a2.167 2.167 0 0 0 2.165-2.165A2.167 2.167 0 0 0 8 11.671" fill="#FF000D"/></svg>
+        
+        </button>&nbsp;
+        
     </div>
 
     <div id="content">
@@ -351,16 +437,22 @@ font-style: normal;
     </div>
 
     <!-- Add this new div for tag management popup -->
-    <div id="tag-popup" style="display:none;">
-        <h3>Manage Tags</h3>
-        <input type="text" id="tag-input" placeholder="Enter tag name">
-        <input type="color" id="tag-color" value="#007BFF">
-        <span id="error-message" style="color: red; display: none;"></span> <!-- Error message -->
-        <button id="save-tag">Save</button>
-        <button id="edit-tag">Edit</button>
-        <button id="delete-tag">Delete</button>
-        <button id="close-tag-popup">Close</button>
-        <ul id="tag-list"></ul>
+    <div id="tag-popup">
+        <h3>Manage Tags
+            <button id="close-tag-popup" class="icon-button close-btn">❌</button>
+        </h3>
+        <div class="popup-content">
+            <input type="text" id="tag-input" placeholder="Enter tag name">
+            <input type="color" id="tag-color" value="#007BFF">
+            <span id="error-message" style="color: red; display: none;"></span>
+            <div class="button-group">
+                <button id="save-tag" class="icon-button save-btn">
+                    <span style="color:green;">✔</span>
+                </button>
+                <button id="delete-tag" class="icon-button delete-btn"><svg fill="#FF000D" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg></button>
+            </div>
+            <ul id="tag-list"></ul>
+        </div>
     </div>
 
     <!-- Help window content -->
@@ -414,6 +506,9 @@ font-style: normal;
         let tags = JSON.parse(localStorage.getItem('tags')) || [];
         let selectedTagIndex = null;
 
+        // Set a maximum tag limit
+        const MAX_TAGS = 9;
+
         // Show the tag popup when Add Tag button is clicked
         document.getElementById('add-tag').addEventListener('click', () => {
             document.getElementById('tag-popup').style.display = 'block';
@@ -423,29 +518,47 @@ font-style: normal;
             updateTagList();
         });
 
+        // Close the tag popup when the close button is clicked
+        document.getElementById('close-tag-popup').addEventListener('click', () => {
+            document.getElementById('tag-popup').style.display = 'none';
+        });
+
         // Save a new or edited tag with color
         document.getElementById('save-tag').addEventListener('click', () => {
             const tagName = document.getElementById('tag-input').value.trim();
             const tagColor = document.getElementById('tag-color').value;
             const errorMessage = document.getElementById('error-message');
 
-            // Clear any previous error message
+            // Prevent empty tag creation
+            if (!tagName) {
+                errorMessage.textContent = "Tag name can't be empty!";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Hide error message after success
             errorMessage.style.display = 'none';
 
-            if (!tagName) return;
+            // Check if the maximum number of tags has been reached
+            if (tags.length >= MAX_TAGS && selectedTagIndex === null) {
+                errorMessage.textContent = `You can only create a maximum of ${MAX_TAGS} tags.`;
+                errorMessage.style.display = 'block';
+                return;
+            }
 
             // Check for duplicates (case-insensitive)
             const tagExists = tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase());
             if (tagExists && selectedTagIndex === null) {
-                // Display error message if duplicate (only for new tags)
                 errorMessage.textContent = "A tag with this name already exists.";
                 errorMessage.style.display = 'block';
                 return;
             }
 
             if (selectedTagIndex !== null) {
+                // Update the selected tag
                 tags[selectedTagIndex] = { name: tagName, color: tagColor };
             } else {
+                // Add a new tag
                 tags.push({ name: tagName, color: tagColor });
             }
 
@@ -455,46 +568,23 @@ font-style: normal;
             selectedTagIndex = null;
             updateTagList();
             updateTagDropdown();
-            errorMessage.style.display = 'none'; // Hide error message after successful save
         });
 
-        // Edit the selected tag
-        document.getElementById('edit-tag').addEventListener('click', () => {
-            const selectedTag = document.querySelector('#tag-list .selected');
-            if (selectedTag) {
-                const tag = tags[selectedTagIndex];
-                document.getElementById('tag-input').value = tag.name;
-                document.getElementById('tag-color').value = tag.color;
-            } else {
-                alert("Please select a tag to edit.");
-            }
-        });
-
-        // Delete the selected tag
+        // Delete the selected tag when trash icon is clicked
         document.getElementById('delete-tag').addEventListener('click', () => {
             if (selectedTagIndex !== null) {
                 tags.splice(selectedTagIndex, 1);
                 saveTagsToLocalStorage();
+                updateTagList();
+                selectedTagIndex = null;
                 document.getElementById('tag-input').value = '';
                 document.getElementById('tag-color').value = '#007BFF';
-                selectedTagIndex = null;
-                updateTagList();
-                updateTagDropdown();
             } else {
                 alert("Please select a tag to delete.");
             }
         });
 
-        // Close the tag popup
-        document.getElementById('close-tag-popup').addEventListener('click', () => {
-            document.getElementById('tag-popup').style.display = 'none';
-            selectedTagIndex = null;
-            document.getElementById('tag-input').value = '';
-            document.getElementById('tag-color').value = '#007BFF';
-            document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
-        });
-
-        // Function to update the displayed tag list with selection functionality
+        // Function to update the displayed tag list
         function updateTagList() {
             const tagList = document.getElementById('tag-list');
             tagList.innerHTML = ''; // Clear previous list
@@ -523,6 +613,17 @@ font-style: normal;
             });
         }
 
+        // Helper function to determine text color based on background
+        function getContrastColor(hexcolor) {
+            // If a leading # is provided, remove it
+            hexcolor = hexcolor.replace('#', '');
+            const r = parseInt(hexcolor.substr(0, 2), 16);
+            const g = parseInt(hexcolor.substr(2, 2), 16);
+            const b = parseInt(hexcolor.substr(4, 2), 16);
+            const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+            return yiq >= 128 ? 'black' : 'white';
+        }
+
         // Save tags to local storage
         function saveTagsToLocalStorage() {
             localStorage.setItem('tags', JSON.stringify(tags));
@@ -541,15 +642,39 @@ font-style: normal;
             });
         }
 
-        // Display pinned documents and enable tag assignment with color and remove icon
+        // Update the list of pinned documents
         function updatePinnedDocsList() {
             const pinnedList = document.getElementById('pinned-list');
-            pinnedList.innerHTML = '';
+            pinnedList.innerHTML = ''; // Clear previous list
 
-            pinnedDocs.forEach((doc, docIndex) => {
+            pinnedDocs.forEach((doc, index) => {
                 const li = document.createElement('li');
                 li.textContent = doc.name;
 
+                // Create the individual unpin button using the embedded SVG icon
+                const unpinButton = document.createElement('span');
+                unpinButton.innerHTML = `
+                    <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_37_74)">
+                <path d="M10.4311 11.3185C10.4646 11.8915 10.2757 12.3813 9.87167 12.7866C9.69514 12.9643 9.45523 12.9494 9.2613 12.7555C8.50674 12.0022 7.75342 11.2476 7.00009 10.493C6.96156 10.4558 6.93297 10.406 6.89319 10.3526C6.82606 10.4147 6.78379 10.4545 6.74153 10.4943C5.48475 11.7361 4.27397 13.0252 2.93887 14.1851C2.32353 14.7208 1.68582 15.2293 1.05557 15.7476C0.990926 15.7999 0.908882 15.8322 0.836781 15.8744H0.686366C0.333324 15.7228 0.271169 15.4592 0.51606 15.151C1.61994 13.755 2.79219 12.4223 4.06388 11.1755C4.66803 10.585 5.26223 9.98213 5.8726 9.37301C5.83033 9.32701 5.79428 9.28848 5.75699 9.25118C4.96389 8.45808 4.17079 7.66498 3.37769 6.87188C3.12409 6.61829 3.12782 6.39702 3.39012 6.1571C4.06512 5.53679 5.07701 5.49452 5.80174 6.05516C5.83282 6.08002 5.8639 6.10489 5.90368 6.13472C6.27661 5.814 6.64954 5.49452 7.02247 5.17504L10.9258 9.07839C10.6188 9.43516 10.3142 9.79193 10.0072 10.1475C9.99473 10.1624 9.98479 10.1798 9.96863 10.2034C10.2421 10.5254 10.4062 10.8946 10.4311 11.3172V11.3185Z" fill="#FF000D" stroke="#FF000D" stroke-width="0.248621" stroke-miterlimit="10"/>
+                <path d="M16.4812 4.77476C16.4613 4.84314 16.4265 4.91648 16.3768 4.96745C15.9852 5.37767 15.3512 5.49949 14.8266 5.26952C14.752 5.2372 14.7048 5.21855 14.6377 5.29687C13.7004 6.39329 12.7606 7.48722 11.822 8.58115L7.9187 4.6778C9.03874 3.71688 10.1588 2.75472 11.2838 1.78883C11.1433 1.51037 11.0836 1.22321 11.1309 0.914925C11.1806 0.589232 11.3248 0.318235 11.5622 0.0944759C11.694 -0.0285915 11.9016 -0.0323208 12.0483 0.0721C12.0856 0.0982052 12.1179 0.129283 12.1502 0.161604C13.545 1.55512 14.9398 2.94989 16.3358 4.34465C16.4563 4.46523 16.5334 4.59949 16.4824 4.77228L16.4812 4.77476Z" fill="#FF000D" stroke="#FF000D" stroke-width="0.248621" stroke-miterlimit="10"/>
+                <path d="M14.5382 11.4975L4.23657 1.44822" stroke="#FF000D" stroke-width="0.745863" stroke-miterlimit="10" stroke-linecap="round"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_37_74">
+                <rect width="16.2523" height="16" fill="white" transform="translate(0.243774)"/>
+                </clipPath>
+                </defs>
+                </svg>
+                `;
+                unpinButton.style.cursor = 'pointer';
+                unpinButton.style.marginLeft = '10px';
+                unpinButton.addEventListener('click', () => {
+                    // Unpin only this specific document
+                    unpinDocument(index);
+                });
+
+                // Create the tag dropdown
                 const dropdown = document.createElement('select');
                 dropdown.classList.add('tag-dropdown');
                 dropdown.innerHTML = '<option value="">Select Tag</option>';
@@ -567,6 +692,7 @@ font-style: normal;
                     dropdown.value = ''; // Reset dropdown after selection
                 });
 
+                // Create tag container
                 const tagContainer = document.createElement('div');
                 tagContainer.style.marginTop = '5px';
                 if (doc.tags) {
@@ -588,6 +714,7 @@ font-style: normal;
                     });
                 }
 
+                li.appendChild(unpinButton);
                 li.appendChild(dropdown);
                 li.appendChild(tagContainer);
                 pinnedList.appendChild(li);
@@ -595,6 +722,25 @@ font-style: normal;
 
             savePinnedDocsToLocalStorage();
         }
+
+        // Unpin a specific document
+        function unpinDocument(index) {
+            pinnedDocs.splice(index, 1); // Remove the document at the given index
+            updatePinnedDocsList(); // Refresh the pinned list display
+        }
+
+        // Global Unpin Button - remove all pinned documents
+        document.getElementById('unpin-all').addEventListener('click', () => {
+            // Show a confirmation prompt
+            const confirmUnpin = confirm("Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete.");
+
+            if (confirmUnpin) {
+                // If confirmed, clear all pinned documents and tags
+                pinnedDocs = []; // Clear the pinned documents array
+                updatePinnedDocsList(); // Refresh the pinned list display
+                alert("All pins and tags have been cleared.");
+            }
+        });
 
         // Add tag to a document
         function addTagToDocument(doc, tag) {
@@ -853,21 +999,44 @@ document.getElementById('zoom-out').addEventListener('click', () => {
             }
         });
 
-        // Export pinned documents list as CSV
+        // Update the export function to create separate columns for each tag
         document.getElementById('export-list').addEventListener('click', () => {
             if (pinnedDocs.length === 0) {
                 alert("No pinned documents to export.");
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Document Name,Tags\n";
-
+            // Step 1: Collect all unique tags from all documents
+            let uniqueTags = [];
             pinnedDocs.forEach(doc => {
-                const tagNames = doc.tags ? doc.tags.map(tag => tag.name).join(', ') : ''; // Join tags with commas
-                csvContent += `${doc.name},"${tagNames}"\n`; // Wrap tag names in quotes
+                if (doc.tags) {
+                    doc.tags.forEach(tag => {
+                        if (!uniqueTags.some(t => t.name === tag.name)) {
+                            uniqueTags.push(tag);
+                        }
+                    });
+                }
             });
 
+            // Step 2: Start CSV content with header row
+            let csvContent = "data:text/csv;charset=utf-8,Document Name," + uniqueTags.map(tag => tag.name).join(',') + "\n";
+
+            // Step 3: Loop through each pinned document
+            pinnedDocs.forEach(doc => {
+                // Start the row with the document name
+                let row = `${doc.name},`;
+
+                // Step 4: For each tag in the uniqueTags list, add '1' or '0' depending on whether it's applied to the document
+                uniqueTags.forEach(tag => {
+                    const hasTag = doc.tags ? doc.tags.some(t => t.name === tag.name) : false;
+                    row += hasTag ? '1,' : '0,'; // Add '1' if the tag is applied, '0' if it's not
+                });
+
+                // Remove the trailing comma and add the row to CSV content
+                csvContent += row.slice(0, -1) + "\n";
+            });
+
+            // Step 5: Encode CSV content and trigger download
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
