@@ -1,1407 +1,1955 @@
-<!DOCTYPE html>
-<!--documentreview.law © 2024 Adam J Schwartz, All Rights Reserved.-->
-<!--You may not copy, reproduce, distribute, display, perform, exploit, or otherwise use in any way, whether in commerce or not, any portion of the documentreview.law Appplication without the express written consent of the owner, with the sole exception of use for a legitimate educational purpose (i.e., at or in association with an accredited educational institution), but only if the institution is a non-profit or similar entity and the use is non-commercial.-->
-<!-- HTML Starts Here -->
-<html lang="en">
+<!-- minify html -->
+<!doctype html>
+<html lang=en>
 <head>
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>documentreview.law</title>
-    <link rel="stylesheet" href="https://use.typekit.net/hdi0iou.css">
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>documentreview.law</title>
+<link rel=stylesheet href=https://use.typekit.net/hdi0iou.css>
+<script>var tlJsHost="https:"===window.location.protocol?"https://secure.trust-provider.com/":"http://www.trustlogo.com/";document.write(unescape("%3Cscript src='"+tlJsHost+"trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"))</script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js></script>
+<script src=https://unpkg.com/mammoth/mammoth.browser.min.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js></script>
 
-    <!-- Security logo script -->
-    <script type="text/javascript"> 
-        var tlJsHost = ((window.location.protocol === "https:") ? "https://secure.trust-provider.com/" : "http://www.trustlogo.com/");
-        document.write(unescape("%3Cscript src='" + tlJsHost + "trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"));
-        </script>
-
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    <!-- Mammoth.js (for Word documents) -->
-    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-    <!-- SheetJS (for Excel files) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-
-    <!-- CSS Starts Here -->
-    <style>
-            
-            body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-            background-color: rgba(52,50,62,1.00);
-            display: flex;
-            flex-direction: column;
-        }
-        #toolbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            color: white;
-            padding: 10px;
-            padding-bottom: 20px;
-            z-index: 2;
-            background-color: rgba(0, 0, 0, 0.3);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            font-family: "apparat", serif;
-font-weight: 700;
-font-style: normal;
-        padding-bottom: 20px;
-
-        }
-       
-        #docreview-logo img {
-            border-radius: 10px;
-            width: 250px;
-        }
-        #content {
-            display: flex;
-            height: calc(100% - 50px);
-            overflow: hidden;
-            padding-top: 40px;
-        }
-        #main-content {
-            flex-grow: 1;
-            overflow: auto;
-            position: relative;
-            text-align: center;
-        }
-        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
-            width: 8.5in;
-            height: 11in;
-            margin: auto;
-            padding: 40px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 10;
-        }
-        #pdf-viewer canvas {
-            width: 100%;
-            height: 100%;
-        }
-        #docx-viewer, #xlsx-viewer, #txt-viewer {
-            background-color: white;
-            overflow-y: auto;
-            text-align: left;
-        }
-        #image-viewer {
-            max-width: 100%;
-            max-height: 100%;
-            transform-origin: center;
-            transition: transform 0.2s ease;
-        }
-        #pdf-viewer, #docx-viewer, #xlsx-viewer, #txt-viewer, #image-viewer {
-            z-index: 10; /* Ensure viewers have a lower z-index */
-        }
-
-        #security-logo img {
-            width: 100px;
-        }
-        button, select {
-            padding: 0px 2px;
-            margin: 2px;
-            border-radius: 4px;
-            font-size: 16px;
-            font-family: "apparat-light", serif;
-            font-weight: 400;
-            font-style: normal;
-            text-align: center;
-        }
-         input[type="text"] {
-            padding: 0px 2px;
-            margin: 2px;
-            border-radius: 4px;
-            background-color: rgba(255,255,255,.4);
-            font-size: 16px;
-            color: rgba(255,255,255,.8);
-            font-family: "apparat-light", serif;
-            font-weight: 700;
-            font-style: normal;
-        }
-        button {
-            width: 35px;
-            border: 2px solid rgba(255,255,255,.8);
-            border-radius: 4px;
-            background-color: rgba(255,255,255,.5);
-            font-family: "apparat-light", serif;
-            font-weight: 400;
-            font-style: normal;
-            font-size: 12px;
-            text-align: center;
-        }
-        button:hover {
-            background-color: rgba(255,255,255,.8);
-        }
-        button:active {
-            background-color: rgba(255,255,255,.3);
-        }
-        button:disabled {
-            background-color: rgba(255,255,255,.3);
-            border: 2px solid rgba(255,255,255,.3);
-            cursor: not-allowed;
-        }
-        ::placeholder {
-            color: rgba(255,255,255,.8);
-            font-family: "apparat-light", serif;
-font-weight: 700;
-font-style: normal;
-            opacity: 1;
-        }
-        ::-ms-input-placeholder {
-            font-family: "apparat-light", serif;
-            font-weight: 700;
-            font-style: normal;
-            color: white;
-        }
-        #search-text {
-            border: 2px solid white;
-            font-family: "apparat-light", serif;
-font-weight: 700;
-font-style: normal;
-        }
-        #document-select {
-            border: 2px solid white;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-        }
+<!-- Link CSS -->
+<!-- <link rel="stylesheet" href="dist/css/styles.min.css"> -->
+<!-- Link CSS -->
+ <style>
+ 
+ button,
+    input[type="text"],
+    select {
+        padding: 0 2px;
+        margin: 2px;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    body,
+    button,
+    html,
+    select {
+        font-weight: 400;
+        font-style: normal;
+        font-family: apparat-light, serif;
+    }
+    button:active,
+    button:disabled {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+    #search-text,
+    body,
+    button,
+    html,
+    input[type="text"],
+    select {
+        font-family: apparat-light, serif;
+    }
+    #toolbar,
+    body,
+    button,
+    html,
+    input[type="text"],
+    select {
+        font-style: normal;
+    }
+    #help-window,
+    #toolbar {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    #docreview-logo,
+    #help-window,
+    #main-content,
+    #security-logo,
+    button,
+    select {
+        text-align: center;
+    }
+    #pinned-list,
+    #results-list,
+    #tag-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    #tag-list,
+    .button-group,
+    .popup-content {
+        display: flex;
+        gap: 10px;
+    }
+    #toolbar,
+    a {
+        color: #fff;
+    }
+    #tag-list li,
+    .close-btn,
+    .icon-button,
+    a {
+        cursor: pointer;
+    }
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: #34323e;
+        display: flex;
+        flex-direction: column;
+    }
+    #toolbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 10px 20px;
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.3);
+        font-family: apparat, serif;
+        font-weight: 700;
+    }
+    #docreview-logo img {
+        border-radius: 10px;
+        width: 250px;
+    }
+    #content {
+        display: flex;
+        height: calc(100% - 50px);
+        overflow: hidden;
+        padding-top: 40px;
+    }
+    #main-content {
+        flex-grow: 1;
+        overflow: auto;
+        position: relative;
+    }
+    #docx-viewer,
+    #image-viewer,
+    #pdf-viewer,
+    #txt-viewer,
+    #xlsx-viewer {
+        width: 8.5in;
+        height: 11in;
+        margin: auto;
+        padding: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 10;
+    }
+    #pdf-viewer canvas {
+        width: 100%;
+        height: 100%;
+    }
+    #docx-viewer,
+    #txt-viewer,
+    #xlsx-viewer {
+        background-color: #fff;
+        overflow-y: auto;
+        text-align: left;
+    }
+    #image-viewer {
+        max-width: 100%;
+        max-height: 100%;
+        transform-origin: center;
+        transition: transform 0.2s;
+    }
+    #security-logo img {
+        width: 100px;
+    }
+    input[type="text"] {
+        background-color: rgba(255, 255, 255, 0.4);
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 700;
+    }
+    button {
+        width: 35px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+    }
+    #document-select,
+    #search-text {
+        border: 2px solid #fff;
+    }
+    button:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+    button:disabled {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        cursor: not-allowed;
+    }
+    ::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+        font-family: apparat-light, serif;
+        font-weight: 700;
+        font-style: normal;
+        opacity: 1;
+    }
+    ::-ms-input-placeholder {
+        font-family: apparat-light, serif;
+        font-weight: 700;
+        font-style: normal;
+        color: #fff;
+    }
+    #search-text {
+        font-weight: 700;
+        font-style: normal;
+    }
+    #document-select,
+    #help-window,
+    #search-results-container,
+    a {
+        font-family: apparat-light, serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+    #help-window,
+    #tag-popup {
+        left: 50%;
+        background-color: #fff;
+        border-radius: 10px;
+        display: none;
+    }
+    #search-results-container {
+        display: flex;
+        flex-direction: column;
+        width: 250px;
+        overflow: auto;
+        padding: 20px;
+        border-left: 1px solid rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.8);
+        background-color: #34323e;
+        position: relative;
+    }
+    #pinned-docs,
+    #search-results {
+        flex-grow: 1;
+        max-height: 50vh;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    #pinned-docs h4,
+    #search-results h4 {
+        text-decoration: underline;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: inherit;
+    }
+    #pinned-list li,
+    #results-list li {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 10px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    #pinned-list li:hover,
+    #results-list li:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    #docreview-logo {
+        margin-bottom: 10px;
+    }
+    #security-logo {
+        align-self: self-end;
+    }
+    a {
+        text-decoration: underline;
+    }
+    a:hover {
+        color: #ff0;
+    }
+    #help-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%; /* Changed from 80% to 90% */
+        max-width: 800px;
+        max-height: 90vh; /* Added max-height */
+        overflow-y: auto; /* Added scrolling for content */
+        background-color: #ffffff;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 20px;
+        z-index: 1000;
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-in-out;
+        font-family: Arial, sans-serif;
+    }
+    #help-window.show {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+    #help-window .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 30px;
+        cursor: pointer;
+        color: #ff4d4d;
+        background: none;
+        border: none;
+    }
+    .help-container {
+        display: flex;
+        flex-direction: column; /* Changed from row to column */
+        gap: 20px;
+    }
+    .help-section {
+        width: 100%; /* Changed from 48% to 100% */
+    }
+    .help-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .help-section ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .help-section ul li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+    }
+    .help-section ul li svg {
+        margin-right: 8px;
+    }
+    #keyboard-shortcuts {
+        list-style-type: none;
+        padding: 0;
+    }
+    #keyboard-shortcuts li {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: row-reverse;
+        font-size: 0.9rem;
+        justify-content: space-between;
+    }
+    .shortcut-keys {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        justify-content: space-between;
+        column-gap: 10px;
+    }
+    .shortcut-keys span {
+        flex: 1;
+    }
+    .shortcut-keys strong {
+        background-color: #e9ecef00;
+        padding: 3px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+    .shortcut-description {
+        color: #555;
+        font-size: 0.9em;
+    }
+    .windows, .mac {
+        display: inline-block;
+        width: 48%;
+    }
+    #help-window button:hover {
+        opacity: 0.8;
+    }
+    .help-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+    .help-overlay.show {
+        display: block;
+    }
+    #tag-popup {
+        position: fixed;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        width: 300px;
+        z-index: 10;
+        font-family: Arial, sans-serif;
+    }
+    #tag-popup h3 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 18px;
+        color: #333;
+    }
+    .popup-content {
+        flex-direction: column;
+    }
+    .button-group {
+        justify-content: space-between;
+    }
+    .icon-button {
+        background: 0 0;
+        border: none;
+        font-size: 18px;
+        transition: transform 0.3s;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+    #tag-color,
+    #tag-input {
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .icon-button:hover {
+        transform: scale(1.2);
+    }
+    .close-btn {
+        font-size: 18px;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        color: #f33;
+    }
+    #tag-input {
+        border: 1px solid #ccc;
+        color: #000;
+    }
+    #tag-color {
+        border: 1px solid #ccc;
+    }
+    #tag-list {
+        flex-wrap: wrap;
+    }
+    #tag-list li {
+        background-color: #007bff;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+    #tag-list li.selected {
+        border: 2px solid #333;
+    }
+    #tag-list li:hover {
+        background-color: #0056b3;
+    }
+    @media (max-width: 768px) {
         #search-results-container {
-            display: flex;
-            flex-direction: column;
-            width: 250px;
-            overflow: auto;
-            padding: 20px;
-            border-left: 1px solid rgba(255,255,255,.8);
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-            color: rgba(255,255,255,.8);
-            background-color: rgba(52, 50, 62, 1);
-            position: relative;
+            width: 100%;
+            border-left: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
         }
-        #search-results, #pinned-docs {
-            flex-grow: 1;
-            max-height: 50vh;
-            overflow-y: auto;
-            margin-bottom: 20px;
+        #pinned-list li,
+        #results-list li {
+            padding: 8px;
+            font-size: 0.9rem;
         }
-        #search-results h4, #pinned-docs h4 {
-            text-decoration: underline;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        #results-list, #pinned-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #results-list li, #pinned-list li {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255,255,255,.3);
-            margin-bottom: 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        #results-list li:hover, #pinned-list li:hover {
-            background-color: rgba(255,255,255,.1);
-        }
-        #docreview-logo, #security-logo {
-            text-align: center;
-        }
-        #docreview-logo {
-            margin-bottom: 10px;
-        }
+        #docreview-logo,
         #security-logo {
-            align-self: self-end;
+            position: static;
+            margin-top: 20px;
         }
-        @media (max-width: 768px) {
-            #search-results-container {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,.8);
-            }
-            #results-list li, #pinned-list li {
-                padding: 8px;
-                font-size: 0.9rem;
-            }
-            #docreview-logo, #security-logo {
-                position: static;
-                margin-top: 20px;
-            }
-        }
-        a {
-            color: white;
-            text-decoration: underline;
-            cursor: pointer;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-        }
-        a:hover {
-            color: yellow;
-        }
-        /* Help window */
-        #help-window {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 350px;
-            padding: 10px 30px 10px 30px;
-            background-color: rgba(255,255,255,1);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            color: #222222;
-            border-radius: 10px;
-            display: none; /* Hidden by default */
-            z-index: 10000;
-            text-align: center;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-        }
-        button:disabled {
-            background-color: rgba(255,255,255,.3);
-            border: 2px solid rgba(255,255,255,.3);
-            cursor: not-allowed;
-        }
-        #help-window ul {
-            text-align: left;
-            list-style-type: none;
-            padding: 0;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-        }
-        #help-window ul li {
-            text-align: left;
-            margin-bottom: 10px;
-            font-family: "apparat-light", serif;
-font-weight: 400;
-font-style: normal;
-        }
+    }
+    @media (max-width: 600px) {
         #tag-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #FFF;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            width: 300px;
-            z-index: 10;
-            font-family: Arial, sans-serif;
+            width: 90%;
+        }
+    }
+    .assigned-tag {
+        display: inline-block;
+        text-align: left;
+        padding: 2px 5px;
+        margin-right: 5px;
+        margin-bottom: 4px;
+        border: 1px solid #000;
+        border-radius: 3px;
+    }
+    
+    
+    
+    
+    /* Help Table Styling */
+    .help-table {
+        width: 100%;
+        max-width: 600px;
+        border-collapse: collapse;
+        margin: 20px auto;
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .help-table tbody td{
+        text-align: center;
+    }
+    
+    .help-table thead {
+        background-color: #343a40;
+        color: #fff;
+    }
+    
+    .help-table thead th {
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .help-table tbody tr:nth-child(odd) {
+        background-color: #e9ecef;
+    }
+    
+    .help-table tbody tr:nth-child(even) {
+        background-color: #fff;
+    }
+    
+    .help-table tbody td {
+        padding: 10px;
+        font-size: 1rem;
+        color: #333;
+        width: 75%;
+    }
+    
+    .help-table tbody td:first-child {
+        text-align: center;
+        width: 50px;
+    }
+    
+    .help-table tfoot td {
+        padding: 10px;
+        font-style: italic;
+        font-size: 0.9rem;
+        text-align: center;
+        background-color: #f1f1f1;
+        color: #666;
+    }
+    
+    /* Hover effect */
+    .help-table tbody tr:hover {
+        background-color: #f0f8ff;
+    }
+    
+    /* Media Query for responsive design */
+    @media (max-width: 768px) {
+        .help-table thead, .help-table tfoot {
             display: none;
         }
-
-        /* Title Styling */
-        #tag-popup h3 {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #333;
+    
+        .help-table, .help-table tbody, .help-table tr, .help-table td {
+            display: block;
+            width: 100%;
         }
-
-        /* Popup Content */
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+    
+        .help-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
         }
-
-        /* Buttons */
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .icon-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px; /* Adjusted size */
-            transition: transform 0.3s ease;
-            color: #555;
-            display: flex;
-            align-items: center;
-        }
-
-        .icon-button:hover {
-            transform: scale(1.2);
-        }
-
-        /* Close Button */
-        .close-btn {
-            font-size: 18px; /* Slightly smaller size */
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
-            color: #ff3333;
-        }
-
-        /* Input Fields */
-        #tag-input {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            color: black; /* Text color is black */
-        }
-
-        #tag-color {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        /* Tag List Styling */
-        #tag-list {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        #tag-list li {
-            background-color: #007BFF;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* Selected Tag Border */
-        #tag-list li.selected {
-            border: 2px solid #333;
-        }
-
-        /* Hover Effects */
-        #tag-list li:hover {
-            background-color: #0056b3;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            #search-results-container {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,.8);
-            }
-            #results-list li, #pinned-list li {
-                padding: 8px;
-                font-size: 0.9rem;
-            }
-            #docreview-logo, #security-logo {
-                position: static;
-                margin-top: 20px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            #tag-popup {
-                width: 90%;
-            }
-        }
-
-        /* Style for assigned tags in pinned documents */
-        .assigned-tag {
-            display: inline-block;
+    
+        .help-table td:first-child {
             text-align: left;
-            padding: 2px 5px;
-            margin-right: 5px;
-            margin-bottom: 4px;
-            border: 1px solid black;
-            border-radius: 3px;
+            padding-left: 15px;
         }
-    </style>
-    <!-- CSS Ends Here -->
+    
+        .help-table td:before {
+            content: attr(data-title);
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            font-weight: bold;
+        }
+    }
+    
+    
+    
+    /* Shortcut Table Styling */
+    .shortcut-table {
+        width: 100%;
+        max-width: 600px;
+        border-collapse: collapse;
+        margin: 20px auto;
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .shortcut-table thead {
+        background-color: #343a40;
+        color: #fff;
+    }
+    
+    .shortcut-table thead th {
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: left;
+    }
+    
+    .shortcut-table tbody tr:nth-child(odd) {
+        background-color: #e9ecef;
+    }
+    
+    .shortcut-table tbody tr:nth-child(even) {
+        background-color: #fff;
+    }
+    
+    .shortcut-table tbody td {
+        padding: 10px;
+        font-size: 1rem;
+        color: #333;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    /* Hover effect */
+    .shortcut-table tbody tr:hover {
+        background-color: #f0f8ff;
+    }
+    
+    /* Media Query for responsive design */
+    @media (max-width: 768px) {
+        .shortcut-table thead {
+            display: none;
+        }
+    
+        .shortcut-table, .shortcut-table tbody, .shortcut-table tr, .shortcut-table td {
+            display: block;
+            width: 100%;
+        }
+    
+        .shortcut-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+    
+        .shortcut-table td:first-child {
+            text-align: left;
+            padding-left: 15px;
+        }
+    
+        .shortcut-table td:before {
+            content: attr(data-title);
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            font-weight: bold;
+        }
+    }
+    
+    .info-text :nth-child(1){
+    font-size: 24px !important;
+    }
+    
+    /* Add this media query for larger screens */
+    @media (min-width: 768px) {
+        .help-container {
+            flex-direction: row;
+        }
+    
+        .help-section {
+            width: 48%;
+        }
+    }
+    
+    /* Update the existing media query */
+    @media (max-width: 768px) {
+        #help-window {
+            width: 95%;
+            padding: 15px;
+        }
+    
+        .help-section h2 {
+            font-size: 1.2rem;
+        }
+    
+        .help-section ul li {
+            font-size: 0.9rem;
+        }
+    
+        #keyboard-shortcuts li {
+            font-size: 0.8rem;
+        }
+    }
+    
+    /* for spiner  */
+    .spinner {
+        margin: 100px auto 0;
+        width: 70px;
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+      }
+      
+      .spinner > div {
+        width: 18px;
+        height: 18px;
+        background-color: #333;
+        border-radius: 100%;
+        display: inline-block;
+        animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+      }
+      
+      .spinner .bounce1 {
+        animation-delay: -0.32s;
+      }
+      
+      .spinner .bounce2 {
+        animation-delay: -0.16s;
+      }
+      
+      @keyframes sk-bouncedelay {
+        0%, 80%, 100% { 
+          transform: scale(0);
+        } 40% { 
+          transform: scale(1.0);
+        }
+      }
+      
+      /* css for spinner */
+      .spinner {
+    margin: 100px auto 0;
+    width: 70px;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.spinner > div {
+    width: 18px;
+    height: 18px;
+    background-color: #333;
+    border-radius: 100%;
+    display: inline-block;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+    animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+    animation-delay: -0.16s;
+}
+
+@keyframes sk-bouncedelay {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
+
+
+      </style>
 </head>
 <body>
-    <div id="toolbar">
-        <button id="folder-select">&#x1F4C2;</button>
-        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff" style="display: none; text-size: 36px;">&nbsp;&nbsp;
-        <button id="prev-doc">&#x23ee;</button>
-        <select id="document-select" style="min-width: 140px; max-width: 140px;"></select>
-        <button id="next-doc">&#x23ed;</button>
-        <button id="remove-file" title="Remove selected file">❌</button>&nbsp;&nbsp;
-        <button id="prev-page">&#x25c0;</button>
-        <span style="padding-top:3px; font-weight: 700; text-decoration: underline;">Page: <span id="page-num"></span> / <span id="page-count"></span></span>
-        <button id="next-page">&#x25b6;</button>&nbsp;&nbsp;
-        <button id="zoom-out">&#x2796;</button>
-        <button id="zoom-in">&#x2795;</button>
-        <button id="rotate">&#x1F504;</button>&nbsp;&nbsp;
-        <input type="text" id="search-text" placeholder="Search...">
-        <button id="search-doc">&#128270;</button>
-        <button id="search" style="width:60px;">&#128270;&#128270;</button>&nbsp;&nbsp;
-        <!-- <button id="flag-doc">&#x1f4cc;</button> -->
-        <button id="flag-doc"><?xml version="1.0" encoding="utf-8"?>
-            <!-- License: PD. Made by stephenhutchings: https://github.com/stephenhutchings/typicons.font -->
-            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M.826 16c-.37-.16-.43-.43-.18-.75 1.15-1.45 2.37-2.84 3.69-4.13.63-.62 1.25-1.24 1.88-1.88-.04-.05-.08-.09-.12-.13-.82-.83-1.65-1.65-2.47-2.48-.26-.26-.26-.49.01-.74.7-.64 1.75-.69 2.51-.11.03.03.07.05.11.08l4.66-4c-.15-.29-.21-.59-.16-.91.05-.34.2-.62.45-.85.14-.13.35-.13.51-.02.04.03.07.06.11.09 1.45 1.45 2.9 2.9 4.36 4.35.13.13.21.26.15.45a.5.5 0 0 1-.11.2c-.41.43-1.07.55-1.61.31-.08-.03-.13-.05-.2.03-1.29 1.51-2.59 3.02-3.89 4.53-.01.02-.02.03-.04.06.28.34.46.72.48 1.16.04.6-.16 1.1-.58 1.53-.18.19-.43.17-.64-.03-.79-.78-1.57-1.57-2.35-2.35-.04-.04-.07-.09-.11-.15-.07.06-.11.11-.16.15-1.31 1.29-2.57 2.63-3.96 3.84-.64.56-1.3 1.09-1.96 1.63-.07.05-.15.09-.23.13h-.16z" fill="#FF000D"/></g><defs><clipPath id="a"><path fill="#fff" d="M.496 0h15.85v16H.496z"/></clipPath></defs></svg>
-        
-        </button>
-        <button id="add-tag" >
-            
-            <svg width="18" height="18" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M.692 9.136v-.329c.071-.402.317-.692.597-.971 2.319-2.311 4.632-4.63 6.954-6.94.165-.165.378-.286.583-.403.125-.073.276-.1.417-.147h5.62c.014.006.026.016.041.019.692.137 1.095.626 1.095 1.337q.002 2.577 0 5.155c0 .457-.162.864-.483 1.187q-3.591 3.602-7.198 7.193c-.143.143-.33.265-.52.334-.54.197-1.002.033-1.398-.364q-2.549-2.554-5.105-5.103c-.28-.278-.529-.566-.602-.968zm11.463-3.689c.679.026 1.265-.544 1.292-1.257.026-.68-.543-1.265-1.257-1.292-.68-.025-1.278.543-1.29 1.258-.01.673.495 1.26 1.255 1.292" fill="#FF000D"/></g><defs><clipPath id="a"><path fill="#fff" d="M.346 0h16v16h-16z"/></clipPath></defs></svg>
-        
-        </button>
-        <button id="export-list" style="width:35px;">
-            
-            <svg width="20" height="20" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path fill="#FF000D" fill-rule="evenodd" d="M14 9a1 1 0 0 1 1 1v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a1 1 0 0 1 2 0v3h10v-3a1 1 0 0 1 1-1M8 1a1 1 0 0 1 1 1v4.586l1.293-1.293a1 1 0 1 1 1.414 1.414L8 10.414 4.293 6.707a1 1 0 0 1 1.414-1.414L7 6.586V2a1 1 0 0 1 1-1"/></svg>
-        
-        </button>
-        <button id="unpin-all" title="Unpin All Documents">
-
-            <svg fill="#FF000D" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg>
-
-        </button>
-        <button id="help-button">
-
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.313 0C5.82 0 4.203 1.022 2.935 2.845a.75.75 0 0 0 .162 1.027l1.348 1.022a.75.75 0 0 0 1.039-.13c.783-.98 1.363-1.545 2.586-1.545.961 0 2.15.619 2.15 1.551 0 .705-.581 1.067-1.53 1.599-1.107.62-2.572 1.393-2.572 3.325V10c0 .414.335.75.75.75h2.264a.75.75 0 0 0 .75-.75v-.18c0-1.34 3.915-1.396 3.915-5.02 0-2.73-2.831-4.8-5.484-4.8M8 11.67a2.167 2.167 0 0 0-2.165 2.165C5.835 15.03 6.806 16 8 16a2.167 2.167 0 0 0 2.165-2.165A2.167 2.167 0 0 0 8 11.671" fill="#FF000D"/></svg>
-        
-        </button>&nbsp;
-        
-    </div>
-
-    <div id="content">
-        <div id="main-content">
-            <div id="pdf-viewer">
-                <canvas id="pdf-canvas"></canvas>
-            </div>
-            <div id="docx-viewer"></div>
-            <div id="xlsx-viewer"></div>
-            <div id="txt-viewer"></div>
-            <img id="image-viewer"/>
-        </div>
-        <div id="search-results-container">
-            <div id="search-results">
-                <h4>Search Results</h4>
-                <ul id="results-list"></ul>
-            </div>
-            <div id="pinned-docs">
-                <h4>Pinned Documents</h4>
-                <ul id="pinned-list"></ul>
-            </div>
-            <div id="docreview-logo">
-                <img src="https://documentreview.law/lebel-investigations/IMG_1112.jpg" alt="Doc Review Logo">
-            </div>
-            <div id="security-logo">
-                <img src="IMG_1139.png" alt="Security Logo">
-            </div>
-        </div>
-    </div>
-
-    <!-- Add this new div for tag management popup -->
-    <div id="tag-popup">
-        <h3>Manage Tags
-            <button id="close-tag-popup" class="icon-button close-btn">❌</button>
-        </h3>
-        <div class="popup-content">
-            <input type="text" id="tag-input" placeholder="Enter tag name">
-            <input type="color" id="tag-color" value="#007BFF">
-            <span id="error-message" style="color: red; display: none;"></span>
-            <div class="button-group">
-                <button id="save-tag" class="icon-button save-btn">
-                    <span style="color:green;">✔</span>
-                </button>
-                <button id="delete-tag" class="icon-button delete-btn"><svg fill="#FF000D" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg></button>
-            </div>
-            <ul id="tag-list"></ul>
-        </div>
-    </div>
-
-    <!-- Help window content -->
-    <div id="help-window">
-        <h5 style="font-size:18px; margin: 10px 0; padding: 0;">We're here to help! Have a question not answered below?</h5><a href="https://documentreview.law/contact/" target="_new" style="color:#0bd14b; font-weight: 600; text-align:center; font-size:18px;">Contact Us Here.</a>
-        <ul>
-            <li>&#x1F4C2; - Open Folder/Files</li>
-            <li>&#x23ee; - Previous Document</li>
-            <li>&#x23ed; - Next Document</li>
-            <li>&#x25c0; - Previous Page<sup>*</sup></li>
-            <li>&#x25b6; - Next Page<sup>*</sup></li>
-            <li> &#x2796; / &#x2795;  - Zoom<sup>*</sup></li>
-            <li>&#x1F504; - Rotate<sup>*</sup></li>
-            <li>&#128270; - Search Within Document</li>
-            <li>&#128270;&#128270; - Search Across Documents</li>
-            <li>&#x1f4cc; - Pin Document</li>
-            <li>&#x1f4cc;&#x2b07; - Export List of Pinned Docs (.csv)</li><br>
-            <li><sup>*</sup>&nbsp;<i>Only for PDFs and Image Files</i></li>
-        </ul>
-        <div style="text-align: center; padding: 0; margin: 0;">
-    <button id="close-help" style="color:#0bd14b; font-weight: 600; font-size:18px; background:none; border:none; cursor:pointer; text-decoration: underline; padding: 0; margin: 0;">Close</button>
+    <!-- loading indicator element -->
+    <div id="loading-indicator" style="display: none;">Loading...</div>
+    <!-- loading indicator element -->
+<div id=toolbar>
+<button id=folder-select>&#x1F4C2;</button>
+<input type=file id=file-input multiple accept=.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff style=display:none;font-size:36px>&nbsp;&nbsp;
+<button id=prev-doc>&#x23ee;</button>
+<select id=document-select style=min-width:140px;max-width:140px></select>
+<button id=next-doc>&#x23ed;</button>
+<button id=remove-file title="Remove selected file">❌</button>&nbsp;&nbsp;
+<button id=prev-page>&#x25c0;</button>
+<span style=padding-top:3px;font-weight:700;text-decoration:underline>Page: <span id=page-num></span> / <span id=page-count></span></span>
+<button id=next-page>&#x25b6;</button>&nbsp;&nbsp;
+<button id=zoom-out>&#x2796;</button>
+<button id=zoom-in>&#x2795;</button>
+<button id=rotate>&#x1F504;</button>&nbsp;&nbsp;
+<input id=search-text placeholder=Search...>
+<button id=search-doc>&#128270;</button>
+<button id=search style=width:60px>&#128270;&#128270;</button>&nbsp;&nbsp;
+<button id=flag-doc><?xml version="1.0" encoding="utf-8"?>
+<svg width=17 height=16 viewBox="0 0 17 16" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.826 16c-.37-.16-.43-.43-.18-.75 1.15-1.45 2.37-2.84 3.69-4.13.63-.62 1.25-1.24 1.88-1.88-.04-.05-.08-.09-.12-.13-.82-.83-1.65-1.65-2.47-2.48-.26-.26-.26-.49.01-.74.7-.64 1.75-.69 2.51-.11.03.03.07.05.11.08l4.66-4c-.15-.29-.21-.59-.16-.91.05-.34.2-.62.45-.85.14-.13.35-.13.51-.02.04.03.07.06.11.09 1.45 1.45 2.9 2.9 4.36 4.35.13.13.21.26.15.45a.5.5 0 0 1-.11.2c-.41.43-1.07.55-1.61.31-.08-.03-.13-.05-.2.03-1.29 1.51-2.59 3.02-3.89 4.53-.01.02-.02.03-.04.06.28.34.46.72.48 1.16.04.6-.16 1.1-.58 1.53-.18.19-.43.17-.64-.03-.79-.78-1.57-1.57-2.35-2.35-.04-.04-.07-.09-.11-.15-.07.06-.11.11-.16.15-1.31 1.29-2.57 2.63-3.96 3.84-.64.56-1.3 1.09-1.96 1.63-.07.05-.15.09-.23.13h-.16z" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.496 0h15.85v16H.496z"/></clipPath></defs></svg>
+</button>
+<button id=add-tag>
+<svg width=18 height=18 viewBox="0 0 20 14" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.692 9.136v-.329c.071-.402.317-.692.597-.971 2.319-2.311 4.632-4.63 6.954-6.94.165-.165.378-.286.583-.403.125-.073.276-.1.417-.147h5.62c.014.006.026.016.041.019.692.137 1.095.626 1.095 1.337q.002 2.577 0 5.155c0 .457-.162.864-.483 1.187q-3.591 3.602-7.198 7.193c-.143.143-.33.265-.52.334-.54.197-1.002.033-1.398-.364q-2.549-2.554-5.105-5.103c-.28-.278-.529-.566-.602-.968zm11.463-3.689c.679.026 1.265-.544 1.292-1.257.026-.68-.543-1.265-1.257-1.292-.68-.025-1.278.543-1.29 1.258-.01.673.495 1.26 1.255 1.292" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.346 0h16v16h-16z"/></clipPath></defs></svg>
+</button>
+<button id=export-list style=width:35px>
+<svg width=20 height=20 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path fill=#000 fill-rule=evenodd d="M14 9a1 1 0 0 1 1 1v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a1 1 0 0 1 2 0v3h10v-3a1 1 0 0 1 1-1M8 1a1 1 0 0 1 1 1v4.586l1.293-1.293a1 1 0 1 1 1.414 1.414L8 10.414 4.293 6.707a1 1 0 0 1 1.414-1.414L7 6.586V2a1 1 0 0 1 1-1"/></svg>
+</button>
+<button id=unpin-all title="Unpin All Documents">
+<svg fill=#000 width=16 height=16 viewBox="-3 -2 24 24" xmlns=http://www.w3.org/2000/svg preserveAspectRatio=xMinYMin class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg>
+</button>
+<button id=help-button>
+<svg width=16 height=16 viewBox="0 0 16 16" fill=none xmlns=http://www.w3.org/2000/svg><path d="M8.313 0C5.82 0 4.203 1.022 2.935 2.845a.75.75 0 0 0 .162 1.027l1.348 1.022a.75.75 0 0 0 1.039-.13c.783-.98 1.363-1.545 2.586-1.545.961 0 2.15.619 2.15 1.551 0 .705-.581 1.067-1.53 1.599-1.107.62-2.572 1.393-2.572 3.325V10c0 .414.335.75.75.75h2.264a.75.75 0 0 0 .75-.75v-.18c0-1.34 3.915-1.396 3.915-5.02 0-2.73-2.831-4.8-5.484-4.8M8 11.67a2.167 2.167 0 0 0-2.165 2.165C5.835 15.03 6.806 16 8 16a2.167 2.167 0 0 0 2.165-2.165A2.167 2.167 0 0 0 8 11.671" fill=#000 /></svg>
+</button>&nbsp;
 </div>
+<div id=content>
+<div id=main-content>
+<div id=pdf-viewer>
+<canvas id=pdf-canvas></canvas>
+</div>
+<div id=docx-viewer></div>
+<div id=xlsx-viewer></div>
+<div id=txt-viewer></div>
+<img id=image-viewer>
+</div>
+<!-- Spinner Loader -->
+<div id="spinner-loader" class="spinner" style="display: none;">
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+</div>
+<div id=search-results-container>
+<div id=search-results>
+<h4>Search Results</h4>
+<ul id=results-list></ul>
+</div>
+<div id=pinned-docs>
+<h4>Pinned Documents</h4>
+<ul id=pinned-list></ul>
+</div>
+<div id=docreview-logo>
+<img src=https://documentreview.law/lebel-investigations/IMG_1112.jpg alt="Doc Review Logo">
+</div>
+<div id=security-logo>
+<img src=IMG_1139.png alt="Security Logo">
+</div>
+</div>
+</div>
+<div id=tag-popup>
+<h3>Manage Tags
+<button id=close-tag-popup class="icon-button close-btn">❌</button>
+</h3>
+<div class=popup-content>
+<input id=tag-input placeholder="Enter tag name">
+<input type=color id=tag-color value=#007BFF>
+<span id=error-message style=color:red;display:none></span>
+<div class=button-group>
+<button id=save-tag class="icon-button save-btn">
+<span style=color:green>✔</span>
+</button>
+<button id=delete-tag class="icon-button delete-btn"><svg fill=#FF000D width=16 height=16 viewBox="-3 -2 24 24" xmlns=http://www.w3.org/2000/svg preserveAspectRatio=xMinYMin class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg></button>
+</div>
+<ul id=tag-list></ul>
+</div>
+</div>
+<div id="help-window" class="modal">
+    <span id="close-help" class="close">&times;</span>
+    
+    <div class="info-text"><h2 style="font-size:18px;margin:10px 0;padding:0">We're here to help! Have a question not answered below?</h2></div>
+
+    <div class="help-container">
+        <div class="help-section">
+            <h2>Help Content</h2>
+            
+            <!-- <ul>
+                <li>&#x1F4C2; - Open Folder/Files</li>
+                <li>&#x23ee; - Previous Document</li>
+                <li>&#x23ed; - Next Document</li>
+                <li>&#x25c0; - Previous Page<sup>*</sup></li>
+                <li>&#x25b6; - Next Page<sup>*</sup></li>
+                <li>&#x2796; / &#x2795; - Zoom<sup>*</sup></li>
+                <li>&#x1F504; - Rotate<sup>*</sup></li>
+                <li>&#128270; - Search Within Document</li>
+                <li>&#128270;&#128270; - Search Across Documents</li>
+                <li>&#x1f4cc; - Pin Document</li>
+                <li>&#x1f4cc;&#x2b07; - Export List of Pinned Docs (.csv)</li><br>
+                <li><sup>*</sup>&nbsp;<i>Only for PDFs and Image Files</i></li>
+            </ul> -->
+            
+            <table class="help-table">
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&#x1F4C2;</td>
+                        <td>Open Folder/Files</td>
+                    </tr>
+                    <tr>
+                        <td>&#x23ee;</td>
+                        <td>Previous Document</td>
+                    </tr>
+                    <tr>
+                        <td>&#x23ed;</td>
+                        <td>Next Document</td>
+                    </tr>
+                    <tr>
+                        <td>&#x25c0;</td>
+                        <td>Previous Page<sup>*</sup></td>
+                    </tr>
+                    <tr>
+                        <td>&#x25b6;</td>
+                        <td>Next Page<sup>*</sup></td>
+                    </tr>
+                    <tr>
+                        <td>&#x2796; / &#x2795;</td>
+                        <td>Zoom<sup>*</sup></td>
+                    </tr>
+                    <tr>
+                        <td>&#x1F504;</td>
+                        <td>Rotate<sup>*</sup></td>
+                    </tr>
+                    <tr>
+                        <td>&#128270;</td>
+                        <td>Search Within Document</td>
+                    </tr>
+                    <tr>
+                        <td>&#128270;&#128270;</td>
+                        <td>Search Across Documents</td>
+                    </tr>
+                    <tr>
+                        <td><svg width=17 height=16 viewBox="0 0 17 16" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.826 16c-.37-.16-.43-.43-.18-.75 1.15-1.45 2.37-2.84 3.69-4.13.63-.62 1.25-1.24 1.88-1.88-.04-.05-.08-.09-.12-.13-.82-.83-1.65-1.65-2.47-2.48-.26-.26-.26-.49.01-.74.7-.64 1.75-.69 2.51-.11.03.03.07.05.11.08l4.66-4c-.15-.29-.21-.59-.16-.91.05-.34.2-.62.45-.85.14-.13.35-.13.51-.02.04.03.07.06.11.09 1.45 1.45 2.9 2.9 4.36 4.35.13.13.21.26.15.45a.5.5 0 0 1-.11.2c-.41.43-1.07.55-1.61.31-.08-.03-.13-.05-.2.03-1.29 1.51-2.59 3.02-3.89 4.53-.01.02-.02.03-.04.06.28.34.46.72.48 1.16.04.6-.16 1.1-.58 1.53-.18.19-.43.17-.64-.03-.79-.78-1.57-1.57-2.35-2.35-.04-.04-.07-.09-.11-.15-.07.06-.11.11-.16.15-1.31 1.29-2.57 2.63-3.96 3.84-.64.56-1.3 1.09-1.96 1.63-.07.05-.15.09-.23.13h-.16z" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.496 0h15.85v16H.496z"/></clipPath></defs></svg></td>
+                        <td>Pin Document</td>
+                    </tr>
+                    <tr>
+                        <td><svg width=20 height=20 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path fill=#000 fill-rule=evenodd d="M14 9a1 1 0 0 1 1 1v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a1 1 0 0 1 2 0v3h10v-3a1 1 0 0 1 1-1M8 1a1 1 0 0 1 1 1v4.586l1.293-1.293a1 1 0 1 1 1.414 1.414L8 10.414 4.293 6.707a1 1 0 0 1 1.414-1.414L7 6.586V2a1 1 0 0 1 1-1"/></svg></td>
+                        <td>Export List of Pinned Docs (.csv)</td>
+                    </tr>
+                    <tr>
+                        <td><svg width=18 height=18 viewBox="0 0 20 14" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.692 9.136v-.329c.071-.402.317-.692.597-.971 2.319-2.311 4.632-4.63 6.954-6.94.165-.165.378-.286.583-.403.125-.073.276-.1.417-.147h5.62c.014.006.026.016.041.019.692.137 1.095.626 1.095 1.337q.002 2.577 0 5.155c0 .457-.162.864-.483 1.187q-3.591 3.602-7.198 7.193c-.143.143-.33.265-.52.334-.54.197-1.002.033-1.398-.364q-2.549-2.554-5.105-5.103c-.28-.278-.529-.566-.602-.968zm11.463-3.689c.679.026 1.265-.544 1.292-1.257.026-.68-.543-1.265-1.257-1.292-.68-.025-1.278.543-1.29 1.258-.01.673.495 1.26 1.255 1.292" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.346 0h16v16h-16z"/></clipPath></defs></svg></td>
+                        <td>Manage Tags</td>
+                    </tr>
+                    <tr>
+                        <td><svg fill=#000 width=16 height=16 viewBox="-3 -2 24 24" xmlns=http://www.w3.org/2000/svg preserveAspectRatio=xMinYMin class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg></td>
+                        <td>Clear All Pinned Docs</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><sup>*</sup> Only for PDFs and Image Files</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </div>
+        <div class="help-section">
+            <h2>Keyboard Shortcuts</h2>
+            <!-- <ul id="keyboard-shortcuts">
+              
+            </ul> -->
+
+            <table class="shortcut-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Windows</th>
+                        <th>Mac</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Next Document</td>
+                        <td>Ctrl + →</td>
+                        <td>Cmd + →</td>
+                    </tr>
+                    <tr>
+                        <td>Previous Document</td>
+                        <td>Ctrl + ←</td>
+                        <td>Cmd + ←</td>
+                    </tr>
+                    <tr>
+                        <td>Zoom In</td>
+                        <td>Ctrl + Alt + =</td>
+                        <td>Cmd + Shift + =</td>
+                    </tr>
+                    <tr>
+                        <td>Zoom Out</td>
+                        <td>Ctrl + Alt + -</td>
+                        <td>Cmd + shift + -</td>
+                    </tr>
+                    <tr>
+                        <td>Focus Search Box</td>
+                        <td>Ctrl + F</td>
+                        <td>Cmd + F</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+
+        </div>
     </div>
-    <!-- JavaScript Starts Here -->
-    <script>
-    // Copyright alert
-    alert('ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. © 2024 Adam J Schwartz, All Rights Reserved');
+    <div class="contact-us">
+            <a href="https://documentreview.law/contact/" target="_new" style="color:#000000;font-weight:600;text-align:center;font-size:18px">Contact Us Here.</a>
+    </div>
+</div>
+<div class="help-overlay"></div>
 
-        // Help button functionality
-        document.getElementById('help-button').addEventListener('click', function() {
-            const helpWindow = document.getElementById('help-window');
-            helpWindow.style.display = 'block';
+
+<!-- Link JavaScript -->
+<!-- <script src="dist/js/script.min.js"></script> -->
+    <!-- Link JavaScript -->
+<script>
+   alert(
+    "ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. © 2024 Adam J Schwartz, All Rights Reserved"
+),
+    document.getElementById("help-button").addEventListener("click", function () {
+        document.getElementById("help-window").style.display = "block";
+    }),
+    document.getElementById("close-help").addEventListener("click", function () {
+        document.getElementById("help-window").style.display = "none";
+    });
+let pdfDoc = null,
+    pageNum = 1,
+    pageCount = 0,
+    zoomLevel = 1.25,
+    rotationAngle = 0,
+    currentDocIndex = 0,
+    canvas = document.getElementById("pdf-canvas"),
+    ctx = canvas.getContext("2d"),
+    fileArray = [],
+    pinnedDocs = JSON.parse(localStorage.getItem("pinnedDocs")) || [],
+    tags = JSON.parse(localStorage.getItem("tags")) || [],
+    selectedTagIndex = null,
+    renderTask = null;
+function updateTagList() {
+    let e = document.getElementById("tag-list");
+    (e.innerHTML = ""),
+        tags.forEach((t, n) => {
+            let o = document.createElement("li");
+            (o.textContent = t.name),
+                (o.style.backgroundColor = t.color),
+                (o.style.color = getContrastColor(t.color)),
+                o.addEventListener("click", (e) => {
+                    e.stopPropagation(),
+                        document.querySelectorAll("#tag-list li").forEach((e) => e.classList.remove("selected")),
+                        o.classList.add("selected"),
+                        (selectedTagIndex = n),
+                        (document.getElementById("tag-input").value = t.name),
+                        (document.getElementById("tag-color").value = t.color);
+                }),
+                e.appendChild(o);
         });
-
-        // Close help window
-        document.getElementById('close-help').addEventListener('click', function() {
-            const helpWindow = document.getElementById('help-window');
-            helpWindow.style.display = 'none';
-        });
-
-        let pdfDoc = null,
-            pageNum = 1,
-            pageCount = 0,
-            zoomLevel = 1.25,
-            rotationAngle = 0,
-            currentDocIndex = 0,
-            canvas = document.getElementById('pdf-canvas'),
-            ctx = canvas.getContext('2d'),
-            fileArray = [],
-            pinnedDocs = JSON.parse(localStorage.getItem('pinnedDocs')) || [];
-
-        let tags = JSON.parse(localStorage.getItem('tags')) || [];
-        let selectedTagIndex = null;
-
-        // Show the tag popup when Add Tag button is clicked
-        document.getElementById('add-tag').addEventListener('click', () => {
-            document.getElementById('tag-popup').style.display = 'block';
-            document.getElementById('tag-input').value = '';
-            document.getElementById('tag-color').value = '#007BFF';
-            document.getElementById('error-message').style.display = 'none';  // Hide error message on popup open
-            selectedTagIndex = null;
-            updateTagList();
-        });
-
-        // Close the tag popup when the close button is clicked
-        document.getElementById('close-tag-popup').addEventListener('click', () => {
-            document.getElementById('tag-popup').style.display = 'none';
-        });
-
-        // Save a new or edited tag with color
-        document.getElementById('save-tag').addEventListener('click', (event) => {
-            event.stopPropagation();  // Prevent closing the alert on button click
-            const tagName = document.getElementById('tag-input').value.trim();
-            const tagColor = document.getElementById('tag-color').value;
-            const errorMessage = document.getElementById('error-message');
-
-            // Prevent empty tag creation
-            if (!tagName) {
-                errorMessage.textContent = "Tag name can't be empty!";
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            // Check if the maximum number of tags has been reached
-            if (tags.length >= 9 && selectedTagIndex === null) {
-                errorMessage.textContent = "You can only create a maximum of 9 tags.";
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            // Check for duplicates
-            const tagExists = tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase());
-            if (tagExists && selectedTagIndex === null) {
-                errorMessage.textContent = "A tag with this name already exists.";
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            // Clear error message upon successful tag creation
-            errorMessage.style.display = 'none';
-
-            if (selectedTagIndex !== null) {
-                // Update the selected tag
-                tags[selectedTagIndex] = { name: tagName, color: tagColor };
-            } else {
-                // Add a new tag
-                tags.push({ name: tagName, color: tagColor });
-            }
-
-            saveTagsToLocalStorage();
-            document.getElementById('tag-input').value = '';
-            document.getElementById('tag-color').value = '#007BFF';
-            selectedTagIndex = null;
-            updateTagList();
-            updateTagDropdown();
-        });
-
-        // Delete the selected tag when trash icon is clicked
-        document.getElementById('delete-tag').addEventListener('click', (event) => {
-            event.stopPropagation();  // Prevent closing the alert on button click
-            const errorMessage = document.getElementById('error-message');
-
-            if (selectedTagIndex !== null) {
-                tags.splice(selectedTagIndex, 1);
-                saveTagsToLocalStorage();
-                updateTagList();
-                updateTagDropdown();
-                selectedTagIndex = null;
-                document.getElementById('tag-input').value = '';
-                document.getElementById('tag-color').value = '#007BFF';
-                errorMessage.style.display = 'none';  // Clear any previous error message
-            } else {
-                errorMessage.textContent = "Please select a tag to delete.";
-                errorMessage.style.display = 'block';
-            }
-        });
-
-        // Function to hide the alert when clicking anywhere in the pop-up
-        document.getElementById('tag-popup').addEventListener('click', () => {
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.style.display = 'none';  // Hide the error message
-        });
-
-        // Function to prevent hiding the alert when clicking on input fields or buttons
-        document.querySelectorAll('#tag-popup input, #tag-popup button').forEach(element => {
-            element.addEventListener('click', (event) => {
-                event.stopPropagation();  // Prevent event bubbling to the parent
+}
+function getContrastColor(e) {
+    return 128 <= (299 * parseInt((e = e.replace("#", "")).substr(0, 2), 16) + 587 * parseInt(e.substr(2, 2), 16) + 114 * parseInt(e.substr(4, 2), 16)) / 1e3 ? "black" : "white";
+}
+function saveTagsToLocalStorage() {
+    localStorage.setItem("tags", JSON.stringify(tags));
+}
+function updateTagDropdown() {
+    document.querySelectorAll(".tag-dropdown").forEach((n) => {
+        (n.innerHTML = '<option value="">Select Tag</option>'),
+            tags.forEach((e) => {
+                var t = document.createElement("option");
+                (t.value = e.name), (t.textContent = e.name), n.appendChild(t);
             });
-        });
-
-        // Function to update the displayed tag list
-        function updateTagList() {
-            const tagList = document.getElementById('tag-list');
-            tagList.innerHTML = '';  // Clear previous list
-
-            tags.forEach((tag, index) => {
-                const li = document.createElement('li');
-                li.textContent = tag.name;
-                li.style.backgroundColor = tag.color;
-                li.style.color = getContrastColor(tag.color);
-
-                // Add click event to toggle the selected state
-                li.addEventListener('click', (event) => {
-                    event.stopPropagation();  // Prevent closing the alert when clicking on tags
-
-                    // Remove 'selected' class from all tags
-                    document.querySelectorAll('#tag-list li').forEach(item => item.classList.remove('selected'));
-
-                    // Add 'selected' class to the clicked tag
-                    li.classList.add('selected');
-                    selectedTagIndex = index;
-
-                    // Update input fields with selected tag data
-                    document.getElementById('tag-input').value = tag.name;
-                    document.getElementById('tag-color').value = tag.color;
-                });
-
-                tagList.appendChild(li);
-            });
-        }
-
-        // Helper function to determine text color based on background
-        function getContrastColor(hexcolor) {
-            hexcolor = hexcolor.replace('#', '');
-            const r = parseInt(hexcolor.substr(0, 2), 16);
-            const g = parseInt(hexcolor.substr(2, 2), 16);
-            const b = parseInt(hexcolor.substr(4, 2), 16);
-            const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-            return yiq >= 128 ? 'black' : 'white';
-        }
-
-        // Save tags to local storage
-        function saveTagsToLocalStorage() {
-            localStorage.setItem('tags', JSON.stringify(tags));
-        }
-
-        // Function to update the dropdown dynamically with the latest tags
-        function updateTagDropdown() {
-            document.querySelectorAll('.tag-dropdown').forEach(dropdown => {
-                dropdown.innerHTML = '<option value="">Select Tag</option>';
-                tags.forEach(tag => {
-                    const option = document.createElement('option');
-                    option.value = tag.name;
-                    option.textContent = tag.name;
-                    dropdown.appendChild(option);
-                });
-            });
-        }
-
-        // Load tags from local storage when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            updateTagList();
-            updateTagDropdown();
-            updatePinnedDocsList();
-        });
-
-        // Update the list of pinned documents
-        function updatePinnedDocsList() {
-            const pinnedList = document.getElementById('pinned-list');
-            pinnedList.innerHTML = ''; // Clear previous list
-
-            pinnedDocs.forEach((doc, index) => {
-                const li = document.createElement('li');
-                li.textContent = doc.name;
-
-                // Create the individual unpin button using the embedded SVG icon
-                const unpinButton = document.createElement('span');
-                unpinButton.innerHTML = `
+    });
+}
+function updatePinnedDocsList() {
+    let r = document.getElementById("pinned-list");
+    (r.innerHTML = ""),
+        pinnedDocs.forEach((o, e) => {
+            var t = document.createElement("li"),
+                n = ((t.textContent = o.name), document.createElement("span"));
+            (n.innerHTML = `
                    <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)" stroke="#FF000D" stroke-miterlimit="10"><path d="M10.431 11.319a1.84 1.84 0 0 1-.56 1.468c-.176.177-.416.162-.61-.032q-1.131-1.13-2.26-2.262c-.04-.037-.068-.087-.108-.14-.067.062-.11.101-.151.141-1.257 1.242-2.468 2.531-3.803 3.691-.615.536-1.253 1.044-1.883 1.563-.065.052-.147.084-.22.126h-.15c-.353-.151-.415-.415-.17-.723a42 42 0 0 1 3.548-3.976c.604-.59 1.198-1.193 1.809-1.802l-.116-.122-2.38-2.38c-.253-.253-.25-.474.013-.714a1.865 1.865 0 0 1 2.412-.102q.044.036.102.08l1.118-.96 3.904 3.903-.919 1.07q-.016.02-.038.055c.273.322.437.692.462 1.114zm6.05-6.544a.5.5 0 0 1-.104.192 1.39 1.39 0 0 1-1.55.303c-.075-.033-.122-.051-.19.027Q13.232 6.94 11.823 8.58L7.919 4.678l3.365-2.89c-.14-.278-.2-.565-.153-.873q.075-.487.431-.82a.39.39 0 0 1 .486-.023 1 1 0 0 1 .102.09l4.186 4.183c.12.12.197.254.146.427z" fill="#FF000D" stroke-width=".249"/><path d="M14.538 11.498 4.237 1.447" stroke-width=".746" stroke-linecap="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M.244 0h16.252v16H.244z"/></clipPath></defs></svg>
-                `;
-                unpinButton.style.cursor = 'pointer';
-                unpinButton.style.marginLeft = '10px';
-                unpinButton.addEventListener('click', () => {
-                    // Unpin only this specific document
-                    unpinDocument(index);
+                `),
+                (n.style.cursor = "pointer"),
+                (n.style.marginLeft = "10px"),
+                n.addEventListener("click", () => {
+                    unpinDocument(e);
                 });
-
-                // Create the tag dropdown
-                const dropdown = document.createElement('select');
-                dropdown.classList.add('tag-dropdown');
-                dropdown.innerHTML = '<option value="">Select Tag</option>';
-                tags.forEach(tag => {
-                    const option = document.createElement('option');
-                    option.value = tag.name;
-                    option.textContent = tag.name;
-                    dropdown.appendChild(option);
+            let a = document.createElement("select"),
+                l =
+                    (a.classList.add("tag-dropdown"),
+                    (a.innerHTML = '<option value="">Select Tag</option>'),
+                    tags.forEach((e) => {
+                        var t = document.createElement("option");
+                        (t.value = e.name), (t.textContent = e.name), a.appendChild(t);
+                    }),
+                    a.addEventListener("change", () => {
+                        var e = tags.find((e) => e.name === a.value);
+                        e && addTagToDocument(o, e), (a.value = "");
+                    }),
+                    document.createElement("div"));
+            (l.style.marginTop = "5px"),
+                o.tags &&
+                    o.tags.forEach((e) => {
+                        var t = document.createElement("span"),
+                            n = ((t.textContent = e.name), (t.className = "assigned-tag"), (t.style.backgroundColor = e.color), (t.style.color = getContrastColor(e.color)), document.createElement("span"));
+                        (n.textContent = "✖"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
+                    }),
+                t.appendChild(n),
+                t.appendChild(a),
+                t.appendChild(l),
+                r.appendChild(t);
+        }),
+        savePinnedDocsToLocalStorage();
+}
+function unpinDocument(e) {
+    pinnedDocs.splice(e, 1), updatePinnedDocsList();
+}
+function addTagToDocument(e, t) {
+    e.tags || (e.tags = []), e.tags.some((e) => e.name === t.name) || (e.tags.push(t), updatePinnedDocsList());
+}
+function removeTagFromDocument(e, t) {
+    (e.tags = e.tags.filter((e) => e.name !== t.name)), updatePinnedDocsList();
+}
+function savePinnedDocsToLocalStorage() {
+    localStorage.setItem("pinnedDocs", JSON.stringify(pinnedDocs));
+}
+function loadDocument(e) {
+    var t, n, o, a;
+    e < 0 ||
+        e >= fileArray.length ||
+        ((currentDocIndex = e),
+        (t = fileArray[e]),
+        hideAllViewers(),
+        (n = "pdf" === t.type),
+        (o = "image" === t.type),
+        (document.getElementById("prev-page").disabled = !n),
+        (document.getElementById("next-page").disabled = !n),
+        (document.getElementById("zoom-in").disabled = !(n || o)),
+        (document.getElementById("zoom-out").disabled = !(n || o)),
+        (document.getElementById("rotate").disabled = !(n || o)),
+        (a = JSON.parse(localStorage.getItem("docState_" + t.name)) || {}),
+        (zoomLevel = a.zoomLevel || 1.25),
+        (pageNum = a.pageNum || 1),
+        (rotationAngle = a.rotationAngle || 0),
+        n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
+        (document.getElementById("document-select").value = e));
+}
+function hideAllViewers() {
+    (document.getElementById("pdf-viewer").style.display = "none"),
+        (document.getElementById("docx-viewer").style.display = "none"),
+        (document.getElementById("xlsx-viewer").style.display = "none"),
+        (document.getElementById("txt-viewer").style.display = "none"),
+        (document.getElementById("image-viewer").style.display = "none");
+}
+function displayPDF(e) {
+    (document.getElementById("pdf-viewer").style.display = "block"),
+        pdfjsLib.getDocument({ data: atob(e.split(",")[1]) }).promise.then((e) => {
+            (pdfDoc = e), (pageCount = e.numPages), (document.getElementById("page-count").textContent = pageCount), (rotationAngle = 0), renderPage((pageNum = 1));
+        });
+}
+function displayDocx(e) {
+    (document.getElementById("docx-viewer").style.display = "block"),
+        fetch(e)
+            .then((e) => e.arrayBuffer())
+            .then((e) => mammoth.convertToHtml({ arrayBuffer: e }))
+            .then((e) => {
+                document.getElementById("docx-viewer").innerHTML = e.value;
+            })
+            .catch(console.error);
+}
+function displayXlsx(e) {
+    (document.getElementById("xlsx-viewer").style.display = "block"),
+        fetch(e)
+            .then((e) => e.arrayBuffer())
+            .then((e) => {
+                (e = XLSX.read(e, { type: "array" })), (e = XLSX.utils.sheet_to_html(e.Sheets[e.SheetNames[0]]));
+                document.getElementById("xlsx-viewer").innerHTML = e;
+            })
+            .catch(console.error);
+}
+function displayTxtFile(e) {
+    (document.getElementById("txt-viewer").style.display = "block"),
+        fetch(e)
+            .then((e) => e.text())
+            .then((e) => {
+                document.getElementById("txt-viewer").innerText = e;
+            })
+            .catch(console.error);
+}
+function displayImage(e) {
+    (document.getElementById("image-viewer").style.display = "block"), (document.getElementById("image-viewer").src = e);
+}
+function renderPage(n) {
+    renderTask && renderTask.cancel(),
+        (document.getElementById("loading-indicator").style.display = "block"),
+        pdfDoc.getPage(n).then(function (e) {
+            var t = e.getViewport({ scale: zoomLevel, rotation: rotationAngle }),
+                t = ((canvas.height = t.height), (canvas.width = t.width), (canvas.style.width = t.width + "px"), (canvas.style.height = t.height + "px"), { canvasContext: ctx, viewport: t });
+            (renderTask = e.render(t)).promise
+                .then(() => {
+                    (document.getElementById("page-num").textContent = n), saveDocumentState(), (document.getElementById("loading-indicator").style.display = "none");
+                })
+                .catch(function (e) {
+                    "RenderingCancelledException" === e.name
+                        ? console.log("Render was cancelled, likely due to a new render request:", e.message)
+                        : (console.error("An error occurred during rendering:", e), (document.getElementById("loading-indicator").style.display = "none"));
                 });
-                dropdown.addEventListener('change', () => {
-                    const selectedTag = tags.find(tag => tag.name === dropdown.value);
-                    if (selectedTag) {
-                        addTagToDocument(doc, selectedTag);
-                    }
-                    dropdown.value = ''; // Reset dropdown after selection
-                });
+        });
+}
+function adjustImageViewer() {
+    var e = document.getElementById("image-viewer");
+    (e.style.transform = `scale(${zoomLevel}) rotate(${rotationAngle}deg)`), (e.style.maxWidth = 100 * zoomLevel + "%"), (e.style.maxHeight = 100 * zoomLevel + "%");
+}
+function saveFilesToLocalStorage() {
+    localStorage.setItem("savedFiles", JSON.stringify(fileArray));
+}
+function loadFilesFromLocalStorage() {
+    fileArray = JSON.parse(localStorage.getItem("savedFiles")) || [];
+}
+function getFileType(e) {
+    switch (e.split(".").pop().toLowerCase()) {
+        case "pdf":
+            return "pdf";
+        case "docx":
+            return "docx";
+        case "xlsx":
+            return "xlsx";
+        case "txt":
+            return "txt";
+        case "jpeg":
+        case "jpg":
+        case "png":
+        case "gif":
+        case "tiff":
+            return "image";
+        default:
+            return "unknown";
+    }
+}
+let CHUNK_SIZE = 20;
+function loadDocumentChunk(t) {
+    let n = Math.min(t + CHUNK_SIZE, fileArray.length);
+    for (let e = t; e < n; e++) {
+        var o = document.createElement("option");
+        (o.value = e), (o.textContent = fileArray[e].name), document.getElementById("document-select").appendChild(o);
+    }
+    n < fileArray.length && setTimeout(() => loadDocumentChunk(n), 0);
+}
+function populateDocumentSelect() {
+    let o = document.getElementById("document-select");
+    (o.innerHTML = ""),
+        fileArray.sort((e, t) => e.name.localeCompare(t.name)),
+        fileArray.forEach((e, t) => {
+            var n = document.createElement("option");
+            (n.value = t), (n.textContent = e.name), o.appendChild(n);
+        }),
+        0 < fileArray.length && loadDocument((o.value = currentDocIndex)),
+        updateRemoveButtonVisibility(),
+        o.addEventListener("change", function () {
+            loadDocument(this.selectedIndex);
+        });
+}
+function updateRemoveButtonVisibility() {
+    document.getElementById("remove-file").style.display = 0 < fileArray.length ? "inline-block" : "none";
+}
+function getContrastColor(e) {
+    return "#" === e.slice(0, 1) && (e = e.slice(1)), 128 <= (299 * parseInt(e.substr(0, 2), 16) + 587 * parseInt(e.substr(2, 2), 16) + 114 * parseInt(e.substr(4, 2), 16)) / 1e3 ? "black" : "white";
+}
 
-                // Create tag container
-                const tagContainer = document.createElement('div');
-                tagContainer.style.marginTop = '5px';
-                if (doc.tags) {
-                    doc.tags.forEach(assignedTag => {
-                        const tagSpan = document.createElement('span');
-                        tagSpan.textContent = assignedTag.name;
-                        tagSpan.className = 'assigned-tag';
-                        tagSpan.style.backgroundColor = assignedTag.color;
-                        tagSpan.style.color = getContrastColor(assignedTag.color);
-
-                        const removeIcon = document.createElement('span');
-                        removeIcon.textContent = '✖';
-                        removeIcon.style.marginLeft = '5px';
-                        removeIcon.style.cursor = 'pointer';
-                        removeIcon.addEventListener('click', () => removeTagFromDocument(doc, assignedTag));
-
-                        tagSpan.appendChild(removeIcon);
-                        tagContainer.appendChild(tagSpan);
+function saveDocumentState() {
+    var e;
+    fileArray[currentDocIndex] && ((e = { pageNum: pageNum, zoomLevel: zoomLevel, rotationAngle: rotationAngle }), localStorage.setItem("docState_" + fileArray[currentDocIndex].name, JSON.stringify(e)));
+}
+function openDatabase() {
+    return new Promise((t, n) => {
+        var e = indexedDB.open("DocumentDatabase", 1);
+        (e.onupgradeneeded = function (e) {
+            e.target.result.createObjectStore("files", { keyPath: "name" });
+        }),
+            (e.onsuccess = function (e) {
+                t(e.target.result);
+            }),
+            (e.onerror = function (e) {
+                n("Error opening database: " + e.target.errorCode);
+            });
+    });
+}
+function saveFileToIndexedDB(a) {
+    return openDatabase().then(
+        (o) =>
+            new Promise((e, t) => {
+                var n = o.transaction(["files"], "readwrite").objectStore("files").put(a);
+                (n.onsuccess = function () {
+                    e();
+                }),
+                    (n.onerror = function (e) {
+                        t("Error saving file: " + e.target.error);
                     });
-                }
-
-                li.appendChild(unpinButton);
-                li.appendChild(dropdown);
-                li.appendChild(tagContainer);
-                pinnedList.appendChild(li);
-            });
-
-            savePinnedDocsToLocalStorage();
-        }
-
-        // Unpin a specific document
-        function unpinDocument(index) {
-            pinnedDocs.splice(index, 1); // Remove the document at the given index
-            updatePinnedDocsList(); // Refresh the pinned list display
-        }
-
-        // Global Unpin Button - remove all pinned documents
-        document.getElementById('unpin-all').addEventListener('click', () => {
-            // Show a confirmation prompt
-            const confirmUnpin = confirm("Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete.");
-
-            if (confirmUnpin) {
-                // If confirmed, clear all pinned documents and tags
-                pinnedDocs = []; // Clear the pinned documents array
-                updatePinnedDocsList(); // Refresh the pinned list display
-                alert("All pins and tags have been cleared.");
-            }
-        });
-
-        // Add tag to a document
-        function addTagToDocument(doc, tag) {
-            if (!doc.tags) doc.tags = [];
-            if (!doc.tags.some(t => t.name === tag.name)) {
-                doc.tags.push(tag);
-                updatePinnedDocsList();
-            }
-        }
-
-        // Remove tag from a document
-        function removeTagFromDocument(doc, tag) {
-            doc.tags = doc.tags.filter(t => t.name !== tag.name);
-            updatePinnedDocsList();
-        }
-
-        // Save pinned documents to local storage
-        function savePinnedDocsToLocalStorage() {
-            localStorage.setItem('pinnedDocs', JSON.stringify(pinnedDocs));
-        }
-
-        // Load the tags and pinned documents when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
+            })
+    );
+}
+function getFileFromIndexedDB(a) {
+    return openDatabase().then(
+        (o) =>
+            new Promise((t, n) => {
+                var e = o.transaction(["files"], "readonly").objectStore("files").get(a);
+                (e.onsuccess = function (e) {
+                    t(e.target.result);
+                }),
+                    (e.onerror = function (e) {
+                        n("Error retrieving file: " + e.target.error);
+                    });
+            })
+    );
+}
+function deleteFileFromIndexedDB(a) {
+    return openDatabase().then(
+        (o) =>
+            new Promise((e, t) => {
+                var n = o.transaction(["files"], "readwrite").objectStore("files").delete(a);
+                (n.onsuccess = function () {
+                    e();
+                }),
+                    (n.onerror = function (e) {
+                        t("Error deleting file: " + e.target.error);
+                    });
+            })
+    );
+}
+function saveFilesToLocalStorage() {
+    fileArray.forEach((t) => {
+        saveFileToIndexedDB(t)
+            .then(() => console.log(`File ${t.name} saved to IndexedDB`))
+            .catch((e) => console.error(`Error saving file ${t.name}:`, e));
+    });
+}
+function loadFilesFromLocalStorage() {
+    return openDatabase().then(
+        (o) =>
+            new Promise((t, n) => {
+                var e = o.transaction(["files"], "readonly").objectStore("files").getAll();
+                (e.onsuccess = function (e) {
+                    (fileArray = e.target.result), t();
+                }),
+                    (e.onerror = function (e) {
+                        n("Error loading files: " + e.target.error);
+                    });
+            })
+    );
+}
+document.addEventListener("contextmenu", (e) => e.preventDefault()),
+    document.addEventListener(
+        "keydown",
+        function (e) {
+            if (123 == e.keyCode || (e.ctrlKey && 85 == e.keyCode) || (e.ctrlKey && e.shiftKey && (73 == e.keyCode || 74 == e.keyCode || 67 == e.keyCode))) return e.preventDefault(), !1;
+        },
+        !1
+    ),
+    document.getElementById("add-tag").addEventListener("click", () => {
+        (document.getElementById("tag-popup").style.display = "block"),
+            (document.getElementById("tag-input").value = ""),
+            (document.getElementById("tag-color").value = "#007BFF"),
+            (document.getElementById("error-message").style.display = "none"),
+            (selectedTagIndex = null),
             updateTagList();
-            updatePinnedDocsList();
+    }),
+    document.getElementById("close-tag-popup").addEventListener("click", () => {
+        document.getElementById("tag-popup").style.display = "none";
+    }),
+    document.getElementById("save-tag").addEventListener("click", (e) => {
+        e.stopPropagation();
+        let t = document.getElementById("tag-input").value.trim(),
+            n = document.getElementById("tag-color").value,
+            o = document.getElementById("error-message");
+        t
+            ? 9 <= tags.length && null === selectedTagIndex
+                ? ((o.textContent = "You can only create a maximum of 9 tags."), (o.style.display = "block"))
+                : tags.some((e) => e.name.toLowerCase() === t.toLowerCase()) && null === selectedTagIndex
+                ? ((o.textContent = "A tag with this name already exists."), (o.style.display = "block"))
+                : ((o.style.display = "none"),
+                  null !== selectedTagIndex ? (tags[selectedTagIndex] = { name: t, color: n }) : tags.push({ name: t, color: n }),
+                  saveTagsToLocalStorage(),
+                  (document.getElementById("tag-input").value = ""),
+                  (document.getElementById("tag-color").value = "#007BFF"),
+                  (selectedTagIndex = null),
+                  updateTagList(),
+                  updateTagDropdown())
+            : ((o.textContent = "Tag name can't be empty!"), (o.style.display = "block"));
+    }),
+    document.getElementById("delete-tag").addEventListener("click", (e) => {
+        e.stopPropagation();
+        e = document.getElementById("error-message");
+        null !== selectedTagIndex
+            ? (tags.splice(selectedTagIndex, 1),
+              saveTagsToLocalStorage(),
+              updateTagList(),
+              updateTagDropdown(),
+              (selectedTagIndex = null),
+              (document.getElementById("tag-input").value = ""),
+              (document.getElementById("tag-color").value = "#007BFF"),
+              (e.style.display = "none"))
+            : ((e.textContent = "Please select a tag to delete."), (e.style.display = "block"));
+    }),
+    document.getElementById("tag-popup").addEventListener("click", () => {
+        document.getElementById("error-message").style.display = "none";
+    }),
+    document.querySelectorAll("#tag-popup input, #tag-popup button").forEach((e) => {
+        e.addEventListener("click", (e) => {
+            e.stopPropagation();
         });
-
-        // Load selected document
-function loadDocument(index) {
-    if (index < 0 || index >= fileArray.length) return;
-    currentDocIndex = index;
-    const file = fileArray[index];
-
-    // Hide all viewers before loading a new document
-    hideAllViewers();
-
-    // Determine if the file is a PDF, image, or other document type
-    const isPDF = file.type === 'pdf';
-    const isImage = file.type === 'image';
-
-    // Enable or disable navigation, zoom, and rotate buttons based on the file type
-    document.getElementById('prev-page').disabled = !isPDF; // Disable page navigation for non-PDFs
-    document.getElementById('next-page').disabled = !isPDF; // Disable page navigation for non-PDFs
-    document.getElementById('zoom-in').disabled = !(isPDF || isImage); // Enable for PDFs and images only
-    document.getElementById('zoom-out').disabled = !(isPDF || isImage); // Enable for PDFs and images only
-    document.getElementById('rotate').disabled = !(isPDF || isImage); // Enable for PDFs and images only
-
-    if (isPDF) {
-        displayPDF(file.content);
-    } else if (file.type === 'docx') {
-        displayDocx(file.content);
-    } else if (file.type === 'xlsx') {
-        displayXlsx(file.content);
-    } else if (file.type === 'txt') {
-        displayTxtFile(file.content);
-    } else if (isImage) {
-        displayImage(file.content);
-    }
-
-    document.getElementById('document-select').value = index;
-}
-
-
-
-        // Hide all viewers
-        function hideAllViewers() {
-            document.getElementById('pdf-viewer').style.display = 'none';
-            document.getElementById('docx-viewer').style.display = 'none';
-            document.getElementById('xlsx-viewer').style.display = 'none';
-            document.getElementById('txt-viewer').style.display = 'none';
-            document.getElementById('image-viewer').style.display = 'none';
+    }),
+    document.addEventListener("DOMContentLoaded", () => {
+        updateTagList(), updateTagDropdown(), updatePinnedDocsList();
+    }),
+    document.getElementById("unpin-all").addEventListener("click", () => {
+        confirm(
+            "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
+        ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
+    }),
+    document.addEventListener("DOMContentLoaded", () => {
+        updateTagList(), updatePinnedDocsList();
+    }),
+    document.getElementById("zoom-in").addEventListener("click", () => {
+        "pdf" === fileArray[currentDocIndex].type ? ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), renderPage(pageNum)) : "image" === fileArray[currentDocIndex].type && ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), adjustImageViewer()),
+            saveDocumentState();
+    }),
+    document.getElementById("zoom-out").addEventListener("click", () => {
+        "pdf" === fileArray[currentDocIndex].type ? ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), renderPage(pageNum)) : "image" === fileArray[currentDocIndex].type && ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), adjustImageViewer()),
+            saveDocumentState();
+    }),
+    document.getElementById("rotate").addEventListener("click", () => {
+        (rotationAngle = (rotationAngle + 90) % 360), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : "image" === fileArray[currentDocIndex].type && adjustImageViewer();
+    }),
+    document.getElementById("prev-page").addEventListener("click", () => {
+        1 < pageNum && (renderPage(--pageNum), saveDocumentState());
+    }),
+    document.getElementById("next-page").addEventListener("click", () => {
+        pageNum < pageCount && (renderPage(++pageNum), saveDocumentState());
+    }),
+    document.getElementById("folder-select").addEventListener("click", () => {
+        document.getElementById("file-input").click();
+    }),
+    document.getElementById("file-input").addEventListener("change", (e) => {
+        let n = [],
+            o = 0,
+            a = e.target.files.length;
+        for (let t of e.target.files) {
+            var l = new FileReader();
+            (l.onload = function (e) {
+                e = { name: t.name, type: getFileType(t.name), content: e.target.result };
+                n.push(e), ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
+            }),
+                l.readAsDataURL(t);
         }
-
-        // Display PDF files
-        function displayPDF(fileUrl) {
-            document.getElementById('pdf-viewer').style.display = 'block';
-            pdfjsLib.getDocument({data: atob(fileUrl.split(',')[1])}).promise.then(pdfDoc_ => {
-                pdfDoc = pdfDoc_;
-                pageCount = pdfDoc.numPages;
-                document.getElementById('page-count').textContent = pageCount;
-                pageNum = 1; 
-                rotationAngle = 0; 
-                renderPage(pageNum);
+    }),
+    document.getElementById("remove-file").addEventListener("click", () => {
+        let e = parseInt(document.getElementById("document-select").value);
+        if (0 <= e) {
+            let t = fileArray[e];
+            deleteFileFromIndexedDB(t.name)
+                .then(() => {
+                    console.log(`File ${t.name} deleted from IndexedDB`), fileArray.splice(e, 1), populateDocumentSelect(), 0 < fileArray.length ? loadDocument(0) : hideAllViewers();
+                })
+                .catch((e) => {
+                    console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
+                });
+        }
+    }),
+    document.addEventListener("DOMContentLoaded", () => {
+        loadFilesFromLocalStorage()
+            .then(() => {
+                populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList();
+            })
+            .catch((e) => console.error("Error loading files:", e));
+    }),
+    document.getElementById("flag-doc").addEventListener("click", () => {
+        var e = fileArray[currentDocIndex];
+        pinnedDocs.includes(e) || (pinnedDocs.push(e), updatePinnedDocsList());
+    }),
+    document.getElementById("export-list").addEventListener("click", () => {
+        if (0 === pinnedDocs.length) alert("No pinned documents to export.");
+        else {
+            let o = [],
+                t =
+                    (pinnedDocs.forEach((e) => {
+                        e.tags &&
+                            e.tags.forEach((t) => {
+                                o.some((e) => e.name === t.name) || o.push(t);
+                            });
+                    }),
+                    "data:text/csv;charset=utf-8,Document Name," + o.map((e) => e.name).join(",") + "\n");
+            pinnedDocs.forEach((e) => {
+                let n = e.name + ",";
+                o.forEach((t) => {
+                    n += e.tags && e.tags.some((e) => e.name === t.name) ? "1," : "0,";
+                }),
+                    (t += n.slice(0, -1) + "\n");
             });
+            var e = encodeURI(t),
+                n = document.createElement("a");
+            n.setAttribute("href", e), n.setAttribute("download", "pinned_documents_with_tags.csv"), document.body.appendChild(n), n.click(), document.body.removeChild(n);
         }
-        // Display Word documents (.docx) using Mammoth.js
-        function displayDocx(fileUrl) {
-            document.getElementById('docx-viewer').style.display = 'block';
-            fetch(fileUrl)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => mammoth.convertToHtml({ arrayBuffer }))
-                .then(result => {
-                    document.getElementById('docx-viewer').innerHTML = result.value;
-                })
-                .catch(console.error);
-        }
-        // Display Excel documents (.xlsx) using SheetJS
-        function displayXlsx(fileUrl) {
-            document.getElementById('xlsx-viewer').style.display = 'block';
-            fetch(fileUrl)
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const html = XLSX.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
-                    document.getElementById('xlsx-viewer').innerHTML = html;
-                })
-                .catch(console.error);
-        }
-        // Display text (.txt) files
-        function displayTxtFile(fileUrl) {
-            document.getElementById('txt-viewer').style.display = 'block';
-            fetch(fileUrl)
-                .then(response => response.text())
-                .then(text => {
-                    document.getElementById('txt-viewer').innerText = text;
-                })
-                .catch(console.error);
-        }
-        // Display images
-        function displayImage(fileUrl) {
-            document.getElementById('image-viewer').style.display = 'block';
-            document.getElementById('image-viewer').src = fileUrl;
-        }
-        // Function to render a PDF page with zoom and rotation
-function renderPage(num) {
-    pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: zoomLevel, rotation: rotationAngle });
+    }),
+    document.getElementById("prev-doc").addEventListener("click", () => {
+        0 < currentDocIndex && loadDocument(currentDocIndex - 1);
+    }),
+    document.getElementById("next-doc").addEventListener("click", () => {
+        currentDocIndex < fileArray.length - 1 && loadDocument(currentDocIndex + 1);
+    }),
+    document.getElementById("search").addEventListener("click", () => {
+        document.getElementById('spinner-loader').style.display = 'block'; // Show spinner
 
-        // Adjust the canvas size based on the new viewport (to prevent squishing)
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        setTimeout(() => {
+            let searchText = document.getElementById("search-text").value.toLowerCase();
+            let resultsList = document.getElementById("results-list");
+            resultsList.innerHTML = "";
+            let found = false;
+            let promises = [];
 
-        // Adjust the container's dimensions to fit the rotated/zoomed canvas
-        canvas.style.width = `${viewport.width}px`;
-        canvas.style.height = `${viewport.height}px`;
-
-        const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-        };
-        page.render(renderContext).promise.then(() => {
-            document.getElementById('page-num').textContent = num;
-        });
-    });
-}
-
-// Zoom In and Zoom Out functions
-document.getElementById('zoom-in').addEventListener('click', () => {
-    if (fileArray[currentDocIndex].type === 'pdf') {
-        zoomLevel = Math.min(zoomLevel + 0.25, 3);  // Max zoom level is 3
-        renderPage(pageNum);
-    } else if (fileArray[currentDocIndex].type === 'image') {
-        zoomLevel = Math.min(zoomLevel + 0.25, 3);  // Max zoom level for images
-        adjustImageViewer();
-    }
-});
-
-document.getElementById('zoom-out').addEventListener('click', () => {
-    if (fileArray[currentDocIndex].type === 'pdf') {
-        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);  // Min zoom level is 0.5
-        renderPage(pageNum);
-    } else if (fileArray[currentDocIndex].type === 'image') {
-        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);  // Min zoom level for images
-        adjustImageViewer();
-    }
-});
-
-    // Rotate function
-    document.getElementById('rotate').addEventListener('click', () => {
-        rotationAngle = (rotationAngle + 90) % 360;  // Rotate by 90 degrees clockwise
-        if (fileArray[currentDocIndex].type === 'pdf') {
-            renderPage(pageNum);  // Re-render the page after rotation
-        } else if (fileArray[currentDocIndex].type === 'image') {
-            adjustImageViewer();  // Rotate image
-        }
-    });
-    // Function to adjust the image viewer with zoom and rotation
-    function adjustImageViewer() {
-    const imageViewer = document.getElementById('image-viewer');
-    imageViewer.style.transform = `scale(${zoomLevel}) rotate(${rotationAngle}deg)`;
-    imageViewer.style.maxWidth = `${100 * zoomLevel}%`;
-    imageViewer.style.maxHeight = `${100 * zoomLevel}%`;
-}
-        // Page navigation for PDFs
-        document.getElementById('prev-page').addEventListener('click', () => {
-            if (pageNum > 1) {
-                pageNum--;
-                renderPage(pageNum);
-            }
-        });
-
-        document.getElementById('next-page').addEventListener('click', () => {
-            if (pageNum < pageCount) {
-                pageNum++;
-                renderPage(pageNum);
-            }
-        });
-
-        // Implement folder select button
-        document.getElementById('folder-select').addEventListener('click', () => {
-            document.getElementById('file-input').click();  // Trigger file input click
-        });
-
-        // Handle file uploads
-        document.getElementById('file-input').addEventListener('change', (event) => {
-            const newFiles = [];
-            let filesProcessed = 0;
-
-            for (const file of event.target.files) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const fileObj = {
-                        name: file.name,
-                        type: getFileType(file.name),
-                        content: e.target.result
-                    };
-                    newFiles.push(fileObj);
-                    filesProcessed++;
-
-                    if (filesProcessed === event.target.files.length) {
-                        // All files have been processed
-                        fileArray = [...fileArray, ...newFiles];
-                        saveFilesToLocalStorage();
-                        populateDocumentSelect();
-                        if (newFiles.length > 0) {
-                            loadDocument(fileArray.length - 1); // Load the last added document
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-
-            if (fileArray.length > 0) {
-                loadDocument(0); // Load the first document by default
-            }
-        });
-
-        // Function to save files to localStorage
-        function saveFilesToLocalStorage() {
-            localStorage.setItem('savedFiles', JSON.stringify(fileArray));
-        }
-
-        // Function to load files from localStorage
-        function loadFilesFromLocalStorage() {
-            const savedFiles = JSON.parse(localStorage.getItem('savedFiles')) || [];
-            fileArray = savedFiles;
-        }
-
-        // Helper function to get file type
-        function getFileType(fileName) {
-            if (fileName.endsWith('.pdf')) return 'pdf';
-            if (/\.(docx)$/i.test(fileName)) return 'docx';
-            if (/\.(xlsx)$/i.test(fileName)) return 'xlsx';
-            if (fileName.endsWith('.txt')) return 'txt';
-            if (/\.(jpeg|jpg|png|gif|tiff)$/i.test(fileName)) return 'image';
-            return 'unknown';
-        }
-
-        // Populate dropdown with documents
-        function populateDocumentSelect() {
-            const docSelect = document.getElementById('document-select');
-            docSelect.innerHTML = ''; // Clear previous options
-            fileArray.sort((a, b) => a.name.localeCompare(b.name));
             fileArray.forEach((file, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = file.name;
-                docSelect.appendChild(option);
-            });
-
-            // Update the selected option
-            if (fileArray.length > 0) {
-                docSelect.value = currentDocIndex;
-            }
-
-            // Add event listener for dropdown selection
-            docSelect.addEventListener('change', (event) => {
-                loadDocument(parseInt(event.target.value));
-            });
-
-            // Show/hide remove button based on selection
-            updateRemoveButtonVisibility();
-        }
-
-        // Function to update remove button visibility
-        function updateRemoveButtonVisibility() {
-            const removeButton = document.getElementById('remove-file');
-            removeButton.style.display = fileArray.length > 0 ? 'inline-block' : 'none';
-        }
-
-        // Add event listener for remove button
-        document.getElementById('remove-file').addEventListener('click', () => {
-            const docSelect = document.getElementById('document-select');
-            const selectedIndex = parseInt(docSelect.value);
-            if (selectedIndex >= 0) {
-                fileArray.splice(selectedIndex, 1);
-                saveFilesToLocalStorage();
-                populateDocumentSelect();
-                if (fileArray.length > 0) {
-                    loadDocument(0);
-                } else {
-                    // Clear the viewer if no files remain
-                    hideAllViewers();
+                if (file.type === "pdf") {
+                    let promise = pdfjsLib.getDocument({ data: atob(file.content.split(",")[1]) }).promise.then(doc => {
+                        return doc.getPage(1).then(page => {
+                            return page.getTextContent().then(textContent => {
+                                let fullText = textContent.items.map(item => item.str).join(" ").toLowerCase();
+                                if (fullText.includes(searchText)) {
+                                    found = true;
+                                    let resultItem = document.createElement("li");
+                                    let link = document.createElement("a");
+                                    link.textContent = file.name;
+                                    link.href = "#";
+                                    link.style.color = "white";
+                                    link.addEventListener("click", () => loadDocument(index));
+                                    resultItem.appendChild(link);
+                                    resultsList.appendChild(resultItem);
+                                }
+                            });
+                        });
+                    });
+                    promises.push(promise);
+                } else if (file.type === "txt") {
+                    let promise = fetch(file.content)
+                        .then(response => response.text())
+                        .then(text => {
+                            if (text.toLowerCase().includes(searchText)) {
+                                found = true;
+                                let resultItem = document.createElement("li");
+                                let link = document.createElement("a");
+                                link.textContent = file.name;
+                                link.href = "#";
+                                link.style.color = "white";
+                                link.addEventListener("click", () => loadDocument(index));
+                                resultItem.appendChild(link);
+                                resultsList.appendChild(resultItem);
+                            }
+                        });
+                    promises.push(promise);
+                } else if (file.type === "docx") {
+                    let promise = fetch(file.content)
+                        .then(response => response.arrayBuffer())
+                        .then(buffer => mammoth.extractRawText({ arrayBuffer: buffer }))
+                        .then(result => {
+                            if (result.value.toLowerCase().includes(searchText)) {
+                                found = true;
+                                let resultItem = document.createElement("li");
+                                let link = document.createElement("a");
+                                link.textContent = file.name;
+                                link.href = "#";
+                                link.style.color = "white";
+                                link.addEventListener("click", () => loadDocument(index));
+                                resultItem.appendChild(link);
+                                resultsList.appendChild(resultItem);
+                            }
+                        });
+                    promises.push(promise);
+                } else if (file.type === "xlsx") {
+                    let promise = fetch(file.content)
+                        .then(response => response.arrayBuffer())
+                        .then(buffer => {
+                            let workbook = XLSX.read(buffer, { type: "array" });
+                            workbook.SheetNames.forEach(sheetName => {
+                                let sheet = workbook.Sheets[sheetName];
+                                let csv = XLSX.utils.sheet_to_csv(sheet).toLowerCase();
+                                if (csv.includes(searchText)) {
+                                    found = true;
+                                    let resultItem = document.createElement("li");
+                                    let link = document.createElement("a");
+                                    link.textContent = file.name;
+                                    link.href = "#";
+                                    link.style.color = "white";
+                                    link.addEventListener("click", () => loadDocument(index));
+                                    resultItem.appendChild(link);
+                                    resultsList.appendChild(resultItem);
+                                }
+                            });
+                        });
+                    promises.push(promise);
                 }
-            }
-        });
+            });
 
-        // Load saved files when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            loadFilesFromLocalStorage();
+            Promise.all(promises).then(() => {
+                if (!found) {
+                    let noMatchItem = document.createElement("li");
+                    noMatchItem.textContent = "No matches found";
+                    noMatchItem.style.color = "white";
+                    resultsList.appendChild(noMatchItem);
+                }
+                document.getElementById('spinner-loader').style.display = 'none'; // Hide spinner
+            });
+        }, 1250); // 1.25 seconds delay
+    });
+
+    document.getElementById("search-doc").addEventListener("click", () => {
+        document.getElementById('spinner-loader').style.display = 'block'; // Show spinner
+
+        setTimeout(() => {
+            let searchText = document.getElementById("search-text").value.toLowerCase();
+            let resultsList = document.getElementById("results-list");
+            resultsList.innerHTML = "";
+
+            if (fileArray[currentDocIndex].type === "pdf") {
+                let pagePromises = [];
+                for (let i = 1; i <= pageCount; i++) {
+                    pagePromises.push(pdfDoc.getPage(i).then(page => page.getTextContent()));
+                }
+
+                Promise.all(pagePromises).then(pages => {
+                    let found = false;
+                    pages.forEach((pageContent, pageIndex) => {
+                        let fullText = pageContent.items.map(item => item.str).join(" ").toLowerCase();
+                        if (fullText.includes(searchText)) {
+                            found = true;
+                            let resultItem = document.createElement("li");
+                            let link = document.createElement("a");
+                            link.textContent = "Page " + (pageIndex + 1);
+                            link.href = "#";
+                            link.style.color = "white";
+                            link.addEventListener("click", () => {
+                                renderPage(pageIndex + 1); // Render the matching page
+                            });
+                            resultItem.appendChild(link);
+                            resultsList.appendChild(resultItem);
+                        }
+                    });
+
+                    if (!found) {
+                        let noMatchItem = document.createElement("li");
+                        noMatchItem.textContent = "No matches found";
+                        noMatchItem.style.color = "white";
+                        resultsList.appendChild(noMatchItem);
+                    }
+
+                    document.getElementById('spinner-loader').style.display = 'none'; // Hide spinner
+                });
+            } else {
+                resultsList.innerHTML = "<li>Search is not supported for this file type</li>";
+                document.getElementById('spinner-loader').style.display = 'none'; // Hide spinner
+            }
+        }, 1250); // 1.25 seconds delay
+    });
+
+    document.getElementById("search-text").addEventListener("keypress", (e) => {
+        if ("Enter" === e.key) {
+            document.getElementById("search-doc").click();
+        }
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case "ArrowRight":
+                    e.preventDefault();
+                    navigateDocument(1);
+                    break;
+                case "ArrowLeft":
+                    e.preventDefault();
+                    navigateDocument(-1);
+                    break;
+                case "f":
+                    e.preventDefault();
+                    document.getElementById("search-text").focus();
+                    break;
+            }
+        }
+        if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey)) {
+            switch (e.key) {
+                case "=": // This will work for both '+' and '=' keys
+                    e.preventDefault();
+                    zoomIn();
+                    break;
+                case "-":
+                    e.preventDefault();
+                    zoomOut();
+                    break;
+            }
+        }
+    }),
+    document.addEventListener("DOMContentLoaded", () => {
+        updateHelpWindowWithShortcuts();
+    }),
+    document.addEventListener("DOMContentLoaded", () => {
+        loadFilesFromLocalStorage()
+            .then(() => {
+                populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList();
+            })
+            .catch((e) => console.error("Error loading files:", e));
+    });
+
+// Add this code near the beginning of your script, after the initial variable declarations
+
+document.addEventListener('DOMContentLoaded', function() {
+    const helpButton = document.getElementById('help-button');
+    const helpWindow = document.getElementById('help-window');
+    const closeHelp = document.getElementById('close-help');
+
+    helpButton.addEventListener('click', function() {
+        helpWindow.style.display = 'block';
+        helpWindow.classList.add('show');
+    });
+
+    closeHelp.addEventListener('click', function() {
+        helpWindow.style.display = 'none';
+        helpWindow.classList.remove('show');
+    });
+
+    // Close help window when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target === helpWindow) {
+            helpWindow.style.display = 'none';
+            helpWindow.classList.remove('show');
+        }
+    });
+
+    // Update help window with shortcuts
+    updateHelpWindowWithShortcuts();
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+            case "ArrowRight":
+                e.preventDefault();
+                navigateDocument(1);
+                break;
+            case "ArrowLeft":
+                e.preventDefault();
+                navigateDocument(-1);
+                break;
+            case "f":
+                e.preventDefault();
+                document.getElementById("search-text").focus();
+                break;
+        }
+    }
+    // New shortcuts for navigating document pages
+    if (e.shiftKey) {
+        switch (e.key) {
+            case "ArrowRight":
+                e.preventDefault();
+                navigatePage(1); // Function to navigate to the next page
+                break;
+            case "ArrowLeft":
+                e.preventDefault();
+                navigatePage(-1); // Function to navigate to the previous page
+                break;
+        }
+    }
+    if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey)) {
+        switch (e.key) {
+            case "=": // This will work for both '+' and '=' keys
+                e.preventDefault();
+                zoomIn();
+                break;
+            case "-":
+                e.preventDefault();
+                zoomOut();
+                break;
+        }
+    }
+});
+
+function zoomIn() {
+    if (fileArray[currentDocIndex]) {
+        if (["pdf", "image"].includes(fileArray[currentDocIndex].type)) {
+            zoomLevel = Math.min(zoomLevel + 0.25, 3);
+            if (fileArray[currentDocIndex].type === "pdf") {
+                renderPage(pageNum);
+            } else {
+                adjustImageViewer();
+            }
+            saveDocumentState();
+        }
+    }
+}
+
+function zoomOut() {
+    if (fileArray[currentDocIndex]) {
+        if (["pdf", "image"].includes(fileArray[currentDocIndex].type)) {
+            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+            if (fileArray[currentDocIndex].type === "pdf") {
+                renderPage(pageNum);
+            } else {
+                adjustImageViewer();
+            }
+            saveDocumentState();
+        }
+    }
+}
+
+// Update existing zoom button event listeners
+document.getElementById("zoom-in").addEventListener("click", zoomIn);
+document.getElementById("zoom-out").addEventListener("click", zoomOut);
+
+function updateHelpWindowWithShortcuts() {
+    const shortcuts = [
+        { description: "Next Document", windows: "Ctrl + →", mac: "Cmd + →" },
+        { description: "Previous Document", windows: "Ctrl + ←", mac: "Cmd + ←" },
+        { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
+        { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
+        { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
+        // Updated shortcuts for navigating document pages
+        { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
+        { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" }
+    ];
+
+    const shortcutTable = document.querySelector('.shortcut-table tbody');
+    if (shortcutTable) {
+        shortcutTable.innerHTML = shortcuts.map(shortcut => `
+            <tr>
+                <td>${shortcut.description}</td>
+                <td>${shortcut.windows}</td>
+                <td>${shortcut.mac}</td>
+            </tr>
+        `).join('');
+    }
+}
+
+function navigateDocument(direction) {
+    let newIndex = currentDocIndex + direction;
+    if (newIndex >= 0 && newIndex < fileArray.length) {
+        loadDocument(newIndex);
+    }
+}
+
+// Function to navigate between pages
+function navigatePage(direction) {
+    if (direction === 1 && pageNum < pageCount) {
+        renderPage(++pageNum);
+    } else if (direction === -1 && pageNum > 1) {
+        renderPage(--pageNum);
+    }
+    saveDocumentState();
+}
+
+// Update existing next and previous document button event listeners
+// document.getElementById("next-doc").addEventListener("click", () => navigateDocument(1));
+// document.getElementById("prev-doc").addEventListener("click", () => navigateDocument(-1));
+
+// Update the existing DOMContentLoaded event listener
+document.addEventListener("DOMContentLoaded", () => {
+    loadFilesFromLocalStorage()
+        .then(() => {
             populateDocumentSelect();
             if (fileArray.length > 0) {
                 loadDocument(0);
             }
             updateTagList();
             updatePinnedDocsList();
-        });
+            updateHelpWindowWithShortcuts(); // Add this line
+        })
+        .catch((e) => console.error("Error loading files:", e));
+});
 
-        // Implement document pinning
-        document.getElementById('flag-doc').addEventListener('click', () => {
-            const currentDoc = fileArray[currentDocIndex];
-            if (!pinnedDocs.includes(currentDoc)) {
-                pinnedDocs.push(currentDoc);
-                updatePinnedDocsList();
-            }
-        });
+// spinner js
+function loadDocument(e) {
+    if (e < 0 || e >= fileArray.length) return;
 
-        // Update the export function to create separate columns for each tag
-        document.getElementById('export-list').addEventListener('click', () => {
-            if (pinnedDocs.length === 0) {
-                alert("No pinned documents to export.");
-                return;
-            }
+    if (fileArray.length > 50) {
+        document.getElementById('spinner-loader').style.display = 'block';
+        setTimeout(() => {
+            hideAllViewers();
+            // Your existing document loading logic here...
+            loadDocumentContent(e); // Create a separate function for loading document
+            document.getElementById('spinner-loader').style.display = 'none';
+        }, 1250); // 1.25 seconds delay
+    } else {
+        hideAllViewers();
+        loadDocumentContent(e); // Create a separate function for loading document
+    }
+}
 
-            // Step 1: Collect all unique tags from all documents
-            let uniqueTags = [];
-            pinnedDocs.forEach(doc => {
-                if (doc.tags) {
-                    doc.tags.forEach(tag => {
-                        if (!uniqueTags.some(t => t.name === tag.name)) {
-                            uniqueTags.push(tag);
-                        }
-                    });
-                }
-            });
+function loadDocumentContent(e) {
+    currentDocIndex = e;
+    let t = fileArray[e];
+    hideAllViewers();
+    let isPdf = t.type === "pdf";
+    let isImage = t.type === "image";
+    document.getElementById("prev-page").disabled = !isPdf;
+    document.getElementById("next-page").disabled = !isPdf;
+    document.getElementById("zoom-in").disabled = !(isPdf || isImage);
+    document.getElementById("zoom-out").disabled = !(isPdf || isImage);
+    document.getElementById("rotate").disabled = !(isPdf || isImage);
+    zoomLevel = 1.25;
+    pageNum = 1;
+    rotationAngle = 0;
 
-            // Step 2: Start CSV content with header row
-            let csvContent = "data:text/csv;charset=utf-8,Document Name," + uniqueTags.map(tag => tag.name).join(',') + "\n";
+    if (isPdf) {
+        displayPDF(t.content);
+    } else if (t.type === "docx") {
+        displayDocx(t.content);
+    } else if (t.type === "xlsx") {
+        displayXlsx(t.content);
+    } else if (t.type === "txt") {
+        displayTxtFile(t.content);
+    } else if (isImage) {
+        displayImage(t.content);
+    }
 
-            // Step 3: Loop through each pinned document
-            pinnedDocs.forEach(doc => {
-                // Start the row with the document name
-                let row = `${doc.name},`;
+    document.getElementById("document-select").value = e;
+}
 
-                // Step 4: For each tag in the uniqueTags list, add '1' or '0' depending on whether it's applied to the document
-                uniqueTags.forEach(tag => {
-                    const hasTag = doc.tags ? doc.tags.some(t => t.name === tag.name) : false;
-                    row += hasTag ? '1,' : '0,'; // Add '1' if the tag is applied, '0' if it's not
-                });
 
-                // Remove the trailing comma and add the row to CSV content
-                csvContent += row.slice(0, -1) + "\n";
-            });
+document.getElementById("search").addEventListener("click", () => {
+    document.getElementById('spinner-loader').style.display = 'block';
 
-            // Step 5: Encode CSV content and trigger download
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "pinned_documents_with_tags.csv");
-            document.body.appendChild(link);
+    setTimeout(() => {
+        let searchText = document.getElementById("search-text").value.toLowerCase();
+        let resultsList = document.getElementById("results-list");
+        resultsList.innerHTML = "";
+        let found = false;
+        let promises = [];
 
-            link.click();
-            document.body.removeChild(link);
-        });
-
-        // Implement navigation for documents (Next and Previous)
-        document.getElementById('prev-doc').addEventListener('click', () => {
-            if (currentDocIndex > 0) {
-                loadDocument(currentDocIndex - 1);
-            }
-        });
-
-        document.getElementById('next-doc').addEventListener('click', () => {
-            if (currentDocIndex < fileArray.length - 1) {
-                loadDocument(currentDocIndex + 1);
-            }
-        });
-
-        // Implement search across all documents
-document.getElementById('search').addEventListener('click', () => {
-    const searchText = document.getElementById('search-text').value.toLowerCase();
-    const resultsList = document.getElementById('results-list');
-    resultsList.innerHTML = ''; // Clear previous search results
-
-    let found = false;  // Track if matches are found
-    let searchPromises = [];
-
-    fileArray.forEach((file, index) => {
-        if (file.type === 'pdf') {
-            // Search through PDFs
-            const promise = pdfjsLib.getDocument({data: atob(file.content.split(',')[1])}).promise.then(pdfDoc_ => {
-                return pdfDoc_.getPage(1).then(page => {
-                    return page.getTextContent().then(textContent => {
-                        const text = textContent.items.map(item => item.str).join(' ');
-                        if (text.toLowerCase().includes(searchText)) {
-                            found = true;
-                            const li = document.createElement('li');
-                            const link = document.createElement('a');
-                            link.textContent = file.name;
-                            link.href = "#";
-                            link.style.color = 'white';
-                            link.addEventListener('click', () => loadDocument(index));
-                            li.appendChild(link);
-                            resultsList.appendChild(li);
-                        }
+        fileArray.forEach((file, index) => {
+            if (file.type === "pdf") {
+                let promise = pdfjsLib.getDocument({ data: atob(file.content.split(",")[1]) }).promise.then(doc => {
+                    return doc.getPage(1).then(page => {
+                        return page.getTextContent().then(textContent => {
+                            let fullText = textContent.items.map(item => item.str).join(" ").toLowerCase();
+                            if (fullText.includes(searchText)) {
+                                found = true;
+                                let resultItem = document.createElement("li");
+                                let link = document.createElement("a");
+                                link.textContent = file.name;
+                                link.href = "#";
+                                link.style.color = "white";
+                                link.addEventListener("click", () => loadDocument(index));
+                                resultItem.appendChild(link);
+                                resultsList.appendChild(resultItem);
+                            }
+                        });
                     });
                 });
-            });
-            searchPromises.push(promise);
+                promises.push(promise);
+            }
+            // Repeat similar logic for other file types (txt, docx, xlsx)...
+        });
 
-        } else if (file.type === 'txt') {
-            // Search through .txt files
-            const promise = fetch(file.content)
-                .then(response => response.text())
-                .then(text => {
-                    if (text.toLowerCase().includes(searchText)) {
-                        found = true;
-                        const li = document.createElement('li');
-                        const link = document.createElement('a');
-                        link.textContent = file.name;
-                        link.href = "#";
-                        link.style.color = 'white';
-                        link.addEventListener('click', () => loadDocument(index));
-                        li.appendChild(link);
-                        resultsList.appendChild(li);
-                    }
-                });
-            searchPromises.push(promise);
-
-        } else if (file.type === 'docx') {
-            // Search through .docx files
-            const promise = fetch(file.content)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => mammoth.extractRawText({ arrayBuffer }))
-                .then(result => {
-                    const text = result.value;
-                    if (text.toLowerCase().includes(searchText)) {
-                        found = true;
-                        const li = document.createElement('li');
-                        const link = document.createElement('a');
-                        link.textContent = file.name;
-                        link.href = "#";
-                        link.style.color = 'white';
-                        link.addEventListener('click', () => loadDocument(index));
-                        li.appendChild(link);
-                        resultsList.appendChild(li);
-                    }
-                });
-            searchPromises.push(promise);
-
-        } else if (file.type === 'xlsx') {
-            // Search through .xlsx files using SheetJS
-            const promise = fetch(file.content)
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        const text = XLSX.utils.sheet_to_csv(worksheet);
-                        if (text.toLowerCase().includes(searchText)) {
-                            found = true;
-                            const li = document.createElement('li');
-                            const link = document.createElement('a');
-                            link.textContent = file.name;
-                            link.href = "#";
-                            link.style.color = 'white';
-                            link.addEventListener('click', () => loadDocument(index));
-                            li.appendChild(link);
-                            resultsList.appendChild(li);
-                        }
-                    });
-                });
-            searchPromises.push(promise);
-        }
-    });
-
-    // After all searches are done, check if any match was found
-    Promise.all(searchPromises).then(() => {
-        if (!found) {
-            const li = document.createElement('li');
-            li.textContent = "No matches found";
-            li.style.color = 'white';
-            resultsList.appendChild(li);
-        }
-    });
+        Promise.all(promises).then(() => {
+            if (!found) {
+                let noMatchItem = document.createElement("li");
+                noMatchItem.textContent = "No matches found";
+                noMatchItem.style.color = "white";
+                resultsList.appendChild(noMatchItem);
+            }
+            document.getElementById('spinner-loader').style.display = 'none';
+        });
+    }, 1250); // 1.25 seconds delay
 });
 
 
-        // Implement search within the current document
-        document.getElementById('search-doc').addEventListener('click', () => {
-            const searchText = document.getElementById('search-text').value.toLowerCase();
-            const resultsList = document.getElementById('results-list');
-            resultsList.innerHTML = ''; // Clear previous search results
-
-            if (fileArray[currentDocIndex].type === 'pdf') {
-                let matches = [];
-
-                for (let i = 1; i <= pageCount; i++) {
-                    pdfDoc.getPage(i).then(page => {
-                        page.getTextContent().then(textContent => {
-                            const text = textContent.items.map(item => item.str).join(' ');
-                            if (text.toLowerCase().includes(searchText)) {
-                                matches.push(i);
-                                const li = document.createElement('li');
-                                const link = document.createElement('a');
-                                link.textContent = `Page ${i}`;
-                                link.href = "#";
-                                link.style.color = 'white';
-                                link.addEventListener('click', () => {
-                                    pageNum = i;
-                                    renderPage(pageNum);
-                                });
-                                li.appendChild(link);
-                                resultsList.appendChild(li);
-                            }
-                        });
-                    });
-                }
-                
-            } else if (fileArray[currentDocIndex].type === 'txt') {
-                fetch(fileArray[currentDocIndex].content)
-                    .then(response => response.text())
-                    .then(text => {
-                        const lines = text.split('\n');
-                        lines.forEach((line, index) => {
-                            if (line.toLowerCase().includes(searchText)) {
-                                const li = document.createElement('li');
-                                li.textContent = `Line ${index + 1}: ${line}`;
-                                li.style.color = 'white';
-                                resultsList.appendChild(li);
-                            }
-                        });
-                        if (resultsList.innerHTML === '') {
-                            resultsList.innerHTML = '<li>No matches found</li>';
-                        }
-                    });
-            
-            } else {
-                resultsList.innerHTML = '<li>Search is not supported for this file type</li>';
-            }
-        });
-
-        // Search on Enter key
-        document.getElementById('search-text').addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                document.getElementById('search-doc').click();
-            }
-        });
-
-        // Helper function to determine text color based on background color
-        function getContrastColor(hexcolor) {
-            // If a leading # is provided, remove it
-            if (hexcolor.slice(0, 1) === '#') {
-                hexcolor = hexcolor.slice(1);
-            }
-
-            // Convert to RGB value
-            var r = parseInt(hexcolor.substr(0,2),16);
-            var g = parseInt(hexcolor.substr(2,2),16);
-            var b = parseInt(hexcolor.substr(4,2),16);
-
-            // Get YIQ ratio
-            var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-
-            // Check contrast
-            return (yiq >= 128) ? 'black' : 'white';
-        }
     </script>
-    <!-- // JavaScript Ends Here -->
 </body>
 </html>
 <!-- HTML Ends Here -->
