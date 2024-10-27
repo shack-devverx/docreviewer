@@ -244,22 +244,119 @@ a:hover {
     color: #ff0;
 }
 #help-window {
-    position: absolute;
-    top: 50px;
-    transform: translateX(-50%);
-    width: 350px;
-    padding: 10px 30px;
-    color: #222;
-    z-index: 10000;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    font-family: Arial, sans-serif;
 }
-#help-window ul {
-    text-align: left;
+#help-window.show {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+#help-window .close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #ff4d4d;
+    background: 0 0;
+    border: none;
+}
+.help-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.help-section {
+    width: 100%;
+}
+.help-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+.help-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.help-section ul li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+.help-section ul li svg {
+    margin-right: 8px;
+}
+#keyboard-shortcuts {
     list-style-type: none;
     padding: 0;
 }
-#help-window ul li {
-    text-align: left;
-    margin-bottom: 10px;
+#keyboard-shortcuts li {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 0.9rem;
+    justify-content: space-between;
+}
+.shortcut-keys {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    justify-content: space-between;
+    column-gap: 10px;
+}
+.shortcut-keys span {
+    flex: 1;
+}
+.shortcut-keys strong {
+    background-color: #e9ecef00;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+.shortcut-description {
+    color: #555;
+    font-size: 0.9em;
+}
+.mac,
+.windows {
+    display: inline-block;
+    width: 48%;
+}
+#help-window button:hover {
+    opacity: 0.8;
+}
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+.help-overlay.show {
+    display: block;
 }
 #tag-popup {
     position: fixed;
@@ -361,4 +458,250 @@ a:hover {
     margin-bottom: 4px;
     border: 1px solid #000;
     border-radius: 3px;
+}
+.help-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+.help-table tbody td {
+    text-align: center;
+}
+.help-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+.help-table thead th {
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+.help-table tbody tr:nth-child(odd) {
+    background-color: #e9ecef;
+}
+.help-table tbody tr:nth-child(even) {
+    background-color: #fff;
+}
+.help-table tbody td {
+    padding: 10px;
+    font-size: 1rem;
+    color: #333;
+    width: 75%;
+}
+.help-table tbody td:first-child {
+    text-align: center;
+    width: 50px;
+}
+.help-table tfoot td {
+    padding: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+    text-align: center;
+    background-color: #f1f1f1;
+    color: #666;
+}
+.help-table tbody tr:hover {
+    background-color: #f0f8ff;
+}
+@media (max-width: 768px) {
+    .help-table tfoot,
+    .help-table thead {
+        display: none;
+    }
+    .help-table,
+    .help-table tbody,
+    .help-table td,
+    .help-table tr {
+        display: block;
+        width: 100%;
+    }
+    .help-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+    .help-table td:first-child {
+        text-align: left;
+        padding-left: 15px;
+    }
+    .help-table td:before {
+        content: attr(data-title);
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        font-weight: 700;
+    }
+}
+.shortcut-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+.shortcut-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+.shortcut-table thead th {
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: left;
+}
+.shortcut-table tbody tr:nth-child(odd) {
+    background-color: #e9ecef;
+}
+.shortcut-table tbody tr:nth-child(even) {
+    background-color: #fff;
+}
+.shortcut-table tbody td {
+    padding: 10px;
+    font-size: 1rem;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+.shortcut-table tbody tr:hover {
+    background-color: #f0f8ff;
+}
+@media (max-width: 768px) {
+    .shortcut-table thead {
+        display: none;
+    }
+    .shortcut-table,
+    .shortcut-table tbody,
+    .shortcut-table td,
+    .shortcut-table tr {
+        display: block;
+        width: 100%;
+    }
+    .shortcut-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+    .shortcut-table td:first-child {
+        text-align: left;
+        padding-left: 15px;
+    }
+    .shortcut-table td:before {
+        content: attr(data-title);
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        font-weight: 700;
+    }
+}
+.info-text :nth-child(1) {
+    font-size: 24px !important;
+}
+@media (min-width: 768px) {
+    .help-container {
+        flex-direction: row;
+    }
+    .help-section {
+        width: 48%;
+    }
+}
+@media (max-width: 768px) {
+    #help-window {
+        width: 95%;
+        padding: 15px;
+    }
+    .help-section h2 {
+        font-size: 1.2rem;
+    }
+    .help-section ul li {
+        font-size: 0.9rem;
+    }
+    #keyboard-shortcuts li {
+        font-size: 0.8rem;
+    }
+}
+.spinner {
+    margin: 100px auto 0;
+    width: 70px;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+.spinner > div {
+    width: 18px;
+    height: 18px;
+    background-color: #bc7070;
+    border-radius: 100%;
+    display: inline-block;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+.spinner .bounce1 {
+    animation-delay: -0.32s;
+}
+.spinner .bounce2 {
+    animation-delay: -0.16s;
+}
+@keyframes sk-bouncedelay {
+    0%,
+    100%,
+    80% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+.spinner, .spinner-search {
+    margin: 100px auto 0;
+    width: 70px;
+    text-align: center;
+    position: fixed;
+    top: 35%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+.spinner-search{
+    position: absolute;
+    top: 15%;
+    left: 40%;
+}
+.spinner > div,
+.spinner-search > div {
+    width: 18px;
+    height: 18px;
+    background-color: #bc7070;
+    border-radius: 100%;
+    display: inline-block;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+.spinner .bounce1,
+.spinner-search .bounce1 {
+    animation-delay: -0.32s;
+}
+.spinner .bounce2,
+.spinner-search .bounce2 {
+    animation-delay: -0.16s;
+}
+@keyframes sk-bouncedelay {
+    0%,
+    100%,
+    80% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
 }

@@ -1,5 +1,5 @@
 alert(
-    "ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. © 2024 Adam J Schwartz, All Rights Reserved"
+    "ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. Â© 2024 Adam J Schwartz, All Rights Reserved"
 ),
     document.getElementById("help-button").addEventListener("click", function () {
         document.getElementById("help-window").style.display = "block";
@@ -55,8 +55,8 @@ function updateTagDropdown() {
     });
 }
 function updatePinnedDocsList() {
-    let r = document.getElementById("pinned-list");
-    (r.innerHTML = ""),
+    let d = document.getElementById("pinned-list");
+    (d.innerHTML = ""),
         pinnedDocs.forEach((o, e) => {
             var t = document.createElement("li"),
                 n = ((t.textContent = o.name), document.createElement("span"));
@@ -86,12 +86,12 @@ function updatePinnedDocsList() {
                     o.tags.forEach((e) => {
                         var t = document.createElement("span"),
                             n = ((t.textContent = e.name), (t.className = "assigned-tag"), (t.style.backgroundColor = e.color), (t.style.color = getContrastColor(e.color)), document.createElement("span"));
-                        (n.textContent = "✖"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
+                        (n.textContent = "âœ–"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
                     }),
                 t.appendChild(n),
                 t.appendChild(a),
                 t.appendChild(l),
-                r.appendChild(t);
+                d.appendChild(t);
         }),
         savePinnedDocsToLocalStorage();
 }
@@ -156,8 +156,7 @@ function displayXlsx(e) {
         fetch(e)
             .then((e) => e.arrayBuffer())
             .then((e) => {
-                (e = XLSX.read(e, { type: "array" })), (e = XLSX.utils.sheet_to_html(e.Sheets[e.SheetNames[0]]));
-                document.getElementById("xlsx-viewer").innerHTML = e;
+                (e = XLSX.read(e, { type: "array" })), (e = XLSX.utils.sheet_to_html(e.Sheets[e.SheetNames[0]])), (document.getElementById("xlsx-viewer").innerHTML = e);
             })
             .catch(console.error);
 }
@@ -249,20 +248,6 @@ function updateRemoveButtonVisibility() {
 function getContrastColor(e) {
     return "#" === e.slice(0, 1) && (e = e.slice(1)), 128 <= (299 * parseInt(e.substr(0, 2), 16) + 587 * parseInt(e.substr(2, 2), 16) + 114 * parseInt(e.substr(4, 2), 16)) / 1e3 ? "black" : "white";
 }
-function updateHelpWindowWithShortcuts() {
-    let n = document.getElementById("keyboard-shortcuts");
-    n.innerHTML = "";
-    [
-        { key: "Ctrl + →", description: "Next Document" },
-        { key: "Ctrl + ←", description: "Previous Document" },
-        { key: "Ctrl + +", description: "Zoom In" },
-        { key: "Ctrl + -", description: "Zoom Out" },
-        { key: "Ctrl + F", description: "Focus Search Box" },
-    ].forEach((e) => {
-        var t = document.createElement("li");
-        (t.innerHTML = `<strong>${e.key}</strong> - ` + e.description), n.appendChild(t);
-    });
-}
 function saveDocumentState() {
     var e;
     fileArray[currentDocIndex] && ((e = { pageNum: pageNum, zoomLevel: zoomLevel, rotationAngle: rotationAngle }), localStorage.setItem("docState_" + fileArray[currentDocIndex].name, JSON.stringify(e)));
@@ -344,6 +329,72 @@ function loadFilesFromLocalStorage() {
             })
     );
 }
+function zoomIn() {
+    fileArray[currentDocIndex] &&
+        ["pdf", "image"].includes(fileArray[currentDocIndex].type) &&
+        ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : adjustImageViewer(), saveDocumentState());
+}
+function zoomOut() {
+    fileArray[currentDocIndex] &&
+        ["pdf", "image"].includes(fileArray[currentDocIndex].type) &&
+        ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : adjustImageViewer(), saveDocumentState());
+}
+function updateHelpWindowWithShortcuts() {
+    var e = document.querySelector(".shortcut-table tbody");
+    e &&
+        (e.innerHTML = [
+            { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
+            { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
+            { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
+            { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
+            { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
+            { description: "Next Doc Page", windows: "Shift + â†’", mac: "Shift + â†’" },
+            { description: "Prev Doc Page", windows: "Shift + â†", mac: "Shift + â†" },
+        ]
+            .map(
+                (e) => `
+            <tr>
+                <td>${e.description}</td>
+                <td>${e.windows}</td>
+                <td>${e.mac}</td>
+            </tr>
+        `
+            )
+            .join(""));
+}
+function navigateDocument(e) {
+    e = currentDocIndex + e;
+    0 <= e && e < fileArray.length && loadDocument(e);
+}
+function navigatePage(e) {
+    1 === e && pageNum < pageCount ? renderPage(++pageNum) : -1 === e && 1 < pageNum && renderPage(--pageNum), saveDocumentState();
+}
+function loadDocument(e) {
+    e < 0 ||
+        e >= fileArray.length ||
+        (50 < fileArray.length
+            ? ((document.getElementById("spinner-loader").style.display = "block"),
+              setTimeout(() => {
+                  hideAllViewers(), loadDocumentContent(e), (document.getElementById("spinner-loader").style.display = "none");
+              }, 1250))
+            : (hideAllViewers(), loadDocumentContent(e)));
+}
+function loadDocumentContent(e) {
+    currentDocIndex = e;
+    var t = fileArray[e],
+        n = (hideAllViewers(), "pdf" === t.type),
+        o = "image" === t.type;
+    (document.getElementById("prev-page").disabled = !n),
+        (document.getElementById("next-page").disabled = !n),
+        (document.getElementById("zoom-in").disabled = !(n || o)),
+        (document.getElementById("zoom-out").disabled = !(n || o)),
+        (document.getElementById("rotate").disabled = !(n || o)),
+        (zoomLevel = 1.25),
+        (pageNum = 1),
+        (rotationAngle = 0),
+        n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
+        (document.getElementById("document-select").value = e);
+}
 document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener(
         "keydown",
@@ -384,18 +435,18 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             : ((o.textContent = "Tag name can't be empty!"), (o.style.display = "block"));
     }),
     document.getElementById("delete-tag").addEventListener("click", (e) => {
-        e.stopPropagation();
-        e = document.getElementById("error-message");
-        null !== selectedTagIndex
-            ? (tags.splice(selectedTagIndex, 1),
-              saveTagsToLocalStorage(),
-              updateTagList(),
-              updateTagDropdown(),
-              (selectedTagIndex = null),
-              (document.getElementById("tag-input").value = ""),
-              (document.getElementById("tag-color").value = "#007BFF"),
-              (e.style.display = "none"))
-            : ((e.textContent = "Please select a tag to delete."), (e.style.display = "block"));
+        e.stopPropagation(),
+            (e = document.getElementById("error-message")),
+            null !== selectedTagIndex
+                ? (tags.splice(selectedTagIndex, 1),
+                  saveTagsToLocalStorage(),
+                  updateTagList(),
+                  updateTagDropdown(),
+                  (selectedTagIndex = null),
+                  (document.getElementById("tag-input").value = ""),
+                  (document.getElementById("tag-color").value = "#007BFF"),
+                  (e.style.display = "none"))
+                : ((e.textContent = "Please select a tag to delete."), (e.style.display = "block"));
     }),
     document.getElementById("tag-popup").addEventListener("click", () => {
         document.getElementById("error-message").style.display = "none";
@@ -443,8 +494,9 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         for (let t of e.target.files) {
             var l = new FileReader();
             (l.onload = function (e) {
-                e = { name: t.name, type: getFileType(t.name), content: e.target.result };
-                n.push(e), ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
+                (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
+                    n.push(e),
+                    ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
             }),
                 l.readAsDataURL(t);
         }
@@ -504,120 +556,129 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         currentDocIndex < fileArray.length - 1 && loadDocument(currentDocIndex + 1);
     }),
     document.getElementById("search").addEventListener("click", () => {
-        let l = document.getElementById("search-text").value.toLowerCase(),
-            r = document.getElementById("results-list"),
-            d = ((r.innerHTML = ""), !1),
-            t = [];
-        fileArray.forEach((o, a) => {
-            var e;
-            "pdf" === o.type
-                ? ((e = pdfjsLib.getDocument({ data: atob(o.content.split(",")[1]) }).promise.then((e) =>
-                      e.getPage(1).then((e) =>
-                          e.getTextContent().then((e) => {
-                              var t;
-                              e.items
-                                  .map((e) => e.str)
-                                  .join(" ")
-                                  .toLowerCase()
-                                  .includes(l) &&
-                                  ((d = !0),
-                                  (e = document.createElement("li")),
-                                  ((t = document.createElement("a")).textContent = o.name),
-                                  (t.href = "#"),
-                                  (t.style.color = "white"),
-                                  t.addEventListener("click", () => loadDocument(a)),
-                                  e.appendChild(t),
-                                  r.appendChild(e));
-                          })
-                      )
-                  )),
-                  t.push(e))
-                : "txt" === o.type
-                ? ((e = fetch(o.content)
-                      .then((e) => e.text())
-                      .then((e) => {
-                          var t;
-                          e.toLowerCase().includes(l) &&
-                              ((d = !0),
-                              (e = document.createElement("li")),
-                              ((t = document.createElement("a")).textContent = o.name),
-                              (t.href = "#"),
-                              (t.style.color = "white"),
-                              t.addEventListener("click", () => loadDocument(a)),
-                              e.appendChild(t),
-                              r.appendChild(e));
-                      })),
-                  t.push(e))
-                : "docx" === o.type
-                ? ((e = fetch(o.content)
-                      .then((e) => e.arrayBuffer())
-                      .then((e) => mammoth.extractRawText({ arrayBuffer: e }))
-                      .then((e) => {
-                          var t;
-                          e.value.toLowerCase().includes(l) &&
-                              ((d = !0),
-                              (e = document.createElement("li")),
-                              ((t = document.createElement("a")).textContent = o.name),
-                              (t.href = "#"),
-                              (t.style.color = "white"),
-                              t.addEventListener("click", () => loadDocument(a)),
-                              e.appendChild(t),
-                              r.appendChild(e));
-                      })),
-                  t.push(e))
-                : "xlsx" === o.type &&
-                  ((e = fetch(o.content)
-                      .then((e) => e.arrayBuffer())
-                      .then((e) => {
-                          let n = XLSX.read(e, { type: "array" });
-                          n.SheetNames.forEach((e) => {
-                              var t,
-                                  e = n.Sheets[e];
-                              XLSX.utils.sheet_to_csv(e).toLowerCase().includes(l) &&
-                                  ((d = !0),
-                                  (e = document.createElement("li")),
-                                  ((t = document.createElement("a")).textContent = o.name),
-                                  (t.href = "#"),
-                                  (t.style.color = "white"),
-                                  t.addEventListener("click", () => loadDocument(a)),
-                                  e.appendChild(t),
-                                  r.appendChild(e));
-                          });
-                      })),
-                  t.push(e));
-        }),
-            Promise.all(t).then(() => {
-                var e;
-                d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), r.appendChild(e));
-            });
+        (document.getElementById("spinner-search").style.display = "block"),
+            setTimeout(() => {
+                let l = document.getElementById("search-text").value.toLowerCase(),
+                    d = document.getElementById("results-list"),
+                    r = ((d.innerHTML = ""), !1),
+                    t = [];
+                fileArray.forEach((o, a) => {
+                    var e;
+                    "pdf" === o.type
+                        ? ((e = pdfjsLib.getDocument({ data: atob(o.content.split(",")[1]) }).promise.then((e) =>
+                              e.getPage(1).then((e) =>
+                                  e.getTextContent().then((e) => {
+                                      var t;
+                                      e.items
+                                          .map((e) => e.str)
+                                          .join(" ")
+                                          .toLowerCase()
+                                          .includes(l) &&
+                                          ((r = !0),
+                                          (e = document.createElement("li")),
+                                          ((t = document.createElement("a")).textContent = o.name),
+                                          (t.href = "#"),
+                                          (t.style.color = "white"),
+                                          t.addEventListener("click", () => loadDocument(a)),
+                                          e.appendChild(t),
+                                          d.appendChild(e));
+                                  })
+                              )
+                          )),
+                          t.push(e))
+                        : "txt" === o.type
+                        ? ((e = fetch(o.content)
+                              .then((e) => e.text())
+                              .then((e) => {
+                                  var t;
+                                  e.toLowerCase().includes(l) &&
+                                      ((r = !0),
+                                      (e = document.createElement("li")),
+                                      ((t = document.createElement("a")).textContent = o.name),
+                                      (t.href = "#"),
+                                      (t.style.color = "white"),
+                                      t.addEventListener("click", () => loadDocument(a)),
+                                      e.appendChild(t),
+                                      d.appendChild(e));
+                              })),
+                          t.push(e))
+                        : "docx" === o.type
+                        ? ((e = fetch(o.content)
+                              .then((e) => e.arrayBuffer())
+                              .then((e) => mammoth.extractRawText({ arrayBuffer: e }))
+                              .then((e) => {
+                                  var t;
+                                  e.value.toLowerCase().includes(l) &&
+                                      ((r = !0),
+                                      (e = document.createElement("li")),
+                                      ((t = document.createElement("a")).textContent = o.name),
+                                      (t.href = "#"),
+                                      (t.style.color = "white"),
+                                      t.addEventListener("click", () => loadDocument(a)),
+                                      e.appendChild(t),
+                                      d.appendChild(e));
+                              })),
+                          t.push(e))
+                        : "xlsx" === o.type &&
+                          ((e = fetch(o.content)
+                              .then((e) => e.arrayBuffer())
+                              .then((e) => {
+                                  let n = XLSX.read(e, { type: "array" });
+                                  n.SheetNames.forEach((e) => {
+                                      var t,
+                                          e = n.Sheets[e];
+                                      XLSX.utils.sheet_to_csv(e).toLowerCase().includes(l) &&
+                                          ((r = !0),
+                                          (e = document.createElement("li")),
+                                          ((t = document.createElement("a")).textContent = o.name),
+                                          (t.href = "#"),
+                                          (t.style.color = "white"),
+                                          t.addEventListener("click", () => loadDocument(a)),
+                                          e.appendChild(t),
+                                          d.appendChild(e));
+                                  });
+                              })),
+                          t.push(e));
+                }),
+                    Promise.all(t).then(() => {
+                        var e;
+                        r || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), d.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
+                    });
+            }, 1250);
     }),
     document.getElementById("search-doc").addEventListener("click", () => {
-        let o = document.getElementById("search-text").value.toLowerCase(),
-            a = document.getElementById("results-list");
-        if (((a.innerHTML = ""), "pdf" === fileArray[currentDocIndex].type)) {
-            var t = [];
-            for (let e = 1; e <= pageCount; e++) t.push(pdfDoc.getPage(e).then((e) => e.getTextContent()));
-            Promise.all(t).then((e) => {
-                e.forEach((e, t) => {
-                    var n;
-                    e.items
-                        .map((e) => e.str)
-                        .join(" ")
-                        .toLowerCase()
-                        .includes(o) &&
-                        ((e = document.createElement("li")),
-                        ((n = document.createElement("a")).textContent = "Page " + (t + 1)),
-                        (n.href = "#"),
-                        (n.style.color = "white"),
-                        n.addEventListener("click", () => {
-                            renderPage((pageNum = t + 1));
+        (document.getElementById("spinner-search").style.display = "block")
+            setTimeout(() => {
+                let a = document.getElementById("search-text").value.toLowerCase(),
+                    l = document.getElementById("results-list");
+                if (((l.innerHTML = ""), "pdf" === fileArray[currentDocIndex].type)) {
+                    var t = [];
+                    for (let e = 1; e <= pageCount; e++) t.push(pdfDoc.getPage(e).then((e) => e.getTextContent()));
+                    Promise.all(t).then((e) => {
+                        let o = !1;
+                        e.forEach((e, t) => {
+                            var n;
+                            e.items
+                                .map((e) => e.str)
+                                .join(" ")
+                                .toLowerCase()
+                                .includes(a) &&
+                                ((o = !0),
+                                (e = document.createElement("li")),
+                                ((n = document.createElement("a")).textContent = "Page " + (t + 1)),
+                                (n.href = "#"),
+                                (n.style.color = "white"),
+                                n.addEventListener("click", () => {
+                                    renderPage(t + 1);
+                                }),
+                                e.appendChild(n),
+                                l.appendChild(e));
                         }),
-                        e.appendChild(n),
-                        a.appendChild(e));
-                }),
-                    "" === a.innerHTML && (a.innerHTML = "<li>No matches found</li>");
-            });
-        } else a.innerHTML = "<li>Search is not supported for this file type</li>";
+                            o || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)),
+                            (document.getElementById("spinner-search").style.display = "none");
+                    });
+                } else (l.innerHTML = "<li>Search is not supported for this file type</li>"), (document.getElementById("spinner-search").style.display = "none");
+            }, 1250);
     }),
     document.getElementById("search-text").addEventListener("keypress", (e) => {
         "Enter" === e.key && document.getElementById("search-doc").click();
@@ -626,19 +687,21 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         if (e.ctrlKey || e.metaKey)
             switch (e.key) {
                 case "ArrowRight":
-                    e.preventDefault(), document.getElementById("next-doc").click();
+                    e.preventDefault(), navigateDocument(1);
                     break;
                 case "ArrowLeft":
-                    e.preventDefault(), document.getElementById("prev-doc").click();
-                    break;
-                case "+":
-                    e.preventDefault(), document.getElementById("zoom-in").click();
-                    break;
-                case "-":
-                    e.preventDefault(), document.getElementById("zoom-out").click();
+                    e.preventDefault(), navigateDocument(-1);
                     break;
                 case "f":
                     e.preventDefault(), document.getElementById("search-text").focus();
+            }
+        if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
+            switch (e.key) {
+                case "=":
+                    e.preventDefault(), zoomIn();
+                    break;
+                case "-":
+                    e.preventDefault(), zoomOut();
             }
     }),
     document.addEventListener("DOMContentLoaded", () => {
@@ -650,4 +713,95 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList();
             })
             .catch((e) => console.error("Error loading files:", e));
+    }),
+    document.addEventListener("DOMContentLoaded", function () {
+        var e = document.getElementById("help-button");
+        let t = document.getElementById("help-window");
+        var n = document.getElementById("close-help");
+        e.addEventListener("click", function () {
+            (t.style.display = "block"), t.classList.add("show");
+        }),
+            n.addEventListener("click", function () {
+                (t.style.display = "none"), t.classList.remove("show");
+            }),
+            window.addEventListener("click", function (e) {
+                e.target === t && ((t.style.display = "none"), t.classList.remove("show"));
+            }),
+            updateHelpWindowWithShortcuts();
+    }),
+    document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey)
+            switch (e.key) {
+                case "ArrowRight":
+                    e.preventDefault(), navigateDocument(1);
+                    break;
+                case "ArrowLeft":
+                    e.preventDefault(), navigateDocument(-1);
+                    break;
+                case "f":
+                    e.preventDefault(), document.getElementById("search-text").focus();
+            }
+        if (e.shiftKey)
+            switch (e.key) {
+                case "ArrowRight":
+                    e.preventDefault(), navigatePage(1);
+                    break;
+                case "ArrowLeft":
+                    e.preventDefault(), navigatePage(-1);
+            }
+        if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
+            switch (e.key) {
+                case "=":
+                    e.preventDefault(), zoomIn();
+                    break;
+                case "-":
+                    e.preventDefault(), zoomOut();
+            }
+    }),
+    document.getElementById("zoom-in").addEventListener("click", zoomIn),
+    document.getElementById("zoom-out").addEventListener("click", zoomOut),
+    document.addEventListener("DOMContentLoaded", () => {
+        loadFilesFromLocalStorage()
+            .then(() => {
+                populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList(), updateHelpWindowWithShortcuts();
+            })
+            .catch((e) => console.error("Error loading files:", e));
+    }),
+    document.getElementById("search").addEventListener("click", () => {
+        (document.getElementById("spinner-search").style.display = "block"),
+            setTimeout(() => {
+                let a = document.getElementById("search-text").value.toLowerCase(),
+                    l = document.getElementById("results-list"),
+                    d = ((l.innerHTML = ""), !1),
+                    t = [];
+                fileArray.forEach((n, o) => {
+                    var e;
+                    "pdf" === n.type &&
+                        ((e = pdfjsLib.getDocument({ data: atob(n.content.split(",")[1]) }).promise.then((e) =>
+                            e.getPage(1).then((e) =>
+                                e.getTextContent().then((e) => {
+                                    var t;
+                                    e.items
+                                        .map((e) => e.str)
+                                        .join(" ")
+                                        .toLowerCase()
+                                        .includes(a) &&
+                                        ((d = !0),
+                                        (e = document.createElement("li")),
+                                        ((t = document.createElement("a")).textContent = n.name),
+                                        (t.href = "#"),
+                                        (t.style.color = "white"),
+                                        t.addEventListener("click", () => loadDocument(o)),
+                                        e.appendChild(t),
+                                        l.appendChild(e));
+                                })
+                            )
+                        )),
+                        t.push(e));
+                }),
+                    Promise.all(t).then(() => {
+                        var e;
+                        d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
+                    });
+            }, 1250);
     });
