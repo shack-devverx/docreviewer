@@ -1,6 +1,6 @@
-alert(
-    "ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. Â© 2024 Adam J Schwartz, All Rights Reserved"
-),
+// alert(
+//     "ATTN USER: select the folder button on the toolbar to choose a local folder of documents and images for review. This is a CONFIDENTIAL PROTOTYPE for demonstration purposes only. No other use is permitted. Â© 2024 Adam J Schwartz, All Rights Reserved"
+// ),
     document.getElementById("help-button").addEventListener("click", function () {
         document.getElementById("help-window").style.display = "block";
     }),
@@ -86,7 +86,7 @@ function updatePinnedDocsList() {
                     o.tags.forEach((e) => {
                         var t = document.createElement("span"),
                             n = ((t.textContent = e.name), (t.className = "assigned-tag"), (t.style.backgroundColor = e.color), (t.style.color = getContrastColor(e.color)), document.createElement("span"));
-                        (n.textContent = "âœ–"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
+                        (n.textContent = "❌"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
                     }),
                 t.appendChild(n),
                 t.appendChild(a),
@@ -141,6 +141,22 @@ function displayPDF(e) {
             (pdfDoc = e), (pageCount = e.numPages), (document.getElementById("page-count").textContent = pageCount), (rotationAngle = 0), renderPage((pageNum = 1));
         });
 }
+// if (typeof pdfjsLib !== 'undefined') {
+//     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// }
+// function displayPDF(e) {
+//     document.getElementById("pdf-viewer").style.display = "block";
+//     const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
+//     loadingTask.promise.then((e) => {
+//         pdfDoc = e;
+//         pageCount = e.numPages;
+//         document.getElementById("page-count").textContent = pageCount;
+//         rotationAngle = 0;
+//         renderPage(pageNum = 1);
+//     }).catch(error => {
+//         console.error('Error loading PDF:', error);
+//     });
+// }
 function displayDocx(e) {
     (document.getElementById("docx-viewer").style.display = "block"),
         fetch(e)
@@ -228,20 +244,68 @@ function loadDocumentChunk(t) {
     }
     n < fileArray.length && setTimeout(() => loadDocumentChunk(n), 0);
 }
+// function populateDocumentSelectbk() {
+//     let o = document.getElementById("document-select");
+//     (o.innerHTML = ""),
+//         fileArray.sort((e, t) => e.name.localeCompare(t.name)),
+//         fileArray.forEach((e, t) => {
+//             var n = document.createElement("option");
+//             (n.value = t), (n.textContent = e.name), o.appendChild(n);
+//         }),
+//         0 < fileArray.length && loadDocument((o.value = currentDocIndex)),
+//         updateRemoveButtonVisibility(),
+//         o.addEventListener("change", function () {
+//             loadDocument(this.selectedIndex);
+//         });
+// }
+
 function populateDocumentSelect() {
-    let o = document.getElementById("document-select");
-    (o.innerHTML = ""),
-        fileArray.sort((e, t) => e.name.localeCompare(t.name)),
-        fileArray.forEach((e, t) => {
-            var n = document.createElement("option");
-            (n.value = t), (n.textContent = e.name), o.appendChild(n);
-        }),
-        0 < fileArray.length && loadDocument((o.value = currentDocIndex)),
-        updateRemoveButtonVisibility(),
-        o.addEventListener("change", function () {
-            loadDocument(this.selectedIndex);
-        });
+    let selectElement = document.getElementById("document-select");
+    selectElement.innerHTML = "";
+    
+    // New natural sorting function
+    const naturalSort = (a, b) => {
+        // Extract numbers from file names
+        const extractNumbers = str => str.split(/(\d+)/).map(part => 
+            /^\d+$/.test(part) ? parseInt(part) : part.toLowerCase()
+        );
+        
+        const aParts = extractNumbers(a.name);
+        const bParts = extractNumbers(b.name);
+        
+        // Compare parts
+        for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
+            if (aParts[i] !== bParts[i]) {
+                // If both parts are numbers, compare numerically
+                if (typeof aParts[i] === 'number' && typeof bParts[i] === 'number') {
+                    return aParts[i] - bParts[i];
+                }
+                // Otherwise, compare as strings
+                return aParts[i] < bParts[i] ? -1 : 1;
+            }
+        }
+        return aParts.length - bParts.length;
+    };
+
+    // Sort fileArray using natural sort
+    fileArray.sort(naturalSort);
+
+    fileArray.forEach((file, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = file.name;
+        selectElement.appendChild(option);
+    });
+
+    if (fileArray.length > 0) {
+        loadDocument(selectElement.value = currentDocIndex);
+    }
+    updateRemoveButtonVisibility();
+    selectElement.addEventListener("change", function() {
+        loadDocument(this.selectedIndex);
+    });
 }
+
 function updateRemoveButtonVisibility() {
     document.getElementById("remove-file").style.display = 0 < fileArray.length ? "inline-block" : "none";
 }
@@ -343,13 +407,15 @@ function updateHelpWindowWithShortcuts() {
     var e = document.querySelector(".shortcut-table tbody");
     e &&
         (e.innerHTML = [
-            { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
-            { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
+            { description: "Next Document", windows: "Ctrl + →", mac: "" },
+            { description: "Previous Document", windows: "Ctrl + ←", mac: "" },
+            // { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
+            // { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
             { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
             { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
             { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
-            { description: "Next Doc Page", windows: "Shift + â†’", mac: "Shift + â†’" },
-            { description: "Prev Doc Page", windows: "Shift + â†", mac: "Shift + â†" },
+            { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
+            { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" },
         ]
             .map(
                 (e) => `
@@ -511,6 +577,27 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 })
                 .catch((e) => {
                     console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
+                });
+        }
+    }),
+    document.getElementById("remove-all-files").addEventListener("click", () => {
+        if (confirm("Are you sure you want to remove all files? This action cannot be undone.")) {
+            const promises = fileArray.map(file => 
+                deleteFileFromIndexedDB(file.name)
+                    .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
+                    .catch(err => console.error(`Error deleting file ${file.name}:`, err))
+            );
+            
+            Promise.all(promises)
+                .then(() => {
+                    fileArray = [];
+                    populateDocumentSelect();
+                    hideAllViewers();
+                    console.log("All files deleted successfully");
+                })
+                .catch(err => {
+                    console.error("Error deleting all files:", err);
+                    alert("Error removing all files. Please try again.");
                 });
         }
     }),
