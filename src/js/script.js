@@ -136,27 +136,18 @@ function hideAllViewers() {
         (document.getElementById("image-viewer").style.display = "none");
 }
 function displayPDF(e) {
-    (document.getElementById("pdf-viewer").style.display = "block"),
-        pdfjsLib.getDocument({ data: atob(e.split(",")[1]) }).promise.then((e) => {
-            (pdfDoc = e), (pageCount = e.numPages), (document.getElementById("page-count").textContent = pageCount), (rotationAngle = 0), renderPage((pageNum = 1));
-        });
+    document.getElementById("pdf-viewer").style.display = "block";
+    const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
+    loadingTask.promise.then((e) => {
+        pdfDoc = e;
+        pageCount = e.numPages;
+        document.getElementById("page-count").textContent = pageCount;
+        rotationAngle = 0;
+        renderPage(pageNum = 1);
+    }).catch(error => {
+        console.error('Error loading PDF:', error);
+    });
 }
-// if (typeof pdfjsLib !== 'undefined') {
-//     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-// }
-// function displayPDF(e) {
-//     document.getElementById("pdf-viewer").style.display = "block";
-//     const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
-//     loadingTask.promise.then((e) => {
-//         pdfDoc = e;
-//         pageCount = e.numPages;
-//         document.getElementById("page-count").textContent = pageCount;
-//         rotationAngle = 0;
-//         renderPage(pageNum = 1);
-//     }).catch(error => {
-//         console.error('Error loading PDF:', error);
-//     });
-// }
 function displayDocx(e) {
     (document.getElementById("docx-viewer").style.display = "block"),
         fetch(e)
@@ -231,6 +222,9 @@ function getFileType(e) {
         case "gif":
         case "tiff":
             return "image";
+        case "ppt":
+        case "pptx":
+            return "unsupported";
         default:
             return "unknown";
     }
@@ -407,15 +401,15 @@ function updateHelpWindowWithShortcuts() {
     var e = document.querySelector(".shortcut-table tbody");
     e &&
         (e.innerHTML = [
-            { description: "Next Document", windows: "Ctrl + →", mac: "" },
-            { description: "Previous Document", windows: "Ctrl + ←", mac: "" },
-            // { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
-            // { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
+            { description: "Next Document", windows: "Ctrl + →", mac: "Cmd + →" },
+            { description: "Previous Document", windows: "Ctrl + ←", mac: "Cmd + ←" },
             { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
             { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
             { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
-            { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
-            { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" },
+            { description: "Next Doc Page", windows: "Shift + →", mac: "" },
+            { description: "Prev Doc Page", windows: "Shift + ←", mac: "" },
+            // { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
+            // { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" },
         ]
             .map(
                 (e) => `
@@ -465,9 +459,12 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener(
         "keydown",
         function (e) {
-            if (123 == e.keyCode || (e.ctrlKey && 85 == e.keyCode) || (e.ctrlKey && e.shiftKey && (73 == e.keyCode || 74 == e.keyCode || 67 == e.keyCode))) return e.preventDefault(), !1;
+            if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
+                e.preventDefault();
+                return false;
+            }
         },
-        !1
+        false
     ),
     document.getElementById("add-tag").addEventListener("click", () => {
         (document.getElementById("tag-popup").style.display = "block"),
@@ -556,16 +553,47 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("file-input").addEventListener("change", (e) => {
         let n = [],
             o = 0,
-            a = e.target.files.length;
-        for (let t of e.target.files) {
-            var l = new FileReader();
-            (l.onload = function (e) {
-                (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
-                    n.push(e),
-                    ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
+            validFiles = Array.from(e.target.files).filter(file => {
+                const fileType = getFileType(file.name);
+                if (fileType === "unsupported") {
+                    alert(`File "${file.name}" is not supported (PowerPoint files are not allowed)`);
+                    return false;
+                }
+                if (fileType === "unknown") {
+                    alert(`File "${file.name}" is not a supported file type`);
+                    return false;
+                }
+                return true;
             }),
-                l.readAsDataURL(t);
+            a = validFiles.length;
+        
+        if (a === 0) {
+            e.target.value = '';
+            return;
         }
+    
+        for (let t of validFiles) {
+            var l = new FileReader();
+            l.onload = function (e) {
+                const file = { 
+                    name: t.name, 
+                    type: getFileType(t.name), 
+                    content: e.target.result 
+                };
+                n.push(file);
+                if (++o === a) {
+                    fileArray = [...fileArray, ...n];
+                    saveFilesToLocalStorage();
+                    populateDocumentSelect();
+                    if (n.length > 0) {
+                        loadDocument(fileArray.length - n.length);
+                    }
+                }
+            };
+            l.readAsDataURL(t);
+        }
+        // Clear the file input
+        e.target.value = '';
     }),
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
@@ -828,14 +856,14 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 case "f":
                     e.preventDefault(), document.getElementById("search-text").focus();
             }
-        if (e.shiftKey)
-            switch (e.key) {
-                case "ArrowRight":
-                    e.preventDefault(), navigatePage(1);
-                    break;
-                case "ArrowLeft":
-                    e.preventDefault(), navigatePage(-1);
-            }
+        // if (e.shiftKey)
+        //     switch (e.key) {
+        //         case "ArrowRight":
+        //             e.preventDefault(), navigatePage(1);
+        //             break;
+        //         case "ArrowLeft":
+        //             e.preventDefault(), navigatePage(-1);
+        //     }
         if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
             switch (e.key) {
                 case "=":
