@@ -58,22 +58,25 @@ function updatePinnedDocsList() {
     let d = document.getElementById("pinned-list");
     d.innerHTML = "";
 
-    // Add "Select All" checkbox
-    let selectAllCheckbox = document.createElement("input");
-    selectAllCheckbox.type = "checkbox";
-    selectAllCheckbox.id = "select-all-pinned";
-    selectAllCheckbox.addEventListener("change", function() {
-        const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
-        allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
-        updateDeleteButtonState();
-    });
+    // Only show Select All if there are pinned docs
+    if (pinnedDocs.length > 0) {
+        // Add "Select All" checkbox
+        let selectAllCheckbox = document.createElement("input");
+        selectAllCheckbox.type = "checkbox";
+        selectAllCheckbox.id = "select-all-pinned";
+        selectAllCheckbox.addEventListener("change", function() {
+            const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
+            allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
+            updateDeleteButtonState();
+        });
 
-    let selectAllLabel = document.createElement("label");
-    selectAllLabel.textContent = "Select All";
-    selectAllLabel.htmlFor = "select-all-pinned";
+        let selectAllLabel = document.createElement("label");
+        selectAllLabel.textContent = "Select All";
+        selectAllLabel.htmlFor = "select-all-pinned";
 
-    d.appendChild(selectAllCheckbox);
-    d.appendChild(selectAllLabel);
+        d.appendChild(selectAllCheckbox);
+        d.appendChild(selectAllLabel);
+    }
 
     pinnedDocs.forEach((o, e) => {
         let t = document.createElement("li");
@@ -156,14 +159,30 @@ function updateDeleteButtonState() {
 // Add event listener for delete button
 document.getElementById("delete-pinned-docs").addEventListener("click", () => {
     const selectedCheckboxes = document.querySelectorAll(".pinned-checkbox:checked");
-    selectedCheckboxes.forEach(checkbox => {
-        const index = Array.from(document.querySelectorAll(".pinned-checkbox")).indexOf(checkbox);
-        pinnedDocs.splice(index, 1);
-    });
+    const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
+    
+    // Check if all checkboxes are selected
+    if (selectedCheckboxes.length === allCheckboxes.length) {
+        // If all selected, clear entire pinnedDocs array
+        pinnedDocs.length = 0;
+    } else {
+        // Get indices of selected checkboxes and remove from end to start
+        const indices = Array.from(selectedCheckboxes).map(checkbox => 
+            Array.from(allCheckboxes).indexOf(checkbox)
+        ).sort((a, b) => b - a); // Sort descending to remove from end first
+        
+        indices.forEach(index => {
+            pinnedDocs.splice(index, 1);
+        });
+    }
     updatePinnedDocsList();
+    savePinnedDocsToLocalStorage(); // Save changes to localStorage
 });
+
 function unpinDocument(e) {
-    pinnedDocs.splice(e, 1), updatePinnedDocsList();
+    pinnedDocs.splice(e, 1);
+    updatePinnedDocsList();
+    savePinnedDocsToLocalStorage(); // Save changes to localStorage
 }
 function addTagToDocument(e, t) {
     e.tags || (e.tags = []), e.tags.some((e) => e.name === t.name) || (e.tags.push(t), updatePinnedDocsList());
