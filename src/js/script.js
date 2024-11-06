@@ -56,45 +56,112 @@ function updateTagDropdown() {
 }
 function updatePinnedDocsList() {
     let d = document.getElementById("pinned-list");
-    (d.innerHTML = ""),
-        pinnedDocs.forEach((o, e) => {
-            var t = document.createElement("li"),
-                n = ((t.textContent = o.name), document.createElement("span"));
-            (n.innerHTML = `
-                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)" stroke="#FF000D" stroke-miterlimit="10"><path d="M10.431 11.319a1.84 1.84 0 0 1-.56 1.468c-.176.177-.416.162-.61-.032q-1.131-1.13-2.26-2.262c-.04-.037-.068-.087-.108-.14-.067.062-.11.101-.151.141-1.257 1.242-2.468 2.531-3.803 3.691-.615.536-1.253 1.044-1.883 1.563-.065.052-.147.084-.22.126h-.15c-.353-.151-.415-.415-.17-.723a42 42 0 0 1 3.548-3.976c.604-.59 1.198-1.193 1.809-1.802l-.116-.122-2.38-2.38c-.253-.253-.25-.474.013-.714a1.865 1.865 0 0 1 2.412-.102q.044.036.102.08l1.118-.96 3.904 3.903-.919 1.07q-.016.02-.038.055c.273.322.437.692.462 1.114zm6.05-6.544a.5.5 0 0 1-.104.192 1.39 1.39 0 0 1-1.55.303c-.075-.033-.122-.051-.19.027Q13.232 6.94 11.823 8.58L7.919 4.678l3.365-2.89c-.14-.278-.2-.565-.153-.873q.075-.487.431-.82a.39.39 0 0 1 .486-.023 1 1 0 0 1 .102.09l4.186 4.183c.12.12.197.254.146.427z" fill="#FF000D" stroke-width=".249"/><path d="M14.538 11.498 4.237 1.447" stroke-width=".746" stroke-linecap="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M.244 0h16.252v16H.244z"/></clipPath></defs></svg>
-                `),
-                (n.style.cursor = "pointer"),
-                (n.style.marginLeft = "10px"),
-                n.addEventListener("click", () => {
-                    unpinDocument(e);
-                });
-            let a = document.createElement("select"),
-                l =
-                    (a.classList.add("tag-dropdown"),
-                    (a.innerHTML = '<option value="">Select Tag</option>'),
-                    tags.forEach((e) => {
-                        var t = document.createElement("option");
-                        (t.value = e.name), (t.textContent = e.name), a.appendChild(t);
-                    }),
-                    a.addEventListener("change", () => {
-                        var e = tags.find((e) => e.name === a.value);
-                        e && addTagToDocument(o, e), (a.value = "");
-                    }),
-                    document.createElement("div"));
-            (l.style.marginTop = "5px"),
-                o.tags &&
-                    o.tags.forEach((e) => {
-                        var t = document.createElement("span"),
-                            n = ((t.textContent = e.name), (t.className = "assigned-tag"), (t.style.backgroundColor = e.color), (t.style.color = getContrastColor(e.color)), document.createElement("span"));
-                        (n.textContent = "❌"), (n.style.marginLeft = "5px"), (n.style.cursor = "pointer"), n.addEventListener("click", () => removeTagFromDocument(o, e)), t.appendChild(n), l.appendChild(t);
-                    }),
-                t.appendChild(n),
-                t.appendChild(a),
-                t.appendChild(l),
-                d.appendChild(t);
-        }),
-        savePinnedDocsToLocalStorage();
+    d.innerHTML = "";
+
+    // Add "Select All" checkbox
+    let selectAllCheckbox = document.createElement("input");
+    selectAllCheckbox.type = "checkbox";
+    selectAllCheckbox.id = "select-all-pinned";
+    selectAllCheckbox.addEventListener("change", function() {
+        const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
+        allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateDeleteButtonState();
+    });
+
+    let selectAllLabel = document.createElement("label");
+    selectAllLabel.textContent = "Select All";
+    selectAllLabel.htmlFor = "select-all-pinned";
+
+    d.appendChild(selectAllCheckbox);
+    d.appendChild(selectAllLabel);
+
+    pinnedDocs.forEach((o, e) => {
+        let t = document.createElement("li");
+
+        // Add checkbox for each pinned document
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "pinned-checkbox";
+        checkbox.addEventListener("change", updateDeleteButtonState);
+        t.appendChild(checkbox);
+
+        let textSpan = document.createElement("span");
+        textSpan.textContent = o.name;
+        t.appendChild(textSpan);
+
+        var n = document.createElement("span");
+        n.innerHTML = `
+               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)" stroke="#FF000D" stroke-miterlimit="10"><path d="M10.431 11.319a1.84 1.84 0 0 1-.56 1.468c-.176.177-.416.162-.61-.032q-1.131-1.13-2.26-2.262c-.04-.037-.068-.087-.108-.14-.067.062-.11.101-.151.141-1.257 1.242-2.468 2.531-3.803 3.691-.615.536-1.253 1.044-1.883 1.563-.065.052-.147.084-.22.126h-.15c-.353-.151-.415-.415-.17-.723a42 42 0 0 1 3.548-3.976c.604-.59 1.198-1.193 1.809-1.802l-.116-.122-2.38-2.38c-.253-.253-.25-.474.013-.714a1.865 1.865 0 0 1 2.412-.102q.044.036.102.08l1.118-.96 3.904 3.903-.919 1.07q-.016.02-.038.055c.273.322.437.692.462 1.114zm6.05-6.544a.5.5 0 0 1-.104.192 1.39 1.39 0 0 1-1.55.303c-.075-.033-.122-.051-.19.027Q13.232 6.94 11.823 8.58L7.919 4.678l3.365-2.89c-.14-.278-.2-.565-.153-.873q.075-.487.431-.82a.39.39 0 0 1 .486-.023 1 1 0 0 1 .102.09l4.186 4.183c.12.12.197.254.146.427z" fill="#FF000D" stroke-width=".249"/><path d="M14.538 11.498 4.237 1.447" stroke-width=".746" stroke-linecap="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M.244 0h16.252v16H.244z"/></clipPath></defs></svg>
+            `;
+        n.style.cursor = "pointer";
+        n.style.marginLeft = "10px";
+        n.addEventListener("click", () => {
+            unpinDocument(e);
+        });
+
+        let a = document.createElement("select");
+        a.classList.add("tag-dropdown");
+        a.innerHTML = '<option value="">Select Tag</option>';
+        tags.forEach((e) => {
+            var t = document.createElement("option");
+            t.value = e.name;
+            t.textContent = e.name;
+            a.appendChild(t);
+        });
+        a.addEventListener("change", () => {
+            var e = tags.find((e) => e.name === a.value);
+            e && addTagToDocument(o, e);
+            a.value = "";
+        });
+
+        let l = document.createElement("div");
+        l.style.marginTop = "5px";
+        if (o.tags) {
+            o.tags.forEach((e) => {
+                var t = document.createElement("span");
+                t.textContent = e.name;
+                t.className = "assigned-tag";
+                t.style.backgroundColor = e.color;
+                t.style.color = getContrastColor(e.color);
+                var n = document.createElement("span");
+                n.textContent = "❌";
+                n.style.marginLeft = "5px";
+                n.style.cursor = "pointer";
+                n.addEventListener("click", () => removeTagFromDocument(o, e));
+                t.appendChild(n);
+                l.appendChild(t);
+            });
+        }
+
+        t.appendChild(n);
+        t.appendChild(a);
+        t.appendChild(l);
+        d.appendChild(t);
+    });
+
+    savePinnedDocsToLocalStorage();
 }
+function updateDeleteButtonState() {
+    const selectedCheckboxes = document.querySelectorAll(".pinned-checkbox:checked");
+    const deleteButton = document.getElementById("delete-pinned-docs");
+    if (selectedCheckboxes.length > 0) {
+        deleteButton.disabled = false;
+        deleteButton.textContent = selectedCheckboxes.length === pinnedDocs.length ? "Delete All" : "Delete Selected";
+    } else {
+        deleteButton.disabled = true;
+        deleteButton.textContent = "Delete";
+    }
+}
+
+// Add event listener for delete button
+document.getElementById("delete-pinned-docs").addEventListener("click", () => {
+    const selectedCheckboxes = document.querySelectorAll(".pinned-checkbox:checked");
+    selectedCheckboxes.forEach(checkbox => {
+        const index = Array.from(document.querySelectorAll(".pinned-checkbox")).indexOf(checkbox);
+        pinnedDocs.splice(index, 1);
+    });
+    updatePinnedDocsList();
+});
 function unpinDocument(e) {
     pinnedDocs.splice(e, 1), updatePinnedDocsList();
 }
@@ -136,18 +203,27 @@ function hideAllViewers() {
         (document.getElementById("image-viewer").style.display = "none");
 }
 function displayPDF(e) {
-    document.getElementById("pdf-viewer").style.display = "block";
-    const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
-    loadingTask.promise.then((e) => {
-        pdfDoc = e;
-        pageCount = e.numPages;
-        document.getElementById("page-count").textContent = pageCount;
-        rotationAngle = 0;
-        renderPage(pageNum = 1);
-    }).catch(error => {
-        console.error('Error loading PDF:', error);
-    });
+    (document.getElementById("pdf-viewer").style.display = "block"),
+        pdfjsLib.getDocument({ data: atob(e.split(",")[1]) }).promise.then((e) => {
+            (pdfDoc = e), (pageCount = e.numPages), (document.getElementById("page-count").textContent = pageCount), (rotationAngle = 0), renderPage((pageNum = 1));
+        });
 }
+// if (typeof pdfjsLib !== 'undefined') {
+//     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// }
+// function displayPDF(e) {
+//     document.getElementById("pdf-viewer").style.display = "block";
+//     const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
+//     loadingTask.promise.then((e) => {
+//         pdfDoc = e;
+//         pageCount = e.numPages;
+//         document.getElementById("page-count").textContent = pageCount;
+//         rotationAngle = 0;
+//         renderPage(pageNum = 1);
+//     }).catch(error => {
+//         console.error('Error loading PDF:', error);
+//     });
+// }
 function displayDocx(e) {
     (document.getElementById("docx-viewer").style.display = "block"),
         fetch(e)
@@ -222,9 +298,6 @@ function getFileType(e) {
         case "gif":
         case "tiff":
             return "image";
-        case "ppt":
-        case "pptx":
-            return "unsupported";
         default:
             return "unknown";
     }
@@ -401,15 +474,15 @@ function updateHelpWindowWithShortcuts() {
     var e = document.querySelector(".shortcut-table tbody");
     e &&
         (e.innerHTML = [
-            { description: "Next Document", windows: "Ctrl + →", mac: "Cmd + →" },
-            { description: "Previous Document", windows: "Ctrl + ←", mac: "Cmd + ←" },
+            { description: "Next Document", windows: "Ctrl + →", mac: "" },
+            { description: "Previous Document", windows: "Ctrl + ←", mac: "" },
+            // { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
+            // { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
             { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
             { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
             { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
-            { description: "Next Doc Page", windows: "Shift + →", mac: "" },
-            { description: "Prev Doc Page", windows: "Shift + ←", mac: "" },
-            // { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
-            // { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" },
+            { description: "Next Doc Page", windows: "Shift + →", mac: "Shift + →" },
+            { description: "Prev Doc Page", windows: "Shift + ←", mac: "Shift + ←" },
         ]
             .map(
                 (e) => `
@@ -459,12 +532,9 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener(
         "keydown",
         function (e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
-                e.preventDefault();
-                return false;
-            }
+            if (123 == e.keyCode || (e.ctrlKey && 85 == e.keyCode) || (e.ctrlKey && e.shiftKey && (73 == e.keyCode || 74 == e.keyCode || 67 == e.keyCode))) return e.preventDefault(), !1;
         },
-        false
+        !1
     ),
     document.getElementById("add-tag").addEventListener("click", () => {
         (document.getElementById("tag-popup").style.display = "block"),
@@ -553,47 +623,16 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("file-input").addEventListener("change", (e) => {
         let n = [],
             o = 0,
-            validFiles = Array.from(e.target.files).filter(file => {
-                const fileType = getFileType(file.name);
-                if (fileType === "unsupported") {
-                    alert(`File "${file.name}" is not supported (PowerPoint files are not allowed)`);
-                    return false;
-                }
-                if (fileType === "unknown") {
-                    alert(`File "${file.name}" is not a supported file type`);
-                    return false;
-                }
-                return true;
-            }),
-            a = validFiles.length;
-        
-        if (a === 0) {
-            e.target.value = '';
-            return;
-        }
-    
-        for (let t of validFiles) {
+            a = e.target.files.length;
+        for (let t of e.target.files) {
             var l = new FileReader();
-            l.onload = function (e) {
-                const file = { 
-                    name: t.name, 
-                    type: getFileType(t.name), 
-                    content: e.target.result 
-                };
-                n.push(file);
-                if (++o === a) {
-                    fileArray = [...fileArray, ...n];
-                    saveFilesToLocalStorage();
-                    populateDocumentSelect();
-                    if (n.length > 0) {
-                        loadDocument(fileArray.length - n.length);
-                    }
-                }
-            };
-            l.readAsDataURL(t);
+            (l.onload = function (e) {
+                (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
+                    n.push(e),
+                    ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
+            }),
+                l.readAsDataURL(t);
         }
-        // Clear the file input
-        e.target.value = '';
     }),
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
@@ -856,14 +895,14 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 case "f":
                     e.preventDefault(), document.getElementById("search-text").focus();
             }
-        // if (e.shiftKey)
-        //     switch (e.key) {
-        //         case "ArrowRight":
-        //             e.preventDefault(), navigatePage(1);
-        //             break;
-        //         case "ArrowLeft":
-        //             e.preventDefault(), navigatePage(-1);
-        //     }
+        if (e.shiftKey)
+            switch (e.key) {
+                case "ArrowRight":
+                    e.preventDefault(), navigatePage(1);
+                    break;
+                case "ArrowLeft":
+                    e.preventDefault(), navigatePage(-1);
+            }
         if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
             switch (e.key) {
                 case "=":
