@@ -705,3 +705,9 @@ a:hover {
         transform: scale(1);
     }
 }
+
+.tag-dropdown{
+    float: right;
+    font-size: 12px;
+    margin-right: -10px;
+}
