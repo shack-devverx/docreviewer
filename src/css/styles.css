@@ -711,3 +711,52 @@ a:hover {
     font-size: 12px;
     margin-right: -10px;
 }
+
+
+/* new styling by Ali*/
+
+
+#Doc-main-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;  /* Space between logos */
+    padding-top:20px;
+    
+}
+
+#Doc-main-logo img {
+    height: 45px;  /* Match the SVG height */
+    width: auto;
+    object-fit: cover;
+}
+
+#Doc-main-logo svg {
+    flex-shrink: 0;  /* Prevent SVG from shrinking */
+}
+
+#folder-select {
+    margin-left: 20px;  /* Creates space between logos and upload button */
+    background: none;   /* Removes default button background */
+    border: none;       /* Removes default button border */
+    padding: 5px;      /* Adds some padding around the icon */
+    cursor: pointer;    /* Shows pointer cursor on hover */
+}
+
+#folder-select:hover {
+    opacity: 0.8;      /* Slight fade effect on hover */
+}
+
+#next-doc,#prev-doc,#prev-page,#next-page,#zoom-out,#zoom-in,#rotate{
+    background-color:#24232B ;
+    border: none;
+}
+
+
+#document-select{
+    color: #ffffff;
+    background-color: #24232B;
+    padding: 5px 1px; 
+    margin:5px -18px;
+}
+
+
