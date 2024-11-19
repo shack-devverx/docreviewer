@@ -1,3 +1,15 @@
+.main-header{
+    display: flex;
+    align-items: center;
+    font-family: apparat, serif;
+    font-weight: 700;
+    padding: 24px;
+    background: #333639;
+    box-shadow: 0px 4px 10px 0px #0000003D;
+}
+.main-logo{
+    margin-right: 32px;
+}
 button,
 input[type="text"],
 select {
@@ -79,17 +91,18 @@ html {
     flex-direction: column;
 }
 #toolbar {
-    position: fixed;
+    /* position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: 0; */
+    /* width: 100%; */
     display: flex;
-    justify-content: space-around;
-    padding: 10px 10px 20px;
-    z-index: 2;
-    background-color: rgba(0, 0, 0, 0.3);
+    align-items: center;
+    /* justify-content: space-around; */
+    /* padding: 10px 10px 20px; */
+    /* z-index: 2; */
+    /* background-color: rgba(0, 0, 0, 0.3);
     font-family: apparat, serif;
-    font-weight: 700;
+    font-weight: 700; */
 }
 #docreview-logo img {
     border-radius: 10px;
