@@ -406,15 +406,15 @@ function populateDocumentSelect() {
     if (fileArray.length > 0) {
         loadDocument(selectElement.value = currentDocIndex);
     }
-    updateRemoveButtonVisibility();
+    // updateRemoveButtonVisibility();
     selectElement.addEventListener("change", function() {
         loadDocument(this.selectedIndex);
     });
 }
 
-function updateRemoveButtonVisibility() {
-    document.getElementById("remove-file").style.display = 0 < fileArray.length ? "inline-block" : "none";
-}
+// function updateRemoveButtonVisibility() {
+//     document.getElementById("remove-file").style.display = 0 < fileArray.length ? "inline-block" : "none";
+// }
 function getContrastColor(e) {
     return "#" === e.slice(0, 1) && (e = e.slice(1)), 128 <= (299 * parseInt(e.substr(0, 2), 16) + 587 * parseInt(e.substr(2, 2), 16) + 114 * parseInt(e.substr(4, 2), 16)) / 1e3 ? "black" : "white";
 }
@@ -631,11 +631,11 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updateTagDropdown(), updatePinnedDocsList();
     }),
-    document.getElementById("unpin-all").addEventListener("click", () => {
-        confirm(
-            "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
-        ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
-    }),
+    // document.getElementById("unpin-all").addEventListener("click", () => {
+    //     confirm(
+    //         "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
+    //     ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
+    // }),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updatePinnedDocsList();
     }),
@@ -673,40 +673,40 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 l.readAsDataURL(t);
         }
     }),
-    document.getElementById("remove-file").addEventListener("click", () => {
-        let e = parseInt(document.getElementById("document-select").value);
-        if (0 <= e) {
-            let t = fileArray[e];
-            deleteFileFromIndexedDB(t.name)
-                .then(() => {
-                    console.log(`File ${t.name} deleted from IndexedDB`), fileArray.splice(e, 1), populateDocumentSelect(), 0 < fileArray.length ? loadDocument(0) : hideAllViewers();
-                })
-                .catch((e) => {
-                    console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
-                });
-        }
-    }),
-    document.getElementById("remove-all-files").addEventListener("click", () => {
-        if (confirm("Are you sure you want to remove all files? This action cannot be undone.")) {
-            const promises = fileArray.map(file => 
-                deleteFileFromIndexedDB(file.name)
-                    .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
-                    .catch(err => console.error(`Error deleting file ${file.name}:`, err))
-            );
+    // document.getElementById("remove-file").addEventListener("click", () => {
+    //     let e = parseInt(document.getElementById("document-select").value);
+    //     if (0 <= e) {
+    //         let t = fileArray[e];
+    //         deleteFileFromIndexedDB(t.name)
+    //             .then(() => {
+    //                 console.log(`File ${t.name} deleted from IndexedDB`), fileArray.splice(e, 1), populateDocumentSelect(), 0 < fileArray.length ? loadDocument(0) : hideAllViewers();
+    //             })
+    //             .catch((e) => {
+    //                 console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
+    //             });
+    //     }
+    // }),
+    // document.getElementById("remove-all-files").addEventListener("click", () => {
+    //     if (confirm("Are you sure you want to remove all files? This action cannot be undone.")) {
+    //         const promises = fileArray.map(file => 
+    //             deleteFileFromIndexedDB(file.name)
+    //                 .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
+    //                 .catch(err => console.error(`Error deleting file ${file.name}:`, err))
+    //         );
             
-            Promise.all(promises)
-                .then(() => {
-                    fileArray = [];
-                    populateDocumentSelect();
-                    hideAllViewers();
-                    console.log("All files deleted successfully");
-                })
-                .catch(err => {
-                    console.error("Error deleting all files:", err);
-                    alert("Error removing all files. Please try again.");
-                });
-        }
-    }),
+    //         Promise.all(promises)
+    //             .then(() => {
+    //                 fileArray = [];
+    //                 populateDocumentSelect();
+    //                 hideAllViewers();
+    //                 console.log("All files deleted successfully");
+    //             })
+    //             .catch(err => {
+    //                 console.error("Error deleting all files:", err);
+    //                 alert("Error removing all files. Please try again.");
+    //             });
+    //     }
+    // }),
     document.addEventListener("DOMContentLoaded", () => {
         loadFilesFromLocalStorage()
             .then(() => {

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 button,
 input[type="text"],
 select {
@@ -78,18 +79,119 @@ html {
     display: flex;
     flex-direction: column;
 }
-#toolbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+#toolbar{
     display: flex;
-    justify-content: space-around;
-    padding: 10px 10px 20px;
-    z-index: 2;
-    background-color: rgba(0, 0, 0, 0.3);
-    font-family: apparat, serif;
+    align-items: center;
+    gap: 32px;
+    padding: 24px;
+    box-shadow: 0px 4px 10px 0px #0000003D;
+    background: #333639;
+}
+#toolbar button{
+    width: initial;
+    border: initial;
+    border-radius: initial;
+    background-color: initial;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.folder-select{display: flex;}
+#folder-select{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Open Sans;
+    font-size: 14px;
     font-weight: 700;
+    line-height: 19.07px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;
+}
+.main-logo{
+    margin: 0;
+    display: flex;
+}
+.document-select{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.line{
+    width: 1px;
+    height: 16px;
+    background: #FFFFFFCC;
+    display: flex;
+}
+.pages{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+#add-tag,
+#flag-doc,
+#rotate,
+.zoom button,
+.pages button{height: 24px;}
+.zoom span,
+.pages span{
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19.07px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;
+}
+.toolbar-button{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+#toolbar .button{
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    font-family: Open Sans;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 13.62px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;
+    border: 1px solid #FFFFFFCC;
+    background: #0DB14B;
+    border-radius: 4px;
+    height: 30px;
+    min-width: 131px;
+}
+#toolbar .button-download{background: #39138F;}
+.toolbar-right-area{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+.button span{margin: 0 auto;}
+.zoom{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.document-select button{
+    height: 24px;
+}
+.document-select #document-select{
+    width: 148px;
+    border: 1px solid #fff;
+    border-radius: 2px;
+    padding: 2px 7px;
+    height: 24px;
+    background-color: transparent;
+    color: #fff;
 }
 #docreview-logo img {
     border-radius: 10px;
@@ -198,12 +300,14 @@ a {
     display: flex;
     flex-direction: column;
     width: 250px;
-    overflow: auto;
-    padding: 20px;
-    border-left: 1px solid rgba(255, 255, 255, 0.8);
-    color: rgba(255, 255, 255, 0.8);
-    background-color: #34323e;
+    overflow: hidden auto;
     position: relative;
+
+    /* width: 348px; */
+    box-shadow: 0px 1px 5px 0px #00000024;
+    background: #333639;
+    padding: 24px 34px;
+    color: #fff;
 }
 #pinned-docs,
 #search-results {

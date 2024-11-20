@@ -29,37 +29,56 @@
 </div>
 
 <div id="toolbar">
-<button id="folder-select">&#x1F4C2;</button>
-<input type=file id="file-input" multiple accept=.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff style=display:none;font-size:36px>&nbsp;&nbsp;
-<button id="prev-doc">&#x23ee;</button>
-<select id="document-select" style=min-width:140px;max-width:140px></select>
-<button id="next-doc">&#x23ed;</button>
-<button id=remove-file title="Remove selected file">❌</button>&nbsp;&nbsp;
-<button id=prev-page>&#x25c0;</button>
-<span style=padding-top:3px;font-weight:700;text-decoration:underline>Page: <span id=page-num></span> / <span id=page-count></span></span>
-<button id=next-page>&#x25b6;</button>&nbsp;&nbsp;
-<button id=zoom-out>&#x2796;</button>
-<button id=zoom-in>&#x2795;</button>
-<button id=rotate>&#x1F504;</button>&nbsp;&nbsp;
-<input id=search-text placeholder=Search...>
-<button id=search-doc>&#128270;</button>
-<button id=search style=width:60px>&#128270;&#128270;</button>&nbsp;
-<button id=remove-all-files title="Remove all files">❌&nbsp;❌</button>&nbsp;&nbsp;
-<button id=flag-doc><?xml version="1.0" encoding="utf-8"?>
-<svg width=17 height=16 viewBox="0 0 17 16" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.826 16c-.37-.16-.43-.43-.18-.75 1.15-1.45 2.37-2.84 3.69-4.13.63-.62 1.25-1.24 1.88-1.88-.04-.05-.08-.09-.12-.13-.82-.83-1.65-1.65-2.47-2.48-.26-.26-.26-.49.01-.74.7-.64 1.75-.69 2.51-.11.03.03.07.05.11.08l4.66-4c-.15-.29-.21-.59-.16-.91.05-.34.2-.62.45-.85.14-.13.35-.13.51-.02.04.03.07.06.11.09 1.45 1.45 2.9 2.9 4.36 4.35.13.13.21.26.15.45a.5.5 0 0 1-.11.2c-.41.43-1.07.55-1.61.31-.08-.03-.13-.05-.2.03-1.29 1.51-2.59 3.02-3.89 4.53-.01.02-.02.03-.04.06.28.34.46.72.48 1.16.04.6-.16 1.1-.58 1.53-.18.19-.43.17-.64-.03-.79-.78-1.57-1.57-2.35-2.35-.04-.04-.07-.09-.11-.15-.07.06-.11.11-.16.15-1.31 1.29-2.57 2.63-3.96 3.84-.64.56-1.3 1.09-1.96 1.63-.07.05-.15.09-.23.13h-.16z" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.496 0h15.85v16H.496z"/></clipPath></defs></svg>
-</button>
-<button id=add-tag>
-<svg width=18 height=18 viewBox="0 0 20 14" fill=none xmlns=http://www.w3.org/2000/svg><g clip-path=url(#a)><path d="M.692 9.136v-.329c.071-.402.317-.692.597-.971 2.319-2.311 4.632-4.63 6.954-6.94.165-.165.378-.286.583-.403.125-.073.276-.1.417-.147h5.62c.014.006.026.016.041.019.692.137 1.095.626 1.095 1.337q.002 2.577 0 5.155c0 .457-.162.864-.483 1.187q-3.591 3.602-7.198 7.193c-.143.143-.33.265-.52.334-.54.197-1.002.033-1.398-.364q-2.549-2.554-5.105-5.103c-.28-.278-.529-.566-.602-.968zm11.463-3.689c.679.026 1.265-.544 1.292-1.257.026-.68-.543-1.265-1.257-1.292-.68-.025-1.278.543-1.29 1.258-.01.673.495 1.26 1.255 1.292" fill=#000 /></g><defs><clipPath id=a><path fill=#fff d="M.346 0h16v16h-16z"/></clipPath></defs></svg>
-</button>
-<button id=export-list style=width:35px>
-<svg width=20 height=20 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path fill=#000 fill-rule=evenodd d="M14 9a1 1 0 0 1 1 1v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a1 1 0 0 1 2 0v3h10v-3a1 1 0 0 1 1-1M8 1a1 1 0 0 1 1 1v4.586l1.293-1.293a1 1 0 1 1 1.414 1.414L8 10.414 4.293 6.707a1 1 0 0 1 1.414-1.414L7 6.586V2a1 1 0 0 1 1-1"/></svg>
-</button>
-<button id=unpin-all title="Unpin All Documents">
-<svg fill=#000 width=16 height=16 viewBox="-3 -2 24 24" xmlns=http://www.w3.org/2000/svg preserveAspectRatio=xMinYMin class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg>
-</button>
-<button id=help-button>
-<svg width=16 height=16 viewBox="0 0 16 16" fill=none xmlns=http://www.w3.org/2000/svg><path d="M8.313 0C5.82 0 4.203 1.022 2.935 2.845a.75.75 0 0 0 .162 1.027l1.348 1.022a.75.75 0 0 0 1.039-.13c.783-.98 1.363-1.545 2.586-1.545.961 0 2.15.619 2.15 1.551 0 .705-.581 1.067-1.53 1.599-1.107.62-2.572 1.393-2.572 3.325V10c0 .414.335.75.75.75h2.264a.75.75 0 0 0 .75-.75v-.18c0-1.34 3.915-1.396 3.915-5.02 0-2.73-2.831-4.8-5.484-4.8M8 11.67a2.167 2.167 0 0 0-2.165 2.165C5.835 15.03 6.806 16 8 16a2.167 2.167 0 0 0 2.165-2.165A2.167 2.167 0 0 0 8 11.671" fill=#000 /></svg>
-</button>&nbsp;
+    <figure class="main-logo">
+        <img src="src/images/logo.svg" alt="Logo">
+    </figure>
+    <div class="folder-select">
+        <button id="folder-select"><img src="src/images/upload-file.svg" alt="Upload">Add File</button>
+        <input type=file id="file-input" multiple accept=.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff style=display:none;font-size:36px>&nbsp;&nbsp;
+    </div>
+    <div class="document-select">
+        <button id="prev-doc"><img src="src/images/left-double-arrow.svg" alt="Left Arrow"></button>
+        <select id="document-select"></select>
+        <button id="next-doc"><img src="src/images/right-double-arrow.svg" alt="Right Arrow"></button>
+    </div>
+    <span class="line"></span>
+    <!-- <button id=remove-file title="Remove selected file">❌</button>&nbsp;&nbsp; -->
+    <div class="pages">
+        <button id=prev-page><img src="src/images/left-arrow.svg" alt="Left Arrow"></button>
+        <span>Page: <span id=page-num></span> / <span id=page-count></span></span>
+        <button id=next-page><img src="src/images/right-arrow.svg" alt="Right Arrow"></button>
+    </div>
+    <span class="line"></span>
+    <div class="zoom">
+        <button id=zoom-out><img src="src/images/minus.svg" alt="Minus"></button>
+        <span>Zoom</span>
+        <button id=zoom-in><img src="src/images/plus.svg" alt="Plus"></button>
+    </div>
+    <span class="line"></span>
+    <button id=rotate><img src="src/images/refresh.svg" alt="Refresh"></button>
+    <span class="line"></span>
+    <!-- <button id=remove-all-files title="Remove all files">❌&nbsp;❌</button>&nbsp;&nbsp; -->
+    <button id=add-tag>
+        <img src="src/images/tag.svg" alt="Tag">
+    </button>
+    <div class="toolbar-right-area">
+        <div class="toolbar-button">
+            <button class="button" id=flag-doc><?xml version="1.0" encoding="utf-8"?>
+                <span>Pin Selected</span>
+                <img src="src/images/pin.svg" alt="Pin">
+            </button>
+            <button class="button button-download" id=export-list>
+                <span>Download Pinned</span>
+                <img src="src/images/download.svg" alt="Download">
+            </button>
+        </div>
+        <!-- <button id=unpin-all title="Unpin All Documents">
+        <svg fill=#000 width=16 height=16 viewBox="-3 -2 24 24" xmlns=http://www.w3.org/2000/svg preserveAspectRatio=xMinYMin class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"/></svg>
+        </button> -->
+        <button id=help-button>
+            <img src="src/images/question-circle.svg" alt="Question">
+        </button>
+    </div>
 </div>
 <div id=content>
 <div id=main-content>
@@ -73,6 +92,9 @@
 </div>
 <div id=search-results-container>
 <div id=search-results>
+    <input id=search-text placeholder=Search...>
+    <button id=search-doc>&#128270;</button>
+    <button id=search style=width:60px>&#128270;&#128270;</button>
 <div id="spinner-search" class="spinner-search" style="display: none;">
     <div class="bounce1"></div>
     <div class="bounce2"></div>
