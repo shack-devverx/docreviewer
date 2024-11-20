@@ -92,9 +92,14 @@
 </div>
 <div id=search-results-container>
 <div id=search-results>
-    <input id=search-text placeholder=Search...>
-    <button id=search-doc>&#128270;</button>
-    <button id=search style=width:60px>&#128270;&#128270;</button>
+    <div class="input-icon">
+        <input class="form-control" id="search-text" placeholder="Search...">
+        <img src="src/images/search.svg" alt="Icon">
+    </div>
+    <div class="search-results-buttons">
+        <button id=search-doc><span></span>Within Doc</button>
+        <button id=search><span></span>Across Doc</button>
+    </div>
 <div id="spinner-search" class="spinner-search" style="display: none;">
     <div class="bounce1"></div>
     <div class="bounce2"></div>

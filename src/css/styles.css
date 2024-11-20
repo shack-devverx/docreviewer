@@ -19,7 +19,6 @@ button:active,
 button:disabled {
     background-color: rgba(255, 255, 255, 0.3);
 }
-#search-text,
 body,
 button,
 html,
@@ -87,6 +86,12 @@ html {
     box-shadow: 0px 4px 10px 0px #0000003D;
     background: #333639;
 }
+#search-results{
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #E7E7E7;
+}
+#search-results-container button,
 #toolbar button{
     width: initial;
     border: initial;
@@ -253,8 +258,7 @@ button {
     background-color: rgba(255, 255, 255, 0.5);
     font-size: 12px;
 }
-#document-select,
-#search-text {
+#document-select{
     border: 2px solid #fff;
 }
 button:hover {
@@ -277,13 +281,8 @@ button:disabled {
     font-style: normal;
     color: #fff;
 }
-#search-text {
-    font-weight: 700;
-    font-style: normal;
-}
 #document-select,
 #help-window,
-#search-results-container,
 a {
     font-family: apparat-light, serif;
     font-weight: 400;
@@ -309,22 +308,39 @@ a {
     padding: 24px 34px;
     color: #fff;
 }
-#pinned-docs,
-#search-results {
-    flex-grow: 1;
-    max-height: 50vh;
-    overflow-y: auto;
-    margin-bottom: 20px;
-}
 #pinned-docs h4,
-#search-results h4 {
-    text-decoration: underline;
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    color: inherit;
+#search-results h4{
+    font-family: Open Sans;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    margin: 24px 0 0;
+    color: #fff;
 }
-#pinned-list li,
-#results-list li {
+#pinned-docs h4{margin: 0 0 20px;}
+#results-list{
+    margin-top: 20px;
+    max-height: 200px;
+    overflow: hidden auto;
+}
+#results-list:empty{display: none;}
+#results-list li a{
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    display: flex;
+}
+#pinned-list li {
     padding: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin-bottom: 10px;
@@ -613,6 +629,72 @@ a:hover {
 }
 .help-table tbody tr:hover {
     background-color: #f0f8ff;
+}
+.input-icon{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-icon img{
+    position: absolute;
+    right: 17px;
+    pointer-events: none;
+}
+.form-control{
+    border: 1px solid #E7E7E7;
+    background: #F8FAFC;
+    padding: 4px 39px 4px 17px;
+    border-radius: 8px;
+    font-family: Open Sans;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #637381;
+    width: 100%;
+}
+.form-control::placeholder{
+    font-family: Open Sans;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #637381;
+}
+.search-results-buttons{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 10px;
+}
+.search-results-buttons button{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Open Sans;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;    
+}
+.search-results-buttons button.active span{
+    border-width: 3px;
+}
+.search-results-buttons button span{
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #0DB14B;
+    box-sizing: border-box;
+    transition: all .2s ease-in-out;
 }
 @media (max-width: 768px) {
     .help-table tfoot,

@@ -840,6 +840,8 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             }, 1250);
     }),
     document.getElementById("search-doc").addEventListener("click", () => {
+        document.getElementById("search-doc").classList.add("active");
+        document.getElementById("search").classList.remove("active");
         (document.getElementById("spinner-search").style.display = "block")
             setTimeout(() => {
                 let a = document.getElementById("search-text").value.toLowerCase(),
@@ -961,6 +963,8 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             .catch((e) => console.error("Error loading files:", e));
     }),
     document.getElementById("search").addEventListener("click", () => {
+        document.getElementById("search").classList.add("active");
+        document.getElementById("search-doc").classList.remove("active");
         (document.getElementById("spinner-search").style.display = "block"),
             setTimeout(() => {
                 let a = document.getElementById("search-text").value.toLowerCase(),
