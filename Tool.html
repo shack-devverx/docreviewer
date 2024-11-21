@@ -81,44 +81,45 @@
     </div>
 </div>
 <div id=content>
-<div id=main-content>
-<div id=pdf-viewer>
-<canvas id=pdf-canvas></canvas>
-</div>
-<div id=docx-viewer></div>
-<div id=xlsx-viewer></div>
-<div id=txt-viewer></div>
-<img id=image-viewer>
+    <div id=main-content>
+    <div id=pdf-viewer>
+        <canvas id=pdf-canvas></canvas>
+    </div>
+    <div id=docx-viewer></div>
+    <div id=xlsx-viewer></div>
+    <div id=txt-viewer></div>
+    <img id=image-viewer>
 </div>
 <div id=search-results-container>
-<div id=search-results>
-    <div class="input-icon">
-        <input class="form-control" id="search-text" placeholder="Search...">
-        <img src="src/images/search.svg" alt="Icon">
+    <div id=search-results>
+        <div class="input-icon">
+            <input class="form-control" id="search-text" placeholder="Search...">
+            <img src="src/images/search.svg" alt="Icon">
+        </div>
+        <div class="search-results-buttons">
+            <button id=search-doc><span></span>Within Doc</button>
+            <button id=search><span></span>Across Doc</button>
+        </div>
+        <div id="spinner-search" class="spinner-search" style="display: none;">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+        <h4>Search Results</h4>
+        <ul id=results-list></ul>
     </div>
-    <div class="search-results-buttons">
-        <button id=search-doc><span></span>Within Doc</button>
-        <button id=search><span></span>Across Doc</button>
+    <div id=pinned-docs>
+        <h4>Pinned Documents</h4>
+        <!-- <button class="delete-pinned-docs" style="float:right;width: 77px;font-size: 9px;font-weight: 800;padding: 2px 0;" id="delete-pinned-docs" disabled>Delete  Selected</button> -->
+        <button class="delete-pinned-docs" id="delete-pinned-docs" disabled>Delete</button>
+        <ul id=pinned-list></ul>
     </div>
-<div id="spinner-search" class="spinner-search" style="display: none;">
-    <div class="bounce1"></div>
-    <div class="bounce2"></div>
-    <div class="bounce3"></div>
-</div>
-<h4>Search Results</h4>
-<ul id=results-list></ul>
-</div>
-<div id=pinned-docs>
-<h4>Pinned Documents</h4>
-<button style="float:right;width: 77px;font-size: 9px;font-weight: 800;padding: 2px 0;" id="delete-pinned-docs" disabled>Delete</button>
-<ul id=pinned-list></ul>
-</div>
-<div id=docreview-logo>
-<a href="/"><img src=src/images/dr-logo.svg alt="Doc Review Logo"></a>
-</div>
-<div id=security-logo>
-<img src=src/images/sec-logo.svg alt="Security Logo">
-</div>
+    <div id=docreview-logo>
+        <a href="/"><img src=src/images/dr-logo.svg alt="Doc Review Logo"></a>
+    </div>
+    <div id=security-logo>
+        <img src=src/images/sec-logo.svg alt="Security Logo">
+    </div>
 </div>
 </div>
 <div id=tag-popup>

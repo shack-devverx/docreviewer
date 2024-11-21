@@ -130,8 +130,12 @@ function updatePinnedDocsList() {
                 t.style.backgroundColor = e.color;
                 t.style.color = getContrastColor(e.color);
                 var n = document.createElement("span");
-                n.textContent = "❌";
-                n.style.marginLeft = "5px";
+                // n.textContent = "❌";
+                (n.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                 `),
                 n.style.cursor = "pointer";
                 n.addEventListener("click", () => removeTagFromDocument(o, e));
                 t.appendChild(n);
