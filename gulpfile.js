@@ -1,10 +1,12 @@
 const gulp = require('gulp');
 const cleanCSS = require('gulp-clean-css');
 const rename = require('gulp-rename');
+const uglify = require('gulp-uglify'); // Add gulp-uglify for JS minification
 
 // JavaScript task
 gulp.task('js', function() {
     return gulp.src('src/js/script.js')
+        .pipe(uglify()) // Minify JavaScript
         .pipe(rename({ suffix: '.min' }))
         .pipe(gulp.dest('dist/js'));
 });
