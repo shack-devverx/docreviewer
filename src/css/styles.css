@@ -47,8 +47,8 @@ select {
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
     background: #39138F;
-
 }
+.close{flex: none;}
 .small-swal {
     width: 500px !important;
     padding: 1rem !important;
