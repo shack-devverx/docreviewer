@@ -42,8 +42,6 @@
         <button id="next-doc"><img src="src/images/right-double-arrow.svg" alt="Right Arrow"></button>
     </div>
     <span class="line"></span>
-    <button id=remove-file title="Remove selected file"><img src="src/images/trash.svg" alt="Trash"></button>
-    <span class="line"></span>
     <div class="pages">
         <button id=prev-page><img src="src/images/left-arrow.svg" alt="Left Arrow"></button>
         <span>Page: <span id=page-num></span> / <span id=page-count></span></span>
@@ -57,8 +55,6 @@
     </div>
     <span class="line"></span>
     <button id=rotate><img src="src/images/refresh.svg" alt="Refresh"></button>
-    <span class="line"></span>
-    <button id=remove-all-files title="Remove all files"><img src="src/images/trash.svg" alt="Trash"> <img src="src/images/trash.svg" alt="Trash"></button>
     <span class="line"></span>
     <button id=add-tag>
         <img src="src/images/tag.svg" alt="Tag">
@@ -115,6 +111,10 @@
         <!-- <button class="delete-pinned-docs" style="float:right;width: 77px;font-size: 9px;font-weight: 800;padding: 2px 0;" id="delete-pinned-docs" disabled>Delete  Selected</button> -->
         <button class="delete-pinned-docs" id="delete-pinned-docs" disabled>Delete</button>
         <ul id=pinned-list></ul>
+    </div>
+    <div class="remove-files-btn">
+        <button id=remove-file title="Remove selected file">Delete Document</button>
+        <button id=remove-all-files title="Remove all files">Delete All Documents</button>
     </div>
     <div id=docreview-logo>
         <a href="/"><img src=src/images/dr-logo.svg alt="Doc Review Logo"></a>

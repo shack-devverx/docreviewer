@@ -402,6 +402,32 @@ a {
     margin-top: auto;
     text-align: right;
 }
+.remove-files-btn{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 30px;
+}
+#search-results-container .remove-files-btn button{
+    width: 200px;
+    padding: 7px 10px;
+    border: 1px solid #FFFFFF;
+    height: 30px;
+    border-radius: 4px;
+    font-family: Open Sans;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16.34px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #fff;
+}
+#search-results-container .remove-files-btn #remove-all-files{
+    background: #F70707;
+    border-color: #F70707;
+}
 #security-logo {
     align-self: self-end;
 }
