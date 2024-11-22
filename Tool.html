@@ -12,6 +12,10 @@
 <script src=https://unpkg.com/mammoth/mammoth.browser.min.js></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js></script>
 
+<!-- Add SweetAlert2 CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-default@5/default.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Link CSS -->
 <link rel="stylesheet" href="dist/css/styles.min.css">
 <!-- Link CSS -->
@@ -142,9 +146,13 @@
 </div>
 </div>
 <div id="help-window" class="modal">
-    <span id="close-help" class="close">&times;</span>
-    
-    <div class="info-text"><h2 style="font-size:18px;margin:10px 0;padding:0">We're here to help! Have a question not answered below?</h2></div>
+    <div class="help-window-header">
+        <div class="help-window-header_title">
+            <h2>We’re here to help! Have a question not answered below?</h2>
+            <span id="close-help" class="close"><img src="src/images/x-mark-dark.svg" alt="Icon"></span>
+        </div>
+        <h2 class="help-window-header_contact">Contact Us Here</h2>
+    </div>
 
     <div class="help-container">
         <div class="help-section">

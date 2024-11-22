@@ -34,6 +34,49 @@ input[type="text"],
 select {
     font-style: normal;
 }
+.help-window-header_title{
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+.help-window-header h2{
+    font-family: Open Sans;
+    font-size: 18.91px;
+    font-weight: 800;
+    line-height: 28.37px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    background: #39138F;
+
+}
+.small-swal {
+    width: 500px !important;
+    padding: 1rem !important;
+}
+
+.small-swal .swal2-title {
+    font-size: 1.2rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.small-swal .swal2-content {
+    font-size: 0.9rem !important;
+}
+
+.small-swal .swal2-icon {
+    transform: scale(0.7);
+    margin: 0.5rem auto !important;
+}
+
+.small-swal .swal2-actions {
+    margin-top: 1rem !important;
+}
+
+.small-swal .swal2-confirm,
+.small-swal .swal2-cancel {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 1rem !important;
+}
 #help-window,
 #toolbar {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -993,6 +1036,10 @@ a:hover {
     text-decoration-skip-ink: none;
     height: 16px;
 }
+.tag-dropdown option{
+    color: #000;
+}
+.tag-dropdown option:hover{color: #fff;}
 .pinned-checkbox+span + span{float: right;}
 @media (max-width: 1399px) {
     #toolbar{
