@@ -169,27 +169,47 @@ document.getElementById("delete-pinned-docs").addEventListener("click", () => {
     const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
     
     const confirmMessage = selectedCheckboxes.length === allCheckboxes.length 
-        ? "Are you sure you want to remove all pinned documents?" 
-        : `Are you sure you want to remove ${selectedCheckboxes.length} selected document(s)?`;
+        ? "Remove all pinned documents?" 
+        : `Remove ${selectedCheckboxes.length} selected document(s)?`;
 
-    if (confirm(confirmMessage)) {
-        // Check if all checkboxes are selected
-        if (selectedCheckboxes.length === allCheckboxes.length) {
-            // If all selected, clear entire pinnedDocs array
-            pinnedDocs.length = 0;
-        } else {
-            // Get indices of selected checkboxes and remove from end to start
-            const indices = Array.from(selectedCheckboxes).map(checkbox => 
-                Array.from(allCheckboxes).indexOf(checkbox)
-            ).sort((a, b) => b - a); // Sort descending to remove from end first
+    Swal.fire({
+        title: 'Are you sure?',
+        text: confirmMessage,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0DB14B',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Delete',
+        customClass: {
+            popup: 'small-swal'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (selectedCheckboxes.length === allCheckboxes.length) {
+                pinnedDocs.length = 0;
+            } else {
+                const indices = Array.from(selectedCheckboxes).map(checkbox => 
+                    Array.from(allCheckboxes).indexOf(checkbox)
+                ).sort((a, b) => b - a);
+                
+                indices.forEach(index => {
+                    pinnedDocs.splice(index, 1);
+                });
+            }
+            updatePinnedDocsList();
+            savePinnedDocsToLocalStorage();
             
-            indices.forEach(index => {
-                pinnedDocs.splice(index, 1);
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Documents unpinned successfully.',
+                timer: 1500,
+                customClass: {
+                    popup: 'small-swal'
+                }
             });
         }
-        updatePinnedDocsList();
-        savePinnedDocsToLocalStorage(); // Save changes to localStorage
-    }
+    });
 });
 
 function unpinDocument(e) {
@@ -680,36 +700,92 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
         if (0 <= e) {
-            let t = fileArray[e];
-            deleteFileFromIndexedDB(t.name)
-                .then(() => {
-                    console.log(`File ${t.name} deleted from IndexedDB`), fileArray.splice(e, 1), populateDocumentSelect(), 0 < fileArray.length ? loadDocument(0) : hideAllViewers();
-                })
-                .catch((e) => {
-                    console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
-                });
+            Swal.fire({
+                title: 'Do you really want to delete the document?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0DB14B',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let t = fileArray[e];
+                    deleteFileFromIndexedDB(t.name)
+                        .then(() => {
+                            console.log(`File ${t.name} deleted from IndexedDB`);
+                            fileArray.splice(e, 1);
+                            populateDocumentSelect();
+                            0 < fileArray.length ? loadDocument(0) : hideAllViewers();
+                        })
+                        .catch((e) => {
+                            console.error(`Error deleting file ${t.name} from IndexedDB:`, e);
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Error deleting file. Try again.',
+                                icon: 'error',
+                                confirmButtonColor: '#0DB14B',
+                                customClass: {
+                                    popup: 'small-swal'
+                                }
+                            });
+                        });
+                }
+            });
         }
     }),
     document.getElementById("remove-all-files").addEventListener("click", () => {
-        if (confirm("Are you sure you want to remove all files? This action cannot be undone.")) {
-            const promises = fileArray.map(file => 
-                deleteFileFromIndexedDB(file.name)
-                    .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
-                    .catch(err => console.error(`Error deleting file ${file.name}:`, err))
-            );
-            
-            Promise.all(promises)
-                .then(() => {
-                    fileArray = [];
-                    populateDocumentSelect();
-                    hideAllViewers();
-                    console.log("All files deleted successfully");
-                })
-                .catch(err => {
-                    console.error("Error deleting all files:", err);
-                    alert("Error removing all files. Please try again.");
-                });
-        }
+        Swal.fire({
+            title: 'Are you sure you want to delete all Documents?',
+            text: "",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0DB14B',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            customClass: {
+                popup: 'small-swal'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const promises = fileArray.map(file => 
+                    deleteFileFromIndexedDB(file.name)
+                        .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
+                        .catch(err => console.error(`Error deleting file ${file.name}:`, err))
+                );
+                
+                Promise.all(promises)
+                    .then(() => {
+                        fileArray = [];
+                        populateDocumentSelect();
+                        hideAllViewers();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'All documents have been deleted.',
+                            customClass: {
+                                popup: 'small-swal'
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error deleting all files:", err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error removing files. Try again.',
+                            customClass: {
+                                popup: 'small-swal'
+                            }
+                        });
+                    });
+            }
+        });
     }),
     document.addEventListener("DOMContentLoaded", () => {
         loadFilesFromLocalStorage()
@@ -723,8 +799,17 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         pinnedDocs.includes(e) || (pinnedDocs.push(e), updatePinnedDocsList());
     }),
     document.getElementById("export-list").addEventListener("click", () => {
-        if (0 === pinnedDocs.length) alert("No pinned documents to export.");
-        else {
+        if (0 === pinnedDocs.length) {
+            Swal.fire({
+                title: 'No Documents',
+                text: 'No pinned documents to export.',
+                icon: 'info',
+                confirmButtonColor: '#0DB14B',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            });
+        } else {
             let o = [],
                 t =
                     (pinnedDocs.forEach((e) => {
