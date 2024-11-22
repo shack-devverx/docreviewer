@@ -45,6 +45,130 @@ select {
     border-bottom: 2px solid #39138F;
     margin-bottom: 10px;
 }
+.help-shortcuts{text-align: left;}
+.help-shortcuts_title{padding-bottom: 10px;}
+.help-shortcuts_title h3{
+    font-family: Open Sans;
+    font-size: 18.91px;
+    font-weight: 800;
+    line-height: 28.37px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #0DB14B;
+    margin: 0;
+}
+.keyboard-shortcuts{padding-top: 40px;}
+.keyboard-shortcuts_main_title{
+    text-align: left;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #39138F;
+    margin-bottom: 14px;
+}
+.keyboard-shortcuts_main_title h3{
+    font-family: Open Sans;
+    font-size: 18.91px;
+    font-weight: 800;
+    line-height: 28.37px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #39138F;
+    margin: 0;
+}
+.keyboard-shortcuts_content{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    padding-bottom: 40px;
+    border-bottom: 2px solid #39138F;
+}
+.keyboard-shortcuts_windows_list{
+    margin: 0;
+    padding: 0;
+}
+.keyboard-shortcuts_title{
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+.keyboard-shortcuts_title h3{
+    font-family: Open Sans;
+    font-size: 18.91px;
+    font-weight: 800;
+    line-height: 28.37px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #0DB14B;
+    margin: 0;
+}
+.help-shortcuts_list{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 30px;
+    padding: 0;
+    margin: 0;
+}
+.keyboard-shortcuts_list_content{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #47DB7F;
+}
+.Windows-shortcuts{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.shortcut{
+    width: 40px;
+    height: 20px;
+    background: linear-gradient(0deg, #47DB7F, #47DB7F),
+    linear-gradient(0deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0));
+    border: 1px solid #013A54;
+    text-align: center;
+    font-family: Open Sans;
+    font-size: 10.81px;
+    font-weight: 400;
+    line-height: 15.13px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #013A54;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+.keyboard-shortcuts_title{padding-bottom: 20px;}
+.shortcut_sm{
+    width: 20px;
+}
+.help-shortcuts_list li{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 20px;
+    border-bottom: 1px solid #D2D8DF;
+    padding: 6px 0;
+}
+.help-shortcuts_list li figure{
+    margin: 0;
+    flex: none;
+    display: flex;
+    gap: 8px;
+}
+.help-shortcuts_list li > img{flex: none;}
+.help-shortcuts_list li h4{
+    font-family: Open Sans;
+    font-size: 13.51px;
+    font-weight: 500;
+    line-height: 20.26px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #4B6480;
+    margin: 0;
+}
+.help-window-header_contact,
 .help-window-header h2{
     font-family: Open Sans;
     font-size: 18.91px;
@@ -56,10 +180,12 @@ select {
     margin: 0;
 }
 .close{flex: none;}
-.help-window-header .help-window-header_contact{
+.help-window-header_contact{
     margin-top: 10px;
     text-decoration: underline;
+    display: flex;
 }
+.help-window-header_contact:hover{color: #39138F;}
 .small-swal {
     width: 500px !important;
     padding: 1rem !important;

@@ -151,13 +151,13 @@
             <h2>We’re here to help! Have a question not answered below?</h2>
             <span id="close-help" class="close"><img src="src/images/x-mark-dark.svg" alt="Icon"></span>
         </div>
-        <h2 class="help-window-header_contact">Contact Us Here</h2>
+        <a class="help-window-header_contact" href="https://documentreview.law/contact/">Contact Us Here</a>
     </div>
     <div class="help-shortcuts">
         <div class="help-shortcuts_title">
             <h3>Icon Actions</h3>
         </div>
-        <div class="help-shortcuts_list">
+        <ul class="help-shortcuts_list">
             <li><h4>Open Folder/Files</h4><img src="src/images/help/upload.svg" alt="Icon"></li>
             <li><h4>Export List of Pinned Docs (.csv)</h4><img src="src/images/help/export.svg" alt="Icon"></li>
             <li><h4>Previous Document</h4><img src="src/images/help/chevron-double-left.svg" alt="Icon"></li>
@@ -166,152 +166,39 @@
             <li><h4>Clear All Pinned Docs</h4><img src="src/images/help/trash.svg" alt="Icon"></li>
             <li><h4>Previous Page</h4><img src="src/images/help/chevron-left.svg" alt="Icon"></li>
             <li><h4>Delete/Remove Current File</h4><img src="src/images/help/chevron-left.svg" alt="Icon"></li>
-        </div>
+            <li><h4>Next Page</h4><img style="rotate: 180deg;" src="src/images/help/chevron-left.svg" alt="Icon"></li>
+            <li><h4>Zoom</h4><figure><img src="src/images/help/plus.svg" alt="Icon"><img src="src/images/help/minus.svg" alt="Icon"></figure></li>
+            <li><h4>Delete/Remove All Files</h4><img src="src/images/help/trash.svg" alt="Icon"></li>
+            <li><h4>Rotate</h4><img src="src/images/help/rotate.svg" alt="Icon"></li>
+            <li><h4>Search Across Documents</h4><img src="src/images/help/search.svg" alt="Icon"></li>
+            <li><h4>Search Within Document</h4><img src="src/images/help/search.svg" alt="Icon"></li>
+            <li><h4>Pin Document</h4><img src="src/images/help/pin.svg" alt="Icon"></li>
+        </ul>
     </div>
-    <div class="help-container">
-        <div class="help-section">
-            <h2>Help Content</h2>
-            
-            <!-- <ul>
-                <li>&#x1F4C2; - Open Folder/Files</li>
-                <li>&#x23ee; - Previous Document</li>
-                <li>&#x23ed; - Next Document</li>
-                <li>&#x25c0; - Previous Page<sup>*</sup></li>
-                <li>&#x25b6; - Next Page<sup>*</sup></li>
-                <li>&#x2796; / &#x2795; - Zoom<sup>*</sup></li>
-                <li>&#x1F504; - Rotate<sup>*</sup></li>
-                <li>&#128270; - Search Within Document</li>
-                <li>&#128270;&#128270; - Search Across Documents</li>
-                <li>&#x1f4cc; - Pin Document</li>
-                <li>&#x1f4cc;&#x2b07; - Export List of Pinned Docs (.csv)</li><br>
-                <li><sup>*</sup>&nbsp;<i>Only for PDFs and Image Files</i></li>
-            </ul> -->
-            
-            <table class="help-table">
-                <thead>
-                    <tr>
-                        <th>Icon</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><img src="src/images/help/upload.svg" alt="Icon"></td>
-                        <td>Open Folder/Files</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/chevron-double-left.svg" alt="Icon"></td>
-                        <td>Previous Document</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/chevron-double-right.svg" alt="Icon"></td>
-                        <td>Next Document</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/chevron-left.svg" alt="Icon"></td>
-                        <td>Previous Page<sup>*</sup></td>
-                    </tr>
-                    <tr>
-                        <td><img style="rotate: 180deg;" src="src/images/help/chevron-left.svg" alt="Icon"></td>
-                        <td>Next Page<sup>*</sup></td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/plus.svg" alt="Icon"> <img src="src/images/help/minus.svg" alt="Icon"></td>
-                        <td>Zoom<sup>*</sup></td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/rotate.svg" alt="Icon"></td>
-                        <td>Rotate<sup>*</sup></td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/search.svg" alt="Icon"></td>
-                        <td>Search Within Document</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/search.svg" alt="Icon"></td>
-                        <td>Search Across Documents</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/pin.svg" alt="Icon"></td>
-                        <td>Pin Document</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/export.svg" alt="Icon"></td>
-                        <td>Export List of Pinned Docs (.csv)</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/tag.svg" alt="Icon"></td>
-                        <td>Manage Tags</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/trash.svg" alt="Icon"></td>
-                        <td>Clear All Pinned Docs</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/trash.svg" alt="Icon"></td>
-                        <td>Delete/Remove Current File</td>
-                    </tr>
-                    <tr>
-                        <td><img src="src/images/help/trash.svg" alt="Icon"></td>
-                        <td>Delete/Remove All Files</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2"><sup>*</sup> Only for PDFs and Image Files</td>
-                    </tr>
-                </tfoot>
-            </table>
-
+    <div class="keyboard-shortcuts">
+        <div class="keyboard-shortcuts_main_title">
+            <h3>Keyboard Shortcuts</h3>
         </div>
-        <div class="help-section">
-            <h2>Keyboard Shortcuts</h2>
-            <!-- <ul id="keyboard-shortcuts">
-              
-            </ul> -->
-
-            <table class="shortcut-table">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Windows</th>
-                        <th>Mac</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Next Document</td>
-                        <td>Ctrl + →</td>
-                        <td>Cmd + →</td>
-                    </tr>
-                    <tr>
-                        <td>Previous Document</td>
-                        <td>Ctrl + ←</td>
-                        <td>Cmd + ←</td>
-                    </tr>
-                    <tr>
-                        <td>Zoom In</td>
-                        <td>Ctrl + Alt + =</td>
-                        <td>Cmd + Shift + =</td>
-                    </tr>
-                    <tr>
-                        <td>Zoom Out</td>
-                        <td>Ctrl + Alt + -</td>
-                        <td>Cmd + shift + -</td>
-                    </tr>
-                    <tr>
-                        <td>Focus Search Box</td>
-                        <td>Ctrl + F</td>
-                        <td>Cmd + F</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-
+        <div class="keyboard-shortcuts_content">
+            <ul class="keyboard-shortcuts_windows_list">
+                <li class="keyboard-shortcuts_title"><h3>Actions</h3><h3>Windows</h3></li>
+                <li class="keyboard-shortcuts_list_content">Zoom In <div class="Windows-shortcuts"><span class="shortcut">Ctrl</span>+<span class="shortcut">Alt</span>+<span class="shortcut shortcut_sm">=</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Zoom Out <div class="Windows-shortcuts"><span class="shortcut">Ctrl</span>+<span class="shortcut">Alt</span>+<span class="shortcut shortcut_sm">-</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Focus Search Box <div class="Windows-shortcuts"><span class="shortcut">Ctrl</span>+<span class="shortcut shortcut_sm">F</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Next Document <div class="Windows-shortcuts"><span class="shortcut">Ctrl</span>+<span class="shortcut shortcut_sm" style="rotate: 90deg;">⇧</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Previous Document <div class="Windows-shortcuts"><span class="shortcut">Ctrl</span>+<span class="shortcut shortcut_sm" style="rotate: -90deg;">⇧</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Next Doc Page <div class="Windows-shortcuts"><span class="shortcut">Shift</span>+<span class="shortcut shortcut_sm" style="rotate: 90deg;">⇧</span></div></li>
+                <li class="keyboard-shortcuts_list_content">Prev Doc Page <div class="Windows-shortcuts"><span class="shortcut">Shift</span>+<span class="shortcut shortcut_sm" style="rotate: -90deg;">⇧</span></div></li>
+            </ul>
+            <ul class="keyboard-shortcuts_windows_list">
+                <li class="keyboard-shortcuts_title"><h3>MAC</h3></li>
+                <li class="keyboard-shortcuts_list_content"><div class="Windows-shortcuts"><span class="shortcut shortcut_sm">⌘</span>+<span class="shortcut">Shift</span>+<span class="shortcut shortcut_sm">=</span></div></li>
+                <li class="keyboard-shortcuts_list_content"><div class="Windows-shortcuts"><span class="shortcut shortcut_sm">⌘</span>+<span class="shortcut">Shift</span>+<span class="shortcut shortcut_sm">-</span></div></li>
+                <li class="keyboard-shortcuts_list_content"><div class="Windows-shortcuts"><span class="shortcut shortcut_sm">⌘</span>+<span class="shortcut shortcut_sm">F</span></div></li>
+                <li class="keyboard-shortcuts_list_content"><div class="Windows-shortcuts"><span class="shortcut shortcut_sm">⌘</span>+<span class="shortcut shortcut_sm" style="rotate: 90deg;">⇧</span></div></li>
+                <li class="keyboard-shortcuts_list_content"><div class="Windows-shortcuts"><span class="shortcut shortcut_sm">⌘</span>+<span class="shortcut shortcut_sm" style="rotate: -90deg;">⇧</span></div></li>
+            </ul>
         </div>
-    </div>
-    <div class="contact-us">
-            <a href="https://documentreview.law/contact/" target="_new" style="color:#000000;font-weight:600;text-align:center;font-size:18px">Contact Us Here.</a>
     </div>
 </div>
 <div class="help-overlay"></div>
