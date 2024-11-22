@@ -294,9 +294,10 @@ html {
     color: #fff;
 }
 .main-logo{
-    margin: 0;
+    margin: 0 auto 0 0;
     display: flex;
 }
+.main-logo a{width: 32px;}
 .document-select{
     display: flex;
     align-items: center;
@@ -376,7 +377,10 @@ html {
     height: 24px;
     background-color: transparent;
     color: #fff;
+    text-align: left;
 }
+.document-select #document-select option{color: #000;}
+/* .document-select #document-select option{color: #000;} */
 #docreview-logo img {
     border-radius: 10px;
     width: 250px;
@@ -1154,7 +1158,7 @@ a:hover {
     float: right;
     width: 57px;
     border: 1px solid #fff;
-    padding-right: 4px;
+    /* padding-right: 4px; */
     padding-left: 4px;
     border-radius: 4px;
     color: #fff;
