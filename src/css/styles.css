@@ -39,6 +39,12 @@ select {
     gap: 20px;
     justify-content: space-between;
 }
+.help-window-header{
+    text-align: left;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #39138F;
+    margin-bottom: 10px;
+}
 .help-window-header h2{
     font-family: Open Sans;
     font-size: 18.91px;
@@ -46,9 +52,14 @@ select {
     line-height: 28.37px;
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
-    background: #39138F;
+    color: #39138F;
+    margin: 0;
 }
 .close{flex: none;}
+.help-window-header .help-window-header_contact{
+    margin-top: 10px;
+    text-decoration: underline;
+}
 .small-swal {
     width: 500px !important;
     padding: 1rem !important;
@@ -62,7 +73,7 @@ select {
 .small-swal .swal2-content {
     font-size: 0.9rem !important;
 }
-
+.swal2-actions button{width: auto;}
 .small-swal .swal2-icon {
     transform: scale(0.7);
     margin: 0.5rem auto !important;
@@ -403,9 +414,10 @@ a {
     padding-top: 20px;
     border-top: 1px solid #E7E7E7;
 }
-#pinned-list li:not(:last-child){
-    border-bottom: 1px solid #fff;
-    margin-bottom: 10px;
+#pinned-list li ~ li{
+    border-color:#fff;
+    margin-top: 10px;
+    padding-top: 10px;
 }
 .pinned-checkbox + span,
 #select-all-pinned + label{
@@ -506,14 +518,8 @@ a:hover {
     visibility: visible;
 }
 #help-window .close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 30px;
+    display: flex;
     cursor: pointer;
-    color: #ff4d4d;
-    background: 0 0;
-    border: none;
 }
 .help-container {
     display: flex;
