@@ -1,5 +1,5 @@
     /*
-     * Copyright (c) DevVerx
+     * Copyright (c) Adam J Schwartz
      * Author: DevVerx
      * URL: devverx.com
      */
