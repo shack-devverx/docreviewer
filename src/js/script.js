@@ -560,7 +560,10 @@ function updateHelpWindowWithShortcuts() {
 }
 function navigateDocument(e) {
     e = currentDocIndex + e;
-    0 <= e && e < fileArray.length && loadDocument(e);
+    // Ensure e is within bounds
+    if (0 <= e && e < fileArray.length) {
+        loadDocument(e); // Load the document without skipping
+    }
 }
 function navigatePage(e) {
     1 === e && pageNum < pageCount ? renderPage(++pageNum) : -1 === e && 1 < pageNum && renderPage(--pageNum), saveDocumentState();
@@ -971,13 +974,30 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         if (e.ctrlKey || e.metaKey)
             switch (e.key) {
                 case "ArrowRight":
-                    e.preventDefault(), navigateDocument(1);
+                    e.preventDefault();
+                    // Navigate to the next document without skipping
+                    if (!isLoadingDocument && currentDocIndex < fileArray.length - 1) {
+                        isLoadingDocument = true; // Set loading flag
+                        setTimeout(() => {
+                            loadDocument(currentDocIndex + 1);
+                            isLoadingDocument = false; // Reset loading flag after loading
+                        }, 1000); // Delay of 100 milliseconds
+                    }
                     break;
                 case "ArrowLeft":
-                    e.preventDefault(), navigateDocument(-1);
+                    e.preventDefault();
+                    // Navigate to the previous document without skipping
+                    if (!isLoadingDocument && currentDocIndex > 0) {
+                        isLoadingDocument = true; // Set loading flag
+                        setTimeout(() => {
+                            loadDocument(currentDocIndex - 1);
+                            isLoadingDocument = false; // Reset loading flag after loading
+                        }, 1000); // Delay of 100 milliseconds
+                    }
                     break;
                 case "f":
-                    e.preventDefault(), document.getElementById("search-text").focus();
+                    e.preventDefault();
+                    document.getElementById("search-text").focus();
             }
         if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
             switch (e.key) {
