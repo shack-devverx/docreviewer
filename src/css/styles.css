@@ -232,6 +232,14 @@ select {
     margin: 0;
     list-style: none;
 }
+.dvvx-tool{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #34323e;
+    display: flex;
+    flex-direction: column;
+}
 #tag-list,
 .button-group,
 .popup-content {
