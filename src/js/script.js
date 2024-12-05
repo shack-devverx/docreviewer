@@ -1,7 +1,7 @@
     /*
-     * Copyright (c) DevVerx
+     * Copyright (c) Adam J Schwartz
      * Author: DevVerx
-     * URL: devverx.com
+     * URL: devverx.com 
      */
     
     document.getElementById("help-button").addEventListener("click", function () {
@@ -130,8 +130,12 @@ function updatePinnedDocsList() {
                 t.style.backgroundColor = e.color;
                 t.style.color = getContrastColor(e.color);
                 var n = document.createElement("span");
-                n.textContent = "❌";
-                n.style.marginLeft = "5px";
+                // n.textContent = "❌";
+                (n.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                 `),
                 n.style.cursor = "pointer";
                 n.addEventListener("click", () => removeTagFromDocument(o, e));
                 t.appendChild(n);
@@ -165,27 +169,47 @@ document.getElementById("delete-pinned-docs").addEventListener("click", () => {
     const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
     
     const confirmMessage = selectedCheckboxes.length === allCheckboxes.length 
-        ? "Are you sure you want to remove all pinned documents?" 
-        : `Are you sure you want to remove ${selectedCheckboxes.length} selected document(s)?`;
+        ? "Remove all pinned documents?" 
+        : `Remove ${selectedCheckboxes.length} selected document(s)?`;
 
-    if (confirm(confirmMessage)) {
-        // Check if all checkboxes are selected
-        if (selectedCheckboxes.length === allCheckboxes.length) {
-            // If all selected, clear entire pinnedDocs array
-            pinnedDocs.length = 0;
-        } else {
-            // Get indices of selected checkboxes and remove from end to start
-            const indices = Array.from(selectedCheckboxes).map(checkbox => 
-                Array.from(allCheckboxes).indexOf(checkbox)
-            ).sort((a, b) => b - a); // Sort descending to remove from end first
+    Swal.fire({
+        title: 'Are you sure?',
+        text: confirmMessage,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0DB14B',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Delete',
+        customClass: {
+            popup: 'small-swal'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (selectedCheckboxes.length === allCheckboxes.length) {
+                pinnedDocs.length = 0;
+            } else {
+                const indices = Array.from(selectedCheckboxes).map(checkbox => 
+                    Array.from(allCheckboxes).indexOf(checkbox)
+                ).sort((a, b) => b - a);
+                
+                indices.forEach(index => {
+                    pinnedDocs.splice(index, 1);
+                });
+            }
+            updatePinnedDocsList();
+            savePinnedDocsToLocalStorage();
             
-            indices.forEach(index => {
-                pinnedDocs.splice(index, 1);
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Documents unpinned successfully.',
+                timer: 1500,
+                customClass: {
+                    popup: 'small-swal'
+                }
             });
         }
-        updatePinnedDocsList();
-        savePinnedDocsToLocalStorage(); // Save changes to localStorage
-    }
+    });
 });
 
 function unpinDocument(e) {
@@ -536,7 +560,10 @@ function updateHelpWindowWithShortcuts() {
 }
 function navigateDocument(e) {
     e = currentDocIndex + e;
-    0 <= e && e < fileArray.length && loadDocument(e);
+    // Ensure e is within bounds
+    if (0 <= e && e < fileArray.length) {
+        loadDocument(e); // Load the document without skipping
+    }
 }
 function navigatePage(e) {
     1 === e && pageNum < pageCount ? renderPage(++pageNum) : -1 === e && 1 < pageNum && renderPage(--pageNum), saveDocumentState();
@@ -631,11 +658,11 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updateTagDropdown(), updatePinnedDocsList();
     }),
-    document.getElementById("unpin-all").addEventListener("click", () => {
-        confirm(
-            "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
-        ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
-    }),
+    // document.getElementById("unpin-all").addEventListener("click", () => {
+    //     confirm(
+    //         "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
+    //     ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
+    // }),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updatePinnedDocsList();
     }),
@@ -676,36 +703,92 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
         if (0 <= e) {
-            let t = fileArray[e];
-            deleteFileFromIndexedDB(t.name)
-                .then(() => {
-                    console.log(`File ${t.name} deleted from IndexedDB`), fileArray.splice(e, 1), populateDocumentSelect(), 0 < fileArray.length ? loadDocument(0) : hideAllViewers();
-                })
-                .catch((e) => {
-                    console.error(`Error deleting file ${t.name} from IndexedDB:`, e), alert("Error deleting file. Please try again.");
-                });
+            Swal.fire({
+                title: 'Do you really want to delete the document?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0DB14B',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let t = fileArray[e];
+                    deleteFileFromIndexedDB(t.name)
+                        .then(() => {
+                            console.log(`File ${t.name} deleted from IndexedDB`);
+                            fileArray.splice(e, 1);
+                            populateDocumentSelect();
+                            0 < fileArray.length ? loadDocument(0) : hideAllViewers();
+                        })
+                        .catch((e) => {
+                            console.error(`Error deleting file ${t.name} from IndexedDB:`, e);
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Error deleting file. Try again.',
+                                icon: 'error',
+                                confirmButtonColor: '#0DB14B',
+                                customClass: {
+                                    popup: 'small-swal'
+                                }
+                            });
+                        });
+                }
+            });
         }
     }),
     document.getElementById("remove-all-files").addEventListener("click", () => {
-        if (confirm("Are you sure you want to remove all files? This action cannot be undone.")) {
-            const promises = fileArray.map(file => 
-                deleteFileFromIndexedDB(file.name)
-                    .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
-                    .catch(err => console.error(`Error deleting file ${file.name}:`, err))
-            );
-            
-            Promise.all(promises)
-                .then(() => {
-                    fileArray = [];
-                    populateDocumentSelect();
-                    hideAllViewers();
-                    console.log("All files deleted successfully");
-                })
-                .catch(err => {
-                    console.error("Error deleting all files:", err);
-                    alert("Error removing all files. Please try again.");
-                });
-        }
+        Swal.fire({
+            title: 'Are you sure you want to delete all Documents?',
+            text: "",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0DB14B',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            customClass: {
+                popup: 'small-swal'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const promises = fileArray.map(file => 
+                    deleteFileFromIndexedDB(file.name)
+                        .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
+                        .catch(err => console.error(`Error deleting file ${file.name}:`, err))
+                );
+                
+                Promise.all(promises)
+                    .then(() => {
+                        fileArray = [];
+                        populateDocumentSelect();
+                        hideAllViewers();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'All documents have been deleted.',
+                            customClass: {
+                                popup: 'small-swal'
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error deleting all files:", err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error removing files. Try again.',
+                            customClass: {
+                                popup: 'small-swal'
+                            }
+                        });
+                    });
+            }
+        });
     }),
     document.addEventListener("DOMContentLoaded", () => {
         loadFilesFromLocalStorage()
@@ -719,8 +802,17 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         pinnedDocs.includes(e) || (pinnedDocs.push(e), updatePinnedDocsList());
     }),
     document.getElementById("export-list").addEventListener("click", () => {
-        if (0 === pinnedDocs.length) alert("No pinned documents to export.");
-        else {
+        if (0 === pinnedDocs.length) {
+            Swal.fire({
+                title: 'No Documents',
+                text: 'No pinned documents to export.',
+                icon: 'info',
+                confirmButtonColor: '#0DB14B',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            });
+        } else {
             let o = [],
                 t =
                     (pinnedDocs.forEach((e) => {
@@ -840,6 +932,8 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             }, 1250);
     }),
     document.getElementById("search-doc").addEventListener("click", () => {
+        document.getElementById("search-doc").classList.add("active");
+        document.getElementById("search").classList.remove("active");
         (document.getElementById("spinner-search").style.display = "block")
             setTimeout(() => {
                 let a = document.getElementById("search-text").value.toLowerCase(),
@@ -880,13 +974,30 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         if (e.ctrlKey || e.metaKey)
             switch (e.key) {
                 case "ArrowRight":
-                    e.preventDefault(), navigateDocument(1);
+                    e.preventDefault();
+                    // Navigate to the next document without skipping
+                    if (!isLoadingDocument && currentDocIndex < fileArray.length - 1) {
+                        isLoadingDocument = true; // Set loading flag
+                        setTimeout(() => {
+                            loadDocument(currentDocIndex + 1);
+                            isLoadingDocument = false; // Reset loading flag after loading
+                        }, 1000); // Delay of 100 milliseconds
+                    }
                     break;
                 case "ArrowLeft":
-                    e.preventDefault(), navigateDocument(-1);
+                    e.preventDefault();
+                    // Navigate to the previous document without skipping
+                    if (!isLoadingDocument && currentDocIndex > 0) {
+                        isLoadingDocument = true; // Set loading flag
+                        setTimeout(() => {
+                            loadDocument(currentDocIndex - 1);
+                            isLoadingDocument = false; // Reset loading flag after loading
+                        }, 1000); // Delay of 100 milliseconds
+                    }
                     break;
                 case "f":
-                    e.preventDefault(), document.getElementById("search-text").focus();
+                    e.preventDefault();
+                    document.getElementById("search-text").focus();
             }
         if ((e.ctrlKey && e.altKey) || (e.metaKey && e.shiftKey))
             switch (e.key) {
@@ -961,6 +1072,8 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             .catch((e) => console.error("Error loading files:", e));
     }),
     document.getElementById("search").addEventListener("click", () => {
+        document.getElementById("search").classList.add("active");
+        document.getElementById("search-doc").classList.remove("active");
         (document.getElementById("spinner-search").style.display = "block"),
             setTimeout(() => {
                 let a = document.getElementById("search-text").value.toLowerCase(),
@@ -998,3 +1111,11 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                     });
             }, 1250);
     });
+
+
+// abd code
+
+t.href = "#"; // Keep hash for visual cue
+t.addEventListener("click", () => {
+    loadDocument(o); // Or renderPage(pageNum) for page-specific actions
+});
