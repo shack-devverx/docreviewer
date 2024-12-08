@@ -8,6 +8,7 @@
 <link rel=stylesheet href=https://use.typekit.net/hdi0iou.css>
 <script>var tlJsHost="https:"===window.location.protocol?"https://secure.trust-provider.com/":"http://www.trustlogo.com/";document.write(unescape("%3Cscript src='"+tlJsHost+"trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"))</script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js></script>
+<!-- <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" ></script>
 <script src=https://unpkg.com/mammoth/mammoth.browser.min.js></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js></script>
@@ -85,7 +86,7 @@
 <div id=content>
     <div id=main-content>
     <div id=pdf-viewer>
-        <canvas id=pdf-canvas></canvas>
+        <canvas id="pdf-canvas"></canvas>
     </div>
     <div id=docx-viewer></div>
     <div id=xlsx-viewer></div>
@@ -108,7 +109,7 @@
             <div class="bounce3"></div>
         </div>
         <h4>Search Results</h4>
-        <ul id=results-list></ul>
+        <ul id="results-list"></ul>
     </div>
     <div id=pinned-docs>
         <h4>Pinned Documents</h4>

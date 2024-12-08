@@ -1192,3 +1192,9 @@ a:hover {
         padding-left: 12px;
     }
 }
+.page-number {
+    text-decoration: none; /* Removes underline from links */
+    color: blue; /* Example color for page numbers */
+    margin-right: 5px; /* Spacing between page numbers */
+    margin-left:10px;
+}

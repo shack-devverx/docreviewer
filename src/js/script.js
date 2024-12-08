@@ -23,6 +23,8 @@ let pdfDoc = null,
     tags = JSON.parse(localStorage.getItem("tags")) || [],
     selectedTagIndex = null,
     renderTask = null;
+let isRendering = false;
+
 function updateTagList() {
     let e = document.getElementById("tag-list");
     (e.innerHTML = ""),
@@ -298,10 +300,18 @@ function displayTxtFile(e) {
 function displayImage(e) {
     (document.getElementById("image-viewer").style.display = "block"), (document.getElementById("image-viewer").src = e);
 }
+
 function renderPage(n) {
+    if (isRendering) {
+        console.log('Rendering is already in progress.');
+        return;
+    }
+    isRendering = true;
+
     // Cancel any ongoing render task
     if (renderTask) {
         renderTask.cancel();
+        console.debug('Cancelled ongoing render task before starting a new one.');
     }
 
     document.getElementById("loading-indicator").style.display = "block";
@@ -325,13 +335,17 @@ function renderPage(n) {
             document.getElementById("page-num").textContent = n;
             saveDocumentState();
             document.getElementById("loading-indicator").style.display = "none";
+            renderTask = null;
+            isRendering = false;
         }).catch(function (error) {
             if (error.name === "RenderingCancelledException") {
                 console.log("Render was cancelled, likely due to a new render request:", error.message);
             } else {
                 console.error("An error occurred during rendering:", error);
-                document.getElementById("loading-indicator").style.display = "none";
             }
+            document.getElementById("loading-indicator").style.display = "none";
+            renderTask = null;
+            isRendering = false;
         });
     });
 }
@@ -374,7 +388,7 @@ function loadDocumentChunk(t) {
     }
     n < fileArray.length && setTimeout(() => loadDocumentChunk(n), 0);
 }
-// function populateDocumentSelectbk() {
+// function populateDocumentSelectbk() { 
 //     let o = document.getElementById("document-select");
 //     (o.innerHTML = ""),
 //         fileArray.sort((e, t) => e.name.localeCompare(t.name)),
@@ -840,100 +854,155 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("next-doc").addEventListener("click", () => {
         currentDocIndex < fileArray.length - 1 && loadDocument(currentDocIndex + 1);
     }),
+    // Start of Selection
+    window.loadDocumentAtPage = function(index, pageNum) {
+        console.debug(`Attempting to load document at index: ${index} and page number: ${pageNum}`);
+        try {
+            loadDocumentContent(index);
+            console.debug(`Document loaded successfully at index: ${index}`);
+
+            // Cancel any ongoing render task before starting a new one
+            if (renderTask) {
+                renderTask.cancel();
+                console.debug('Cancelled ongoing render task.');
+            }
+
+            try {
+                renderPage(pageNum);
+                console.debug(`Page ${pageNum} rendered successfully.`);
+            } catch (error) {
+                if (error.name === "RenderingCancelledException") {
+                    console.log("Render was cancelled, likely due to a new render request:", error.message);
+                } else {
+                    console.error(`Failed to render page ${pageNum}:`, error);
+                }
+            }
+        } catch (error) {
+            console.error(`Failed to load document at index ${index}:`, error);
+        }
+    };
     document.getElementById("search").addEventListener("click", () => {
-        (document.getElementById("spinner-search").style.display = "block"),
-            setTimeout(() => {
-                let l = document.getElementById("search-text").value.toLowerCase(),
-                    d = document.getElementById("results-list"),
-                    r = ((d.innerHTML = ""), !1),
-                    t = [];
-                fileArray.forEach((o, a) => {
-                    var e;
-                    "pdf" === o.type
-                        ? ((e = pdfjsLib.getDocument({ data: atob(o.content.split(",")[1]) }).promise.then((e) =>
-                              e.getPage(1).then((e) =>
-                                  e.getTextContent().then((e) => {
-                                      var t;
-                                      e.items
-                                          .map((e) => e.str)
-                                          .join(" ")
-                                          .toLowerCase()
-                                          .includes(l) &&
-                                          ((r = !0),
-                                          (e = document.createElement("li")),
-                                          ((t = document.createElement("a")).textContent = o.name),
-                                          (t.href = "#"),
-                                          (t.style.color = "white"),
-                                          t.addEventListener("click", () => loadDocument(a)),
-                                          e.appendChild(t),
-                                          d.appendChild(e));
-                                  })
-                              )
-                          )),
-                          t.push(e))
-                        : "txt" === o.type
-                        ? ((e = fetch(o.content)
-                              .then((e) => e.text())
-                              .then((e) => {
-                                  var t;
-                                  e.toLowerCase().includes(l) &&
-                                      ((r = !0),
-                                      (e = document.createElement("li")),
-                                      ((t = document.createElement("a")).textContent = o.name),
-                                      (t.href = "#"),
-                                      (t.style.color = "white"),
-                                      t.addEventListener("click", () => loadDocument(a)),
-                                      e.appendChild(t),
-                                      d.appendChild(e));
-                              })),
-                          t.push(e))
-                        : "docx" === o.type
-                        ? ((e = fetch(o.content)
-                              .then((e) => e.arrayBuffer())
-                              .then((e) => mammoth.extractRawText({ arrayBuffer: e }))
-                              .then((e) => {
-                                  var t;
-                                  e.value.toLowerCase().includes(l) &&
-                                      ((r = !0),
-                                      (e = document.createElement("li")),
-                                      ((t = document.createElement("a")).textContent = o.name),
-                                      (t.href = "#"),
-                                      (t.style.color = "white"),
-                                      t.addEventListener("click", () => loadDocument(a)),
-                                      e.appendChild(t),
-                                      d.appendChild(e));
-                              })),
-                          t.push(e))
-                        : "xlsx" === o.type &&
-                          ((e = fetch(o.content)
-                              .then((e) => e.arrayBuffer())
-                              .then((e) => {
-                                  let n = XLSX.read(e, { type: "array" });
-                                  n.SheetNames.forEach((e) => {
-                                      var t,
-                                          e = n.Sheets[e];
-                                      XLSX.utils.sheet_to_csv(e).toLowerCase().includes(l) &&
-                                          ((r = !0),
-                                          (e = document.createElement("li")),
-                                          ((t = document.createElement("a")).textContent = o.name),
-                                          (t.href = "#"),
-                                          (t.style.color = "white"),
-                                          t.addEventListener("click", () => loadDocument(a)),
-                                          e.appendChild(t),
-                                          d.appendChild(e));
-                                  });
-                              })),
-                          t.push(e));
-                }),
-                    Promise.all(t).then(() => {
-                        var e;
-                        r || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), d.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
+        document.getElementById("search").classList.add("active");
+        document.getElementById("search-doc").classList.remove("active");
+        let searchText = document.getElementById("search-text").value.toLowerCase().trim();
+        let resultsList = document.getElementById("results-list");
+        resultsList.innerHTML = ""; // Clear previous results
+
+        if (!searchText) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Empty Search',
+                text: 'Please enter some text to search.',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            });
+            let li = document.createElement("li");
+            li.textContent = "No results found";
+            li.style.color = "white";
+            resultsList.appendChild(li);
+            return;
+        }
+
+        document.getElementById("spinner-search").style.display = "block";
+        setTimeout(() => {
+            let found = false,
+                promises = [];
+
+            fileArray.forEach((file, index) => {
+                if (file.type === "pdf") {
+                    let loadingTask = pdfjsLib.getDocument({ data: atob(file.content.split(",")[1]) });
+                    let promise = loadingTask.promise.then(pdfDoc => {
+                        let numPages = pdfDoc.numPages;
+                        let pagePromises = [];
+                        let pagesFound = [];
+                        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                            let pagePromise = pdfDoc.getPage(pageNum).then(page => {
+                                return page.getTextContent().then(textContent => {
+                                    let text = textContent.items.map(item => item.str).join(" ").toLowerCase();
+                                    if (text.includes(searchText)) {
+                                        pagesFound.push(pageNum);
+                                    }
+                                });
+                            });
+                            pagePromises.push(pagePromise);
+                        }
+                        return Promise.all(pagePromises).then(() => {
+                            if (pagesFound.length > 0) {
+                                found = true;
+                                let li = document.createElement("li");
+                                let docLink = document.createElement("a");
+                                docLink.textContent = file.name;
+                                docLink.href = "#";
+                                docLink.style.color = "white";
+                                docLink.addEventListener("click", (e) => {
+                                    e.preventDefault();
+                                    loadDocument(index).then(() => {
+                                        navigatePage(pagesFound[0] - 1); // Navigate to the first found page
+                                    });
+                                });
+                                li.appendChild(docLink);
+
+                                // Sort pagesFound to ensure the page numbers are in order
+                                pagesFound.sort((a, b) => a - b);
+
+                                pagesFound.forEach(pageNum => {
+                                    let pageLink = document.createElement("a");
+                                    pageLink.textContent = "- Page " + pageNum.toString();
+                                    pageLink.href = "#";
+                                    pageLink.className = "page-number";
+                                    pageLink.style.color = "white";
+                                    pageLink.addEventListener("click", (e) => {
+                                        e.preventDefault();
+                                        loadDocumentAtPage(index, pageNum);
+                                    });
+                                    li.appendChild(pageLink);
+                                });
+                                
+                                resultsList.appendChild(li);
+                            }
+                        });
                     });
-            }, 1250);
+                    promises.push(promise);
+                }
+                // Add similar logic for other file types if needed
+            });
+
+            Promise.all(promises).then(() => {
+                if (!found) {
+                    let li = document.createElement("li");
+                    li.textContent = "No matches found";
+                    li.style.color = "white";
+                    resultsList.appendChild(li);
+                }
+                document.getElementById("spinner-search").style.display = "none";
+            });
+        }, 2500); // Increased delay to observe the results
     }),
     document.getElementById("search-doc").addEventListener("click", () => {
         document.getElementById("search-doc").classList.add("active");
         document.getElementById("search").classList.remove("active");
+
+        let searchText = document.getElementById("search-text").value.toLowerCase().trim();
+        let resultsList = document.getElementById("results-list");
+        resultsList.innerHTML = ""; // Clear previous results
+
+        if (!searchText) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Empty Search',
+                text: 'Please enter some text to search.',
+                customClass: {
+                    popup: 'small-swal'
+                }
+            });
+            let li = document.createElement("li");
+            li.textContent = "No results found";
+            li.style.color = "white";
+            resultsList.appendChild(li);
+            return;
+        }
+
         (document.getElementById("spinner-search").style.display = "block")
             setTimeout(() => {
                 let a = document.getElementById("search-text").value.toLowerCase(),
@@ -1070,44 +1139,44 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList(), updateHelpWindowWithShortcuts();
             })
             .catch((e) => console.error("Error loading files:", e));
-    }),
-    document.getElementById("search").addEventListener("click", () => {
-        document.getElementById("search").classList.add("active");
-        document.getElementById("search-doc").classList.remove("active");
-        (document.getElementById("spinner-search").style.display = "block"),
-            setTimeout(() => {
-                let a = document.getElementById("search-text").value.toLowerCase(),
-                    l = document.getElementById("results-list"),
-                    d = ((l.innerHTML = ""), !1),
-                    t = [];
-                fileArray.forEach((n, o) => {
-                    var e;
-                    "pdf" === n.type &&
-                        ((e = pdfjsLib.getDocument({ data: atob(n.content.split(",")[1]) }).promise.then((e) =>
-                            e.getPage(1).then((e) =>
-                                e.getTextContent().then((e) => {
-                                    var t;
-                                    e.items
-                                        .map((e) => e.str)
-                                        .join(" ")
-                                        .toLowerCase()
-                                        .includes(a) &&
-                                        ((d = !0),
-                                        (e = document.createElement("li")),
-                                        ((t = document.createElement("a")).textContent = n.name),
-                                        (t.href = "#"),
-                                        (t.style.color = "white"),
-                                        t.addEventListener("click", () => loadDocument(o)),
-                                        e.appendChild(t),
-                                        l.appendChild(e));
-                                })
-                            )
-                        )),
-                        t.push(e));
-                }),
-                    Promise.all(t).then(() => {
-                        var e;
-                        d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
-                    });
-            }, 1250);
-    });
+    })
+    // document.getElementById("search").addEventListener("click", () => {
+    //     document.getElementById("search").classList.add("active");
+    //     document.getElementById("search-doc").classList.remove("active");
+    //     (document.getElementById("spinner-search").style.display = "block"),
+    //         setTimeout(() => {
+    //             let a = document.getElementById("search-text").value.toLowerCase(),
+    //                 l = document.getElementById("results-list"),
+    //                 d = ((l.innerHTML = ""), !1),
+    //                 t = [];
+    //             fileArray.forEach((n, o) => {
+    //                 var e;
+    //                 "pdf" === n.type &&
+    //                     ((e = pdfjsLib.getDocument({ data: atob(n.content.split(",")[1]) }).promise.then((e) =>
+    //                         e.getPage(1).then((e) =>
+    //                             e.getTextContent().then((e) => {
+    //                                 var t;
+    //                                 e.items
+    //                                     .map((e) => e.str)
+    //                                     .join(" ")
+    //                                     .toLowerCase()
+    //                                     .includes(a) &&
+    //                                     ((d = !0),
+    //                                     (e = document.createElement("li")),
+    //                                     ((t = document.createElement("a")).textContent = n.name),
+    //                                     (t.href = "#"),
+    //                                     (t.style.color = "white"),
+    //                                     t.addEventListener("click", () => loadDocument(o)),
+    //                                     e.appendChild(t),
+    //                                     l.appendChild(e));
+    //                             })
+    //                         )
+    //                     )),
+    //                     t.push(e));
+    //             }),
+    //                 Promise.all(t).then(() => {
+    //                     var e;
+    //                     d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
+    //                 });
+    //         }, 1250);
+    // });
