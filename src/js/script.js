@@ -22,8 +22,26 @@ let pdfDoc = null,
     pinnedDocs = JSON.parse(localStorage.getItem("pinnedDocs")) || [],
     tags = JSON.parse(localStorage.getItem("tags")) || [],
     selectedTagIndex = null,
-    renderTask = null;
-let isRendering = false;
+    renderTask = null,
+    isNavigating = false,
+    isAcrossDocumentSearch = false,
+    currentPageNum = 1,
+    isRendering = false;
+    let isLoadingPage = false;
+let currentPage = 1;
+let pageQueue = [];
+
+// Call this when your page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check immediately and then periodically until libraries are loaded
+    const checkLibraries = function() {
+        if (!isPPTXJSLoaded()) {
+            setTimeout(checkLibraries, 1000); // Keep checking every second
+        }
+    }
+    checkLibraries();
+});
+
 
 function updateTagList() {
     let e = document.getElementById("tag-list");
@@ -256,19 +274,29 @@ function hideAllViewers() {
         (document.getElementById("txt-viewer").style.display = "none"),
         (document.getElementById("image-viewer").style.display = "none");
 }
+
+//awais edits
+
 function displayPDF(e) {
     document.getElementById("pdf-viewer").style.display = "block";
     const loadingTask = pdfjsLib.getDocument({ data: atob(e.split(",")[1]) });
-    loadingTask.promise.then((e) => {
-        pdfDoc = e;
-        pageCount = e.numPages;
+    
+    loadingTask.promise.then((pdf) => {
+        pdfDoc = pdf;
+        pageCount = pdf.numPages;
+        currentPage = 1;
+        pageNum = 1;
         document.getElementById("page-count").textContent = pageCount;
         rotationAngle = 0;
-        renderPage(pageNum = 1);
+        renderPage(1);
+        updateNavigationButtons();
     }).catch(error => {
         console.error('Error loading PDF:', error);
     });
 }
+
+//awais edits
+
 function displayDocx(e) {
     (document.getElementById("docx-viewer").style.display = "block"),
         fetch(e)
@@ -301,54 +329,184 @@ function displayImage(e) {
     (document.getElementById("image-viewer").style.display = "block"), (document.getElementById("image-viewer").src = e);
 }
 
-function renderPage(n) {
-    if (isRendering) {
-        console.log('Rendering is already in progress.');
-        return;
-    }
-    isRendering = true;
+//Awais Edits
+// function renderPage(n) {
+//     if (isRendering) {
+//         console.log('Rendering is already in progress.');
+//         return;
+//     }
+//     isRendering = true;
 
-    // Cancel any ongoing render task
-    if (renderTask) {
-        renderTask.cancel();
-        console.debug('Cancelled ongoing render task before starting a new one.');
-    }
+//     // Cancel any ongoing render task
+//     if (renderTask) {
+//         renderTask.cancel();
+//         console.debug('Cancelled ongoing render task before starting a new one.');
+//     }
 
-    document.getElementById("loading-indicator").style.display = "block";
+//     document.getElementById("loading-indicator").style.display = "block";
 
-    pdfDoc.getPage(n).then(function (page) {
-        var viewport = page.getViewport({ scale: zoomLevel, rotation: rotationAngle });
-        canvas.height = viewport.height;
+//     pdfDoc.getPage(n).then(function (page) {
+//         var viewport = page.getViewport({ scale: zoomLevel, rotation: rotationAngle });
+//         canvas.height = viewport.height;
+//         canvas.width = viewport.width;
+//         canvas.style.width = viewport.width + "px";
+//         canvas.style.height = viewport.height + "px";
+
+//         // Prepare the render context
+//         var renderContext = {
+//             canvasContext: ctx,
+//             viewport: viewport
+//         };
+
+//         // Render the page
+//         renderTask = page.render(renderContext);
+//         renderTask.promise.then(() => {
+//             document.getElementById("page-num").textContent = n;
+//             saveDocumentState();
+//             document.getElementById("loading-indicator").style.display = "none";
+//             renderTask = null;
+//             isRendering = false;
+//         }).catch(function (error) {
+//             if (error.name === "RenderingCancelledException") {
+//                 console.log("Render was cancelled, likely due to a new render request:", error.message);
+//             } else {
+//                 console.error("An error occurred during rendering:", error);
+//             }
+//             document.getElementById("loading-indicator").style.display = "none";
+//             renderTask = null;
+//             isRendering = false;
+//         });
+//     });
+// }
+
+async function renderPage(num, forceRender = false) {
+    if (!pdfDoc || (isLoadingPage && !forceRender)) return;
+    
+    try {
+        isLoadingPage = true;
+        document.getElementById('loading-indicator').style.display = 'flex';
+
+        // Cancel existing render task if any
+        if (renderTask) {
+            renderTask.cancel();
+            renderTask = null;
+        }
+
+        const page = await pdfDoc.getPage(num);
+        
+        // Calculate viewport with device pixel ratio for better resolution
+        const pixelRatio = window.devicePixelRatio || 1;
+        const viewport = page.getViewport({ 
+            scale: zoomLevel * pixelRatio, 
+            rotation: rotationAngle 
+        });
+
+        // Set canvas dimensions to match viewport
         canvas.width = viewport.width;
-        canvas.style.width = viewport.width + "px";
-        canvas.style.height = viewport.height + "px";
+        canvas.height = viewport.height;
 
-        // Prepare the render context
-        var renderContext = {
+        // Set display size using CSS pixels
+        canvas.style.width = `${viewport.width / pixelRatio}px`;
+        canvas.style.height = `${viewport.height / pixelRatio}px`;
+
+        // Configure high-quality rendering
+        const renderContext = {
             canvasContext: ctx,
-            viewport: viewport
+            viewport: viewport,
+            enableWebGL: true,
+            renderInteractiveForms: true,
+            antialiasing: true
         };
 
-        // Render the page
         renderTask = page.render(renderContext);
-        renderTask.promise.then(() => {
-            document.getElementById("page-num").textContent = n;
-            saveDocumentState();
-            document.getElementById("loading-indicator").style.display = "none";
-            renderTask = null;
-            isRendering = false;
-        }).catch(function (error) {
-            if (error.name === "RenderingCancelledException") {
-                console.log("Render was cancelled, likely due to a new render request:", error.message);
-            } else {
-                console.error("An error occurred during rendering:", error);
-            }
-            document.getElementById("loading-indicator").style.display = "none";
-            renderTask = null;
-            isRendering = false;
-        });
-    });
+
+        await renderTask.promise;
+        
+        // Update state
+        currentPage = num;
+        pageNum = num;
+        document.getElementById('page-num').textContent = num;
+        updateNavigationButtons();
+
+    } catch (error) {
+        if (error.name !== 'RenderingCancelledException') {
+            console.error('Error rendering page:', error);
+        }
+    } finally {
+        isLoadingPage = false;
+        document.getElementById('loading-indicator').style.display = 'none';
+        renderTask = null;
+    }
 }
+
+function zoomIn() {
+    if (!pdfDoc || isLoadingPage) return;
+    
+    const maxZoom = 3.0;
+    const zoomStep = 0.25;
+    
+    if (zoomLevel < maxZoom) {
+        zoomLevel = Math.min(zoomLevel + zoomStep, maxZoom);
+        renderPage(currentPage, true);
+        saveDocumentState();
+    }
+}
+
+function zoomOut() {
+    if (!pdfDoc || isLoadingPage) return;
+    
+    const minZoom = 0.25;
+    const zoomStep = 0.25;
+    
+    if (zoomLevel > minZoom) {
+        zoomLevel = Math.max(zoomLevel - zoomStep, minZoom);
+        renderPage(currentPage, true);
+        saveDocumentState();
+    }
+}
+function updateNavigationButtons() {
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    
+    if (prevButton) prevButton.disabled = currentPage <= 1;
+    if (nextButton) nextButton.disabled = currentPage >= pageCount;
+}
+
+// Simplified navigation functions
+async function navigatePrevPage() {
+    if (currentPage > 1 && !isLoadingPage) {
+        await renderPage(currentPage - 1);
+    }
+}
+
+async function navigateNextPage() {
+    if (currentPage < pageCount && !isLoadingPage) {
+        await renderPage(currentPage + 1);
+    }
+}
+
+// Update event listeners
+document.getElementById('prev-page').addEventListener('click', navigatePrevPage);
+document.getElementById('next-page').addEventListener('click', navigateNextPage);
+
+// Add keyboard navigation
+document.addEventListener('keydown', async (e) => {
+    if (e.shiftKey) {
+        switch (e.key) {
+            case 'ArrowRight':
+                e.preventDefault();
+                await navigateNextPage();
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                await navigatePrevPage();
+                break;
+        }
+    }
+});
+
+//Awais Edits
+
 function adjustImageViewer() {
     var e = document.getElementById("image-viewer");
     (e.style.transform = `scale(${zoomLevel}) rotate(${rotationAngle}deg)`), (e.style.maxWidth = 100 * zoomLevel + "%"), (e.style.maxHeight = 100 * zoomLevel + "%");
@@ -359,24 +517,27 @@ function saveFilesToLocalStorage() {
 function loadFilesFromLocalStorage() {
     fileArray = JSON.parse(localStorage.getItem("savedFiles")) || [];
 }
-function getFileType(e) {
-    switch (e.split(".").pop().toLowerCase()) {
-        case "pdf":
-            return "pdf";
-        case "docx":
-            return "docx";
-        case "xlsx":
-            return "xlsx";
-        case "txt":
-            return "txt";
-        case "jpeg":
-        case "jpg":
-        case "png":
-        case "gif":
-        case "tiff":
-            return "image";
+function getFileType(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    switch (ext) {
+        case 'pdf':
+            return 'pdf';
+        case 'pptx':
+            return 'pdf'; // Treat converted PPTX as PDF
+        case 'docx':
+            return 'docx';
+        case 'xlsx':
+            return 'xlsx';
+        case 'txt':
+            return 'txt';
+        case 'jpeg':
+        case 'jpg':
+        case 'png':
+        case 'gif':
+        case 'tiff':
+            return 'image';
         default:
-            return "unknown";
+            return 'unknown';
     }
 }
 let CHUNK_SIZE = 20;
@@ -579,6 +740,59 @@ function navigateDocument(e) {
         loadDocument(e); // Load the document without skipping
     }
 }
+//Awais Edits Page Nevigation (prev-next)
+
+// Navigation for Within Document Search
+async function navigateWithinDoc(direction) {
+    if (!pdfDoc) return;
+    
+    try {
+        const newPageNum = currentPageNum + direction;
+        if (newPageNum >= 1 && newPageNum <= pageCount) {
+            pageNum = newPageNum;
+            currentPageNum = newPageNum;
+            await renderPage(newPageNum);
+            document.getElementById('page-num').textContent = newPageNum;
+        }
+    } catch (error) {
+        console.error('Error navigating within document:', error);
+    }
+}
+
+// Navigation for Across Documents Search
+async function navigateAcrossDoc(direction) {
+    if (!pdfDoc) return;
+    
+    try {
+        const newPageNum = pageNum + direction;
+        if (newPageNum >= 1 && newPageNum <= pageCount) {
+            pageNum = newPageNum;
+            currentPageNum = newPageNum;
+            await renderPage(newPageNum);
+            document.getElementById('page-num').textContent = newPageNum;
+        }
+    } catch (error) {
+        console.error('Error navigating across documents:', error);
+    }
+}
+
+// Main navigation function that decides which mode to use
+async function handleNavigation(direction) {
+    if (isAcrossDocumentSearch) {
+        await navigateAcrossDoc(direction);
+    } else {
+        await navigateWithinDoc(direction);
+    }
+}
+
+// Update event listeners
+document.getElementById('prev-page').addEventListener('click', () => handleNavigation(-1));
+document.getElementById('next-page').addEventListener('click', () => handleNavigation(1));
+
+//Awais Edits
+
+
+
 function navigatePage(e) {
     1 === e && pageNum < pageCount ? renderPage(++pageNum) : -1 === e && 1 < pageNum && renderPage(--pageNum), saveDocumentState();
 }
@@ -633,8 +847,8 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             n = document.getElementById("tag-color").value,
             o = document.getElementById("error-message");
         t
-            ? 9 <= tags.length && null === selectedTagIndex
-                ? ((o.textContent = "You can only create a maximum of 9 tags."), (o.style.display = "block"))
+            ? 20 <= tags.length && null === selectedTagIndex
+                ? ((o.textContent = "You can only create a maximum of 20 tags."), (o.style.display = "block"))
                 : tags.some((e) => e.name.toLowerCase() === t.toLowerCase()) && null === selectedTagIndex
                 ? ((o.textContent = "A tag with this name already exists."), (o.style.display = "block"))
                 : ((o.style.display = "none"),
@@ -672,11 +886,6 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updateTagDropdown(), updatePinnedDocsList();
     }),
-    // document.getElementById("unpin-all").addEventListener("click", () => {
-    //     confirm(
-    //         "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
-    //     ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
-    // }),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updatePinnedDocsList();
     }),
@@ -700,20 +909,57 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("folder-select").addEventListener("click", () => {
         document.getElementById("file-input").click();
     }),
-    document.getElementById("file-input").addEventListener("change", (e) => {
-        let n = [],
-            o = 0,
-            a = e.target.files.length;
-        for (let t of e.target.files) {
-            var l = new FileReader();
-            (l.onload = function (e) {
-                (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
-                    n.push(e),
-                    ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
-            }),
-                l.readAsDataURL(t);
+
+    document.getElementById("file-input").addEventListener("change", async (e) => {
+        let newFiles = [],
+            processedCount = 0,
+            totalFiles = e.target.files.length;
+
+        for (let file of e.target.files) {
+            try {
+                let fileToProcess = file;
+                
+                // Check if file is PPTX
+                if (file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                    console.log('Converting PPTX:', file.name);
+                    fileToProcess = await handlePPTXFile(file);
+                    console.log('Conversion complete:', fileToProcess.name);
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        name: fileToProcess.name,
+                        type: getFileType(fileToProcess.name),
+                        content: e.target.result
+                    };
+                    newFiles.push(fileData);
+                    
+                    processedCount++;
+                    if (processedCount === totalFiles) {
+                        fileArray = [...fileArray, ...newFiles];
+                        saveFilesToLocalStorage();
+                        populateDocumentSelect();
+                        if (newFiles.length > 0) {
+                            loadDocument(fileArray.length - newFiles.length);
+                        }
+                    }
+                };
+                reader.readAsDataURL(fileToProcess);
+            } catch (error) {
+                console.error('Error processing file:', error);
+                processedCount++;
+                // Show error to user
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Conversion Error',
+                    text: `Failed to process ${file.name}: ${error.message}`,
+                    customClass: { popup: 'small-swal' }
+                });
+            }
         }
     }),
+
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
         if (0 <= e) {
@@ -854,7 +1100,6 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("next-doc").addEventListener("click", () => {
         currentDocIndex < fileArray.length - 1 && loadDocument(currentDocIndex + 1);
     }),
-    // Start of Selection
     window.loadDocumentAtPage = function(index, pageNum) {
         console.debug(`Attempting to load document at index: ${index} and page number: ${pageNum}`);
         try {
@@ -881,7 +1126,10 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             console.error(`Failed to load document at index ${index}:`, error);
         }
     };
+
     document.getElementById("search").addEventListener("click", () => {
+        isAcrossDocumentSearch = true;
+        isAcrossDocumentSearch = false;
         document.getElementById("search").classList.add("active");
         document.getElementById("search-doc").classList.remove("active");
         let searchText = document.getElementById("search-text").value.toLowerCase().trim();
@@ -902,6 +1150,80 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             li.style.color = "white";
             resultsList.appendChild(li);
             return;
+        }
+
+        async function handleSearchResultClick(index, targetPageNum) {
+            return async function(e) {
+                e.preventDefault();
+                if (isNavigating) return;
+        
+                try {
+                    isNavigating = true;
+                    document.getElementById('loading-indicator').style.display = 'flex';
+        
+                    // Load document if it's different from current
+                    if (currentDocIndex !== index) {
+                        await loadDocument(index);
+                    }
+        
+                    // Update page numbers
+                    pageNum = targetPageNum;
+                    currentPageNum = targetPageNum;
+        
+                    // Render the page
+                    await renderPage(targetPageNum);
+        
+                } catch (error) {
+                    console.error('Error handling search result click:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to navigate to the search result.',
+                        customClass: { popup: 'small-swal' }
+                    });
+                } finally {
+                    isNavigating = false;
+                    document.getElementById('loading-indicator').style.display = 'none';
+                }
+            };
+        }
+
+        function updateNavigationButtons() {
+            const prevButton = document.getElementById('prev-page');
+            const nextButton = document.getElementById('next-page');
+            console.log("Navigation buttons updated!");
+            if (prevButton && nextButton) {
+                prevButton.disabled = pageNum <= 1;
+                nextButton.disabled = pageNum >= pageCount;
+            }
+        }
+
+        async function loadDocument(index) {
+            if (index < 0 || index >= fileArray.length) return;
+            
+            try {
+                const file = fileArray[index];
+                currentDocIndex = index;
+                
+                hideAllViewers();
+                
+                if (file.type === "pdf") {
+                    await displayPDF(file.content);
+                    // Only reset page number if loading a different document
+                    if (currentDocIndex !== index) {
+                        pageNum = 1;
+                        currentPageNum = 1;
+                    }
+                    updateNavigationButtons();
+                }
+                // ... rest of your existing loadDocument code
+                
+                document.getElementById("document-select").value = index;
+                
+            } catch (error) {
+                console.error('Error loading document:', error);
+                throw error; // Propagate error for handling by caller
+            }
         }
 
         document.getElementById("spinner-search").style.display = "block";
@@ -977,8 +1299,9 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 }
                 document.getElementById("spinner-search").style.display = "none";
             });
-        }, 2500); // Increased delay to observe the results
+        }, 100); // Increased delay to observe the results
     }),
+
     document.getElementById("search-doc").addEventListener("click", () => {
         document.getElementById("search-doc").classList.add("active");
         document.getElementById("search").classList.remove("active");
@@ -1033,7 +1356,7 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                             o || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)),
                             (document.getElementById("spinner-search").style.display = "none");
                     });
-                } else (l.innerHTML = "<li>Search is not supported for this file type</li>"), (document.getElementById("spinner-search").style.display = "none");
+                } else (l.innerHTML = "<l                                               i>Search is not supported for this file type</li>"), (document.getElementById("spinner-search").style.display = "none");
             }, 1250);
     }),
     document.getElementById("search-text").addEventListener("keypress", (e) => {
@@ -1131,52 +1454,150 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                     e.preventDefault(), zoomOut();
             }
     }),
-    document.getElementById("zoom-in").addEventListener("click", zoomIn),
-    document.getElementById("zoom-out").addEventListener("click", zoomOut),
+    document.getElementById("zoom-in").addEventListener("click", zoomIn);
+    document.getElementById("zoom-out").addEventListener("click", zoomOut);
     document.addEventListener("DOMContentLoaded", () => {
-        loadFilesFromLocalStorage()
-            .then(() => {
-                populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList(), updateHelpWindowWithShortcuts();
-            })
-            .catch((e) => console.error("Error loading files:", e));
-    })
-    // document.getElementById("search").addEventListener("click", () => {
-    //     document.getElementById("search").classList.add("active");
-    //     document.getElementById("search-doc").classList.remove("active");
-    //     (document.getElementById("spinner-search").style.display = "block"),
-    //         setTimeout(() => {
-    //             let a = document.getElementById("search-text").value.toLowerCase(),
-    //                 l = document.getElementById("results-list"),
-    //                 d = ((l.innerHTML = ""), !1),
-    //                 t = [];
-    //             fileArray.forEach((n, o) => {
-    //                 var e;
-    //                 "pdf" === n.type &&
-    //                     ((e = pdfjsLib.getDocument({ data: atob(n.content.split(",")[1]) }).promise.then((e) =>
-    //                         e.getPage(1).then((e) =>
-    //                             e.getTextContent().then((e) => {
-    //                                 var t;
-    //                                 e.items
-    //                                     .map((e) => e.str)
-    //                                     .join(" ")
-    //                                     .toLowerCase()
-    //                                     .includes(a) &&
-    //                                     ((d = !0),
-    //                                     (e = document.createElement("li")),
-    //                                     ((t = document.createElement("a")).textContent = n.name),
-    //                                     (t.href = "#"),
-    //                                     (t.style.color = "white"),
-    //                                     t.addEventListener("click", () => loadDocument(o)),
-    //                                     e.appendChild(t),
-    //                                     l.appendChild(e));
-    //                             })
-    //                         )
-    //                     )),
-    //                     t.push(e));
-    //             }),
-    //                 Promise.all(t).then(() => {
-    //                     var e;
-    //                     d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
-    //                 });
-    //         }, 1250);
-    // });
+       loadFilesFromLocalStorage()
+           .then(() => {
+               populateDocumentSelect();
+               if (fileArray.length > 0) loadDocument(0);
+               updateTagList();
+               updatePinnedDocsList();
+               updateHelpWindowWithShortcuts();
+           })
+           .catch((e) => {
+               console.error("Error loading files:", e);
+           });
+    });
+
+// Add PPTX handling function
+async function handlePPTXFile(file) {
+   try {
+       // Wait for PPTX.js to be ready
+       await verifyPPTXJS();
+        return new Promise((resolve, reject) => {
+           const reader = new FileReader();
+           
+           reader.onload = function(e) {
+               console.log('File read successfully');
+           
+               // Create container
+               const container = $('<div>').css('display', 'none');
+               $('body').append(container);
+                // Convert PPTX
+               try {
+                   container.pptxToHtml({
+                       pptxFileUrl: e.target.result,
+                       success: function(result) {
+                           console.log('PPTX conversion successful');
+                           container.remove();
+                           resolve(result);
+                       },
+                       error: function(error) {
+                           console.error('PPTX conversion failed:', error);
+                           container.remove();
+                           reject(error);
+                       }
+                   });
+               } catch (error) {
+                   console.error('Error during conversion:', error);
+                   container.remove();
+                   reject(error);
+               }
+           };
+            reader.onerror = function(error) {
+               console.error('FileReader error:', error);
+               reject(error);
+           };
+            console.log('Starting file read...');
+           reader.readAsDataURL(file);
+       });
+   } catch (error) {
+       console.error('PPTX handling error:', error);
+       throw error;
+   }
+
+// Add this function to check if required libraries are loaded
+function isPPTXJSLoaded() {
+    console.log('jQuery loaded:', typeof jQuery !== 'undefined');
+    console.log('JSZip loaded:', typeof JSZip !== 'undefined');
+    console.log('pptxjs loaded:', typeof jQuery().pptxToHtml !== 'undefined');
+    
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery not loaded');
+        return false;
+    }
+    if (typeof JSZip === 'undefined') {
+        console.error('JSZip not loaded');
+        return false;
+    }
+    if (typeof jQuery().pptxToHtml === 'undefined') {
+        console.error('PPTX.js not loaded');
+        return false;
+    }
+    console.log('All libraries successfully loaded');
+    return true;
+};
+
+// Add this function to check initialization
+function checkPPTXJS() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 10;
+        function check() {
+            if (typeof jQuery !== 'undefined' && typeof jQuery().pptxToHtml !== 'undefined') {
+                console.log('PPTX.js is ready');
+                resolve(true);
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                console.log('Waiting for PPTX.js...', attempts);
+                setTimeout(check, 500);
+            } else {
+                reject(new Error('PPTX.js failed to initialize'));
+            }
+        }
+        
+        check();
+    });
+ 
+ // Use it in your file handler
+ async function handlePPTXFile(file) {
+    try {
+        await checkPPTXJS(); // Wait for PPTX.js to be ready
+        // Rest of your code
+    } catch (error) {
+        console.error('PPTX initialization error:', error);
+        throw error;
+    }
+
+    // At the beginning of your script
+ocument.addEventListener('DOMContentLoaded', function() {
+    // Check if pptxjs is loaded
+    if (typeof jQuery === 'undefined' || typeof jQuery().pptxToHtml === 'undefined') {
+        console.error('Required libraries not loaded. Attempting to reload...');
+        
+        // Try to reload pptxjs
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/gh/meshesha/pptxjs@latest/dist/pptxjs.min.js';
+        script.onload = function() {
+            console.log('PPTX.js loaded successfully');
+            // Initialize your application here
+            initApp();
+        };
+        script.onerror = function() {
+            console.error('Failed to load PPTX.js');
+        };
+        document.body.appendChild(script);
+    } else {
+        console.log('Libraries already loaded');
+        initApp();
+    }
+});
+
+function initApp() {
+    // Initialize application
+    console.log('jQuery version:', jQuery.fn.jquery);
+    console.log('PPTX.js loaded:', typeof jQuery().pptxToHtml !== 'undefined');
+    setupFileUploadHandlers();
+    initializeUIComponents();
+}

@@ -2,28 +2,12 @@
 <!doctype html>
 <html lang=en>
 <head>
-
-<!-- Awais-->
-<!-- jQuery (required for pptxjs) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<!-- JSZip (required for pptxjs) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<link rel="stylesheet" src="src/css/pptxjs.css">
-
-<!--<script src="https://cdn.jsdelivr.net/npm/filereader@0.10.3/FileReader.min.js"></script>-->
-<script src="https://cdn.jsdelivr.net/npm/nodejs-pptx-fix@1.2.3/index.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-<script src="src\js\divs2slide.js"></script>
-<!-- Awais-->
-
 <meta charset=UTF-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>documentreview.law</title>
 <link rel=stylesheet href=https://use.typekit.net/hdi0iou.css>
 <script>var tlJsHost="https:"===window.location.protocol?"https://secure.trust-provider.com/":"http://www.trustlogo.com/";document.write(unescape("%3Cscript src='"+tlJsHost+"trustlogo/javascript/trustlogo.js' type='text/javascript'%3E%3C/script%3E"))</script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js></script>
-<!-- <script src=https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" ></script>
 <script src=https://unpkg.com/mammoth/mammoth.browser.min.js></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js></script>
@@ -33,7 +17,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Link CSS -->
-<link rel="stylesheet" href="dist/css/styles.min.css">
+<link rel="stylesheet" href="src/css/styles.min.css">
 <!-- Link CSS -->
 </head>
 <body>
@@ -52,15 +36,13 @@
         </div>
     </div>
 <!-- edits awais -->
-
-    <!-- loading indicator element -->
-
     <!-- Spinner Loader -->
 <div id="spinner-loader" class="spinner" style="display: none;">
     <div class="bounce1"></div>
     <div class="bounce2"></div>
     <div class="bounce3"></div>
 </div>
+
 <div id="toolbar">
     <figure class="main-logo"><a href="/">
         <img src="src/images/logo.svg" alt="Logo">
@@ -95,7 +77,7 @@
     <div class="toolbar-right-area">
         <div class="toolbar-button">
             <button class="button" id=flag-doc><?xml version="1.0" encoding="utf-8"?>
-                <span>Pin Current Doc</span>
+                <span>Pin Selected</span>
                 <img src="src/images/pin.svg" alt="Pin">
             </button>
             <button class="button button-download" id=export-list>
@@ -114,9 +96,8 @@
 <div id=content>
     <div id=main-content>
     <div id=pdf-viewer>
-        <canvas id="pdf-canvas"></canvas>
+        <canvas id=pdf-canvas></canvas>
     </div>
-
     <div id=docx-viewer></div>
     <div id=xlsx-viewer></div>
     <div id=txt-viewer></div>
@@ -138,7 +119,7 @@
             <div class="bounce3"></div>
         </div>
         <h4>Search Results</h4>
-        <ul id="results-list"></ul>
+        <ul id=results-list></ul>
     </div>
     <div id=pinned-docs>
         <h4>Pinned Documents</h4>
@@ -239,31 +220,11 @@
     <div class="bounce2"></div>
     <div class="bounce3"></div>
   </div>
-<!-- Add these just before closing </body> tag -->
-<!-- Base dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.6.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/gh/meshesha/pptxjs@latest/libs/jquery.fullscreen.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/meshesha/pptxjs@latest/dist/pptxjs.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            // Verify jQuery and pptxjs are loaded
-            if (typeof jQuery().pptxToHtml === 'undefined') {
-                console.error('pptxjs not loaded properly');
-            } else {
-                console.log('pptxjs loaded successfully');
-            }
-        });
-    </script>
 
 <!-- Link JavaScript -->
-<script src="dist/js/script.min.js"></script>
+<script src="src/js/script.min.js"></script>
     <!-- Link JavaScript -->
+
 </body>
 </html>
 <!-- HTML Ends Here -->
