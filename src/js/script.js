@@ -93,19 +93,23 @@ function updatePinnedDocsList() {
         checkbox.addEventListener("change", updateDeleteButtonState);
         t.appendChild(checkbox);
 
-        let textSpan = document.createElement("span");
+        // Create a link for the document name
+        let textSpan = document.createElement("a");
         textSpan.textContent = o.name;
+        textSpan.href = "#";
+        textSpan.style.cursor = "pointer";
+        textSpan.classList.add("pin-a-doc");
+        textSpan.addEventListener("click", (event) => {
+            event.preventDefault();
+            const docIndex = fileArray.findIndex(file => file.name === o.name);
+            if (docIndex !== -1) {
+                loadDocument(docIndex);
+                // Scroll to the document viewer
+                document.getElementById("pdf-canvas").scrollIntoView({ behavior: "smooth" });
+            }
+        });
         t.appendChild(textSpan);
 
-        var n = document.createElement("span");
-        (n.innerHTML = `
-            <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
-         `),
-        n.style.cursor = "pointer";
-        n.style.marginLeft = "10px";
-        n.addEventListener("click", () => {
-            unpinDocument(e);
-        });
 
         let a = document.createElement("select");
         a.classList.add("tag-dropdown");
@@ -121,6 +125,18 @@ function updatePinnedDocsList() {
             e && addTagToDocument(o, e);
             a.value = "";
         });
+        t.appendChild(a);
+
+        var n = document.createElement("span");
+        (n.innerHTML = `
+            <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
+         `),
+        n.style.cursor = "pointer";
+        n.style.marginLeft = "10px";
+        n.addEventListener("click", () => {
+            unpinDocument(e);
+        });
+        t.appendChild(n);
 
         let l = document.createElement("div");
         l.style.marginTop = "5px";
@@ -228,26 +244,63 @@ function removeTagFromDocument(e, t) {
 function savePinnedDocsToLocalStorage() {
     localStorage.setItem("pinnedDocs", JSON.stringify(pinnedDocs));
 }
-function loadDocument(e) {
-    var t, n, o, a;
-    e < 0 ||
-        e >= fileArray.length ||
-        ((currentDocIndex = e),
-        (t = fileArray[e]),
-        hideAllViewers(),
-        (n = "pdf" === t.type),
-        (o = "image" === t.type),
-        (document.getElementById("prev-page").disabled = !n),
-        (document.getElementById("next-page").disabled = !n),
-        (document.getElementById("zoom-in").disabled = !(n || o)),
-        (document.getElementById("zoom-out").disabled = !(n || o)),
-        (document.getElementById("rotate").disabled = !(n || o)),
-        (a = JSON.parse(localStorage.getItem("docState_" + t.name)) || {}),
-        (zoomLevel = a.zoomLevel || 1.25),
-        (pageNum = a.pageNum || 1),
-        (rotationAngle = a.rotationAngle || 0),
-        n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
-        (document.getElementById("document-select").value = e));
+function loadDocument(input) {
+    // If input is a number (index)
+    if (typeof input === 'number') {
+        if (input < 0 || input >= fileArray.length) return;
+        currentDocIndex = input;
+    } 
+    // If input is a document object
+    else if (typeof input === 'object') {
+        // Find the document in fileArray
+        const index = fileArray.findIndex(doc => doc.name === input.name);
+        if (index === -1) return; // Document not found in fileArray
+        currentDocIndex = index;
+    } else {
+        return; // Invalid input
+    }
+
+    // Get the current document
+    const currentDoc = fileArray[currentDocIndex];
+    
+    hideAllViewers();
+    
+    const isPDF = currentDoc.type === "pdf";
+    const isImage = currentDoc.type === "image";
+    
+    document.getElementById("prev-page").disabled = !isPDF;
+    document.getElementById("next-page").disabled = !isPDF;
+    document.getElementById("zoom-in").disabled = !(isPDF || isImage);
+    document.getElementById("zoom-out").disabled = !(isPDF || isImage);
+    document.getElementById("rotate").disabled = !(isPDF || isImage);
+
+    // Load saved state for the document
+    const savedState = JSON.parse(localStorage.getItem("docState_" + currentDoc.name)) || {};
+    zoomLevel = savedState.zoomLevel || 1.25;
+    pageNum = savedState.pageNum || 1;
+    rotationAngle = savedState.rotationAngle || 0;
+
+    // Display the document based on its type
+    switch (currentDoc.type) {
+        case "pdf":
+            displayPDF(currentDoc.content);
+            break;
+        case "docx":
+            displayDocx(currentDoc.content);
+            break;
+        case "xlsx":
+            displayXlsx(currentDoc.content);
+            break;
+        case "txt":
+            displayTxtFile(currentDoc.content);
+            break;
+        case "image":
+            displayImage(currentDoc.content);
+            break;
+    }
+
+    // Update the document select dropdown
+    document.getElementById("document-select").value = currentDocIndex;
 }
 function hideAllViewers() {
     (document.getElementById("pdf-viewer").style.display = "none"),
@@ -538,14 +591,24 @@ function loadFilesFromLocalStorage() {
     );
 }
 function zoomIn() {
-    fileArray[currentDocIndex] &&
-        ["pdf", "image"].includes(fileArray[currentDocIndex].type) &&
-        ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : adjustImageViewer(), saveDocumentState());
+    if ("pdf" === fileArray[currentDocIndex].type) {
+        zoomLevel = Math.min(zoomLevel + 0.25, 3);
+        renderPage(pageNum);
+    } else if ("image" === fileArray[currentDocIndex].type) {
+        zoomLevel = Math.min(zoomLevel + 0.25, 3);
+        adjustImageViewer();
+    }
+    saveDocumentState();
 }
 function zoomOut() {
-    fileArray[currentDocIndex] &&
-        ["pdf", "image"].includes(fileArray[currentDocIndex].type) &&
-        ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : adjustImageViewer(), saveDocumentState());
+    if ("pdf" === fileArray[currentDocIndex].type) {
+        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+        renderPage(pageNum);
+    } else if ("image" === fileArray[currentDocIndex].type) {
+        zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+        adjustImageViewer();
+    }
+    saveDocumentState();
 }
 function updateHelpWindowWithShortcuts() {
     var e = document.querySelector(".shortcut-table tbody");
@@ -681,12 +744,24 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         updateTagList(), updatePinnedDocsList();
     }),
     document.getElementById("zoom-in").addEventListener("click", () => {
-        "pdf" === fileArray[currentDocIndex].type ? ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), renderPage(pageNum)) : "image" === fileArray[currentDocIndex].type && ((zoomLevel = Math.min(zoomLevel + 0.25, 3)), adjustImageViewer()),
-            saveDocumentState();
+        if ("pdf" === fileArray[currentDocIndex].type) {
+            zoomLevel = Math.min(zoomLevel + 0.25, 3);
+            renderPage(pageNum);
+        } else if ("image" === fileArray[currentDocIndex].type) {
+            zoomLevel = Math.min(zoomLevel + 0.25, 3);
+            adjustImageViewer();
+        }
+        saveDocumentState();
     }),
     document.getElementById("zoom-out").addEventListener("click", () => {
-        "pdf" === fileArray[currentDocIndex].type ? ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), renderPage(pageNum)) : "image" === fileArray[currentDocIndex].type && ((zoomLevel = Math.max(zoomLevel - 0.25, 0.5)), adjustImageViewer()),
-            saveDocumentState();
+        if ("pdf" === fileArray[currentDocIndex].type) {
+            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+            renderPage(pageNum);
+        } else if ("image" === fileArray[currentDocIndex].type) {
+            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+            adjustImageViewer();
+        }
+        saveDocumentState();
     }),
     document.getElementById("rotate").addEventListener("click", () => {
         (rotationAngle = (rotationAngle + 90) % 360), "pdf" === fileArray[currentDocIndex].type ? renderPage(pageNum) : "image" === fileArray[currentDocIndex].type && adjustImageViewer();
@@ -1088,6 +1163,20 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             .catch((e) => console.error("Error loading files:", e));
     }),
     document.addEventListener("DOMContentLoaded", function () {
+        var e = document.getElementById("clear-search");
+    e
+        ? (e.addEventListener("click", function () {
+              var e = document.getElementById("search-text"),
+                  e = (e && ((e.value = ""), console.log("Search input cleared")), document.getElementById("results-list")),
+                  e = (e && ((e.innerHTML = '<li style="color: white;">No results found</li>'), console.log("Results list reset")), document.getElementById("search")),
+                  t = document.getElementById("search-doc"),
+                  e = (e && e.classList.remove("active"), t && t.classList.remove("active"), document.getElementById("spinner-search"));
+              e && (e.style.display = "none");
+          }),
+        console.log("Clear button listener added"))
+        : console.error("Clear button not found in DOM");
+
+
         var e = document.getElementById("help-button");
         let t = document.getElementById("help-window");
         var n = document.getElementById("close-help");

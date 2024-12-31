@@ -548,14 +548,17 @@ a {
     margin-bottom: 30px;
 }
 #pinned-list li{
-    margin-top: 20px;
-    padding-top: 20px;
+    /* display: flex;
+    align-items: center;
+    justify-content: space-between; */
+    /* margin-top: 10px; */
+    padding: 10px 0;
     border-top: 1px solid #E7E7E7;
 }
 #pinned-list li ~ li{
     border-color:#fff;
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 10px; 
+    padding: 10px;
 }
 .pinned-checkbox + span,
 #select-all-pinned + label{
@@ -914,7 +917,7 @@ a:hover {
     border: 1px solid #E7E7E7;
     background: #F8FAFC;
     padding: 4px 39px 4px 17px;
-    border-radius: 8px;
+    border-radius: 8px 0 0 8px;
     font-family: Open Sans;
     font-size: 12px;
     font-weight: 500;
@@ -925,6 +928,8 @@ a:hover {
     color: #637381;
     width: 100%;
 }
+.pin-a-doc{text-decoration:none;}
+.pin-a-doc:hover{color:#fff;}
 .form-control::placeholder{
     font-family: Open Sans;
     font-size: 12px;
@@ -1185,6 +1190,7 @@ a:hover {
 }
 .tag-dropdown option:hover{color: #fff;}
 .pinned-checkbox+span + span{float: right;}
+
 @media (max-width: 1399px) {
     #toolbar{
         gap: 24px;
@@ -1197,4 +1203,32 @@ a:hover {
     color: blue; /* Example color for page numbers */
     margin-right: 5px; /* Spacing between page numbers */
     margin-left:10px;
+}
+#clear-search {
+    background: #ec2121 !important;
+    border-radius: 5px !important
+}
+
+#clear-search {
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    font-family: Open Sans;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 13.62px;
+    color: #fff;
+    border-radius: 0 4px 4px 0 !important;
+    height: 31px;
+    width: auto;
+    min-width: 50px;
+    cursor: pointer
+}
+
+#clear-search img {
+    width: 12px;
+    height: 12px
 }
