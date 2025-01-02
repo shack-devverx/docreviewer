@@ -1,0 +1,54 @@
+<!-- temporary -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPTX to PDF Converter</title>
+</head>
+<body>
+    <h1>PPTX to PDF Converter</h1>
+    <form id="uploadForm">
+        <input type="file" id="pptxFile" accept=".pptx" required>
+        <button type="submit">Upload and Convert</button>
+    </form>
+    <div id="result">
+        <h2>Converted PDF:</h2>
+        <iframe id="pdfViewer" width="600" height="400"></iframe>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('pptxFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a PPTX file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('pptxFile', fileInput.files[0]);
+
+            try {
+                const response = await fetch('http://localhost:3000/convert', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to convert the file.');
+                }
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                document.getElementById('pdfViewer').src = url;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while converting the file.');
+            }
+        });
+    </script>
+</body>
+</html>
