@@ -1,4 +1,0 @@
-# ignoring package manager files
-pnpm*
-node_modules
-

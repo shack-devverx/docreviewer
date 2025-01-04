@@ -558,7 +558,7 @@ a {
 #pinned-list li ~ li{
     border-color:#fff;
     margin-top: 10px; 
-    padding: 10px;
+    padding: 10px 0;
 }
 .pinned-checkbox + span,
 #select-all-pinned + label{
