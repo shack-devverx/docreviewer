@@ -517,6 +517,9 @@ function getFileType(e) {
         case "gif":
         case "tiff":
             return "image";
+        // Restrict pptx file type
+        case "pptx":
+            return "unknown"; // Treat pptx as unknown
         default:
             return "unknown";
     }
@@ -885,6 +888,11 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             o = 0,
             a = e.target.files.length;
         for (let t of e.target.files) {
+            // Check for unsupported file types
+            if (getFileType(t.name) === "unknown") {
+                // Skip this file without showing an alert
+                continue; 
+            }
             var l = new FileReader();
             (l.onload = function (e) {
                 (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
@@ -1319,44 +1327,6 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                 populateDocumentSelect(), 0 < fileArray.length && loadDocument(0), updateTagList(), updatePinnedDocsList(), updateHelpWindowWithShortcuts();
             })
             .catch((e) => console.error("Error loading files:", e));
-    })
-    // document.getElementById("search").addEventListener("click", () => {
-    //     document.getElementById("search").classList.add("active");
-    //     document.getElementById("search-doc").classList.remove("active");
-    //     (document.getElementById("spinner-search").style.display = "block"),
-    //         setTimeout(() => {
-    //             let a = document.getElementById("search-text").value.toLowerCase(),
-    //                 l = document.getElementById("results-list"),
-    //                 d = ((l.innerHTML = ""), !1),
-    //                 t = [];
-    //             fileArray.forEach((n, o) => {
-    //                 var e;
-    //                 "pdf" === n.type &&
-    //                     ((e = pdfjsLib.getDocument({ data: atob(n.content.split(",")[1]) }).promise.then((e) =>
-    //                         e.getPage(1).then((e) =>
-    //                             e.getTextContent().then((e) => {
-    //                                 var t;
-    //                                 e.items
-    //                                     .map((e) => e.str)
-    //                                     .join(" ")
-    //                                     .toLowerCase()
-    //                                     .includes(a) &&
-    //                                     ((d = !0),
-    //                                     (e = document.createElement("li")),
-    //                                     ((t = document.createElement("a")).textContent = n.name),
-    //                                     (t.href = "#"),
-    //                                     (t.style.color = "white"),
-    //                                     t.addEventListener("click", () => loadDocument(o)),
-    //                                     e.appendChild(t),
-    //                                     l.appendChild(e));
-    //                             })
-    //                         )
-    //                     )),
-    //                     t.push(e));
-    //             }),
-    //                 Promise.all(t).then(() => {
-    //                     var e;
-    //                     d || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)), (document.getElementById("spinner-search").style.display = "none");
-    //                 });
-    //         }, 1250);
-    // });
+    }),
+    // Update the file input to restrict file selection
+    document.getElementById("file-input").setAttribute("accept", ".pdf,.docx,.xlsx,.txt,.jpeg,.jpg,.png,.gif,.tiff");
