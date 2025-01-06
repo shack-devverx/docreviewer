@@ -59,6 +59,100 @@ function updateTagDropdown() {
             });
     });
 }
+// function updatePinnedDocsList() {
+//     let d = document.getElementById("pinned-list");
+//     d.innerHTML = "";
+
+//     // Only show Select All if there are pinned docs
+//     if (pinnedDocs.length > 0) {
+//         // Add "Select All" checkbox
+//         let selectAllCheckbox = document.createElement("input");
+//         selectAllCheckbox.type = "checkbox";
+//         selectAllCheckbox.id = "select-all-pinned";
+//         selectAllCheckbox.addEventListener("change", function() {
+//             const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
+//             allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
+//             updateDeleteButtonState();
+//         });
+
+//         let selectAllLabel = document.createElement("label");
+//         selectAllLabel.textContent = "Select All";
+//         selectAllLabel.htmlFor = "select-all-pinned";
+
+//         d.appendChild(selectAllCheckbox);
+//         d.appendChild(selectAllLabel);
+//     }
+
+//     pinnedDocs.forEach((o, e) => {
+//         let t = document.createElement("li");
+
+//         // Add checkbox for each pinned document
+//         let checkbox = document.createElement("input");
+//         checkbox.type = "checkbox";
+//         checkbox.className = "pinned-checkbox";
+//         checkbox.addEventListener("change", updateDeleteButtonState);
+//         t.appendChild(checkbox);
+
+//         let textSpan = document.createElement("span");
+//         textSpan.textContent = o.name;
+//         t.appendChild(textSpan);
+
+//         var n = document.createElement("span");
+//         (n.innerHTML = `
+//             <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
+//          `),
+//         n.style.cursor = "pointer";
+//         n.style.marginLeft = "10px";
+//         n.addEventListener("click", () => {
+//             unpinDocument(e);
+//         });
+
+//         let a = document.createElement("select");
+//         a.classList.add("tag-dropdown");
+//         a.innerHTML = '<option value="">Select Tag</option>';
+//         tags.forEach((e) => {
+//             var t = document.createElement("option");
+//             t.value = e.name;
+//             t.textContent = e.name;
+//             a.appendChild(t);
+//         });
+//         a.addEventListener("change", () => {
+//             var e = tags.find((e) => e.name === a.value);
+//             e && addTagToDocument(o, e);
+//             a.value = "";
+//         });
+
+//         let l = document.createElement("div");
+//         l.style.marginTop = "5px";
+//         if (o.tags) {
+//             o.tags.forEach((e) => {
+//                 var t = document.createElement("span");
+//                 t.textContent = e.name;
+//                 t.className = "assigned-tag";
+//                 t.style.backgroundColor = e.color;
+//                 t.style.color = getContrastColor(e.color);
+//                 var n = document.createElement("span");
+//                 // n.textContent = "❌";
+//                 (n.innerHTML = `
+//                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+//                         <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+//                     </svg>
+//                  `),
+//                 n.style.cursor = "pointer";
+//                 n.addEventListener("click", () => removeTagFromDocument(o, e));
+//                 t.appendChild(n);
+//                 l.appendChild(t);
+//             });
+//         }
+
+//         t.appendChild(n);
+//         t.appendChild(a);
+//         t.appendChild(l);
+//         d.appendChild(t);
+//     });
+
+//     savePinnedDocsToLocalStorage();
+// }
 function updatePinnedDocsList() {
     let d = document.getElementById("pinned-list");
     d.innerHTML = "";
@@ -93,20 +187,24 @@ function updatePinnedDocsList() {
         checkbox.addEventListener("change", updateDeleteButtonState);
         t.appendChild(checkbox);
 
-        let textSpan = document.createElement("span");
-        textSpan.textContent = o.name;
-        t.appendChild(textSpan);
-
-        var n = document.createElement("span");
-        (n.innerHTML = `
-            <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
-         `),
-        n.style.cursor = "pointer";
-        n.style.marginLeft = "10px";
-        n.addEventListener("click", () => {
-            unpinDocument(e);
+        // Create a link for the document name
+        let docLink = document.createElement("a");
+        docLink.textContent = o.name;
+        docLink.href = "#";
+        docLink.style.cursor = "pointer";
+        docLink.classList.add("pin-a-doc");
+        docLink.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent default anchor behavior
+            const docIndex = fileArray.findIndex(file => file.name === o.name);
+            if (docIndex !== -1) {
+                loadDocument(docIndex); // Load the document
+                // Scroll to the document viewer
+                document.getElementById("pdf-canvas").scrollIntoView({ behavior: "smooth" });
+            }
         });
+        t.appendChild(docLink);
 
+        // Add tag dropdown (moved to the left side)
         let a = document.createElement("select");
         a.classList.add("tag-dropdown");
         a.innerHTML = '<option value="">Select Tag</option>';
@@ -121,7 +219,22 @@ function updatePinnedDocsList() {
             e && addTagToDocument(o, e);
             a.value = "";
         });
+        t.appendChild(a);
 
+        // Add delete icon (moved to the right side)
+        var n = document.createElement("span");
+        (n.innerHTML = `
+            <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
+         `),
+        n.style.cursor = "pointer";
+        n.classList.add("tag-trash");
+        n.style.marginLeft = "auto"; // Move to the right side
+        n.addEventListener("click", () => {
+            unpinDocument(e);
+        });
+        t.appendChild(n);
+
+        // Add tags container
         let l = document.createElement("div");
         l.style.marginTop = "5px";
         if (o.tags) {
@@ -132,7 +245,6 @@ function updatePinnedDocsList() {
                 t.style.backgroundColor = e.color;
                 t.style.color = getContrastColor(e.color);
                 var n = document.createElement("span");
-                // n.textContent = "❌";
                 (n.innerHTML = `
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
@@ -145,8 +257,6 @@ function updatePinnedDocsList() {
             });
         }
 
-        t.appendChild(n);
-        t.appendChild(a);
         t.appendChild(l);
         d.appendChild(t);
     });
@@ -228,26 +338,36 @@ function removeTagFromDocument(e, t) {
 function savePinnedDocsToLocalStorage() {
     localStorage.setItem("pinnedDocs", JSON.stringify(pinnedDocs));
 }
+// function loadDocument(e) {
+//     var t, n, o, a;
+//     e < 0 ||
+//         e >= fileArray.length ||
+//         ((currentDocIndex = e),
+//         (t = fileArray[e]),
+//         hideAllViewers(),
+//         (n = "pdf" === t.type),
+//         (o = "image" === t.type),
+//         (document.getElementById("prev-page").disabled = !n),
+//         (document.getElementById("next-page").disabled = !n),
+//         (document.getElementById("zoom-in").disabled = !(n || o)),
+//         (document.getElementById("zoom-out").disabled = !(n || o)),
+//         (document.getElementById("rotate").disabled = !(n || o)),
+//         (a = JSON.parse(localStorage.getItem("docState_" + t.name)) || {}),
+//         (zoomLevel = a.zoomLevel || 1.25),
+//         (pageNum = a.pageNum || 1),
+//         (rotationAngle = a.rotationAngle || 0),
+//         n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
+//         (document.getElementById("document-select").value = e));
+// }
 function loadDocument(e) {
-    var t, n, o, a;
     e < 0 ||
         e >= fileArray.length ||
-        ((currentDocIndex = e),
-        (t = fileArray[e]),
-        hideAllViewers(),
-        (n = "pdf" === t.type),
-        (o = "image" === t.type),
-        (document.getElementById("prev-page").disabled = !n),
-        (document.getElementById("next-page").disabled = !n),
-        (document.getElementById("zoom-in").disabled = !(n || o)),
-        (document.getElementById("zoom-out").disabled = !(n || o)),
-        (document.getElementById("rotate").disabled = !(n || o)),
-        (a = JSON.parse(localStorage.getItem("docState_" + t.name)) || {}),
-        (zoomLevel = a.zoomLevel || 1.25),
-        (pageNum = a.pageNum || 1),
-        (rotationAngle = a.rotationAngle || 0),
-        n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
-        (document.getElementById("document-select").value = e));
+        (50 < fileArray.length
+            ? ((document.getElementById("spinner-loader").style.display = "block"),
+              setTimeout(() => {
+                  hideAllViewers(), loadDocumentContent(e), (document.getElementById("spinner-loader").style.display = "none");
+              }, 1250))
+            : (hideAllViewers(), loadDocumentContent(e)));
 }
 function hideAllViewers() {
     (document.getElementById("pdf-viewer").style.display = "none"),
@@ -583,30 +703,68 @@ function navigatePage(e) {
     1 === e && pageNum < pageCount ? renderPage(++pageNum) : -1 === e && 1 < pageNum && renderPage(--pageNum), saveDocumentState();
 }
 function loadDocument(e) {
-    e < 0 ||
-        e >= fileArray.length ||
-        (50 < fileArray.length
-            ? ((document.getElementById("spinner-loader").style.display = "block"),
-              setTimeout(() => {
-                  hideAllViewers(), loadDocumentContent(e), (document.getElementById("spinner-loader").style.display = "none");
-              }, 1250))
-            : (hideAllViewers(), loadDocumentContent(e)));
+    // Check if the index is valid
+    if (e < 0 || e >= fileArray.length) return;
+
+    // Show spinner for large file arrays
+    if (fileArray.length > 50) {
+        document.getElementById("spinner-loader").style.display = "block";
+        setTimeout(() => {
+            hideAllViewers();
+            loadDocumentContent(e);
+            document.getElementById("spinner-loader").style.display = "none";
+        }, 1250);
+    } else {
+        hideAllViewers();
+        loadDocumentContent(e);
+    }
 }
+
 function loadDocumentContent(e) {
+    // Set the current document index
     currentDocIndex = e;
-    var t = fileArray[e],
-        n = (hideAllViewers(), "pdf" === t.type),
-        o = "image" === t.type;
-    (document.getElementById("prev-page").disabled = !n),
-        (document.getElementById("next-page").disabled = !n),
-        (document.getElementById("zoom-in").disabled = !(n || o)),
-        (document.getElementById("zoom-out").disabled = !(n || o)),
-        (document.getElementById("rotate").disabled = !(n || o)),
-        (zoomLevel = 1.25),
-        (pageNum = 1),
-        (rotationAngle = 0),
-        n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
-        (document.getElementById("document-select").value = e);
+    const currentDoc = fileArray[currentDocIndex];
+
+    // Determine document type
+    const isPDF = currentDoc.type === "pdf";
+    const isImage = currentDoc.type === "image";
+
+    // Enable/disable UI controls based on document type
+    document.getElementById("prev-page").disabled = !isPDF;
+    document.getElementById("next-page").disabled = !isPDF;
+    document.getElementById("zoom-in").disabled = !(isPDF || isImage);
+    document.getElementById("zoom-out").disabled = !(isPDF || isImage);
+    document.getElementById("rotate").disabled = !(isPDF || isImage);
+
+    // Load saved state from localStorage
+    const savedState = JSON.parse(localStorage.getItem("docState_" + currentDoc.name)) || {};
+    zoomLevel = savedState.zoomLevel || 1.25;
+    pageNum = savedState.pageNum || 1;
+    rotationAngle = savedState.rotationAngle || 0;
+
+    // Display the document based on its type
+    switch (currentDoc.type) {
+        case "pdf":
+            displayPDF(currentDoc.content);
+            break;
+        case "docx":
+            displayDocx(currentDoc.content);
+            break;
+        case "xlsx":
+            displayXlsx(currentDoc.content);
+            break;
+        case "txt":
+            displayTxtFile(currentDoc.content);
+            break;
+        case "image":
+            displayImage(currentDoc.content);
+            break;
+        default:
+            console.error("Unsupported document type:", currentDoc.type);
+    }
+
+    // Update the document select dropdown
+    document.getElementById("document-select").value = currentDocIndex;
 }
 document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener(

@@ -1168,10 +1168,8 @@ a:hover {
 }
 
 .tag-dropdown{
-    float: right;
-    width: 57px;
+    /* width: 57px; */
     border: 1px solid #fff;
-    /* padding-right: 4px; */
     padding-left: 4px;
     border-radius: 4px;
     color: #fff;
@@ -1184,6 +1182,11 @@ a:hover {
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
     height: 16px;
+    margin-left: 45px;
+}
+.tag-trash{
+    float:right;
+    margin-top: 5px;
 }
 .tag-dropdown option{
     color: #000;
