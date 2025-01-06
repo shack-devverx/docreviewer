@@ -263,6 +263,28 @@ function updatePinnedDocsList() {
 
     savePinnedDocsToLocalStorage();
 }
+function clearSearchResults() {
+    // Clear the search input
+    document.getElementById("search-text").value = "";
+    
+    // Clear the results list
+    const resultsList = document.getElementById("results-list");
+    resultsList.innerHTML = "";
+    
+    // Add default "no results" message
+    const li = document.createElement("li");
+    li.textContent = "No results found";
+    li.style.color = "white";
+    resultsList.appendChild(li);
+
+    // Reset search type buttons
+    document.getElementById("search-doc").classList.remove("active");
+    document.getElementById("search").classList.remove("active");
+}
+
+// Add click handler for clear button
+document.getElementById("clear-search").addEventListener("click", clearSearchResults);
+
 function updateDeleteButtonState() {
     const selectedCheckboxes = document.querySelectorAll(".pinned-checkbox:checked");
     const deleteButton = document.getElementById("delete-pinned-docs");
