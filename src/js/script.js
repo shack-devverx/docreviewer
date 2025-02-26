@@ -1,12 +1,12 @@
-    /*
-     * Copyright (c) Adam J Schwartz
-     * Author: DevVerx
-     * URL: devverx.com
-     */
-    
-    document.getElementById("help-button").addEventListener("click", function () {
-        document.getElementById("help-window").style.display = "block";
-    }),
+/*
+ * Copyright (c) Adam J Schwartz
+ * Author: DevVerx
+ * URL: devverx.com
+ */
+
+document.getElementById("help-button").addEventListener("click", function () {
+    document.getElementById("help-window").style.display = "block";
+}),
     document.getElementById("close-help").addEventListener("click", function () {
         document.getElementById("help-window").style.display = "none";
     });
@@ -163,7 +163,7 @@ function updatePinnedDocsList() {
         let selectAllCheckbox = document.createElement("input");
         selectAllCheckbox.type = "checkbox";
         selectAllCheckbox.id = "select-all-pinned";
-        selectAllCheckbox.addEventListener("change", function() {
+        selectAllCheckbox.addEventListener("change", function () {
             const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
             allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
             updateDeleteButtonState();
@@ -226,7 +226,7 @@ function updatePinnedDocsList() {
         (n.innerHTML = `
             <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
          `),
-        n.style.cursor = "pointer";
+            n.style.cursor = "pointer";
         n.classList.add("tag-trash");
         n.style.marginLeft = "auto"; // Move to the right side
         n.addEventListener("click", () => {
@@ -250,7 +250,7 @@ function updatePinnedDocsList() {
                         <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                  `),
-                n.style.cursor = "pointer";
+                    n.style.cursor = "pointer";
                 n.addEventListener("click", () => removeTagFromDocument(o, e));
                 t.appendChild(n);
                 l.appendChild(t);
@@ -266,11 +266,11 @@ function updatePinnedDocsList() {
 function clearSearchResults() {
     // Clear the search input
     document.getElementById("search-text").value = "";
-    
+
     // Clear the results list
     const resultsList = document.getElementById("results-list");
     resultsList.innerHTML = "";
-    
+
     // Add default "no results" message
     const li = document.createElement("li");
     li.textContent = "No results found";
@@ -301,9 +301,9 @@ function updateDeleteButtonState() {
 document.getElementById("delete-pinned-docs").addEventListener("click", () => {
     const selectedCheckboxes = document.querySelectorAll(".pinned-checkbox:checked");
     const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
-    
-    const confirmMessage = selectedCheckboxes.length === allCheckboxes.length 
-        ? "Remove all pinned documents?" 
+
+    const confirmMessage = selectedCheckboxes.length === allCheckboxes.length
+        ? "Remove all pinned documents?"
         : `Remove ${selectedCheckboxes.length} selected document(s)?`;
 
     Swal.fire({
@@ -322,17 +322,17 @@ document.getElementById("delete-pinned-docs").addEventListener("click", () => {
             if (selectedCheckboxes.length === allCheckboxes.length) {
                 pinnedDocs.length = 0;
             } else {
-                const indices = Array.from(selectedCheckboxes).map(checkbox => 
+                const indices = Array.from(selectedCheckboxes).map(checkbox =>
                     Array.from(allCheckboxes).indexOf(checkbox)
                 ).sort((a, b) => b - a);
-                
+
                 indices.forEach(index => {
                     pinnedDocs.splice(index, 1);
                 });
             }
             updatePinnedDocsList();
             savePinnedDocsToLocalStorage();
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Deleted!',
@@ -386,9 +386,9 @@ function loadDocument(e) {
         e >= fileArray.length ||
         (50 < fileArray.length
             ? ((document.getElementById("spinner-loader").style.display = "block"),
-              setTimeout(() => {
-                  hideAllViewers(), loadDocumentContent(e), (document.getElementById("spinner-loader").style.display = "none");
-              }, 1250))
+                setTimeout(() => {
+                    hideAllViewers(), loadDocumentContent(e), (document.getElementById("spinner-loader").style.display = "none");
+                }, 1250))
             : (hideAllViewers(), loadDocumentContent(e)));
 }
 function hideAllViewers() {
@@ -551,17 +551,17 @@ function loadDocumentChunk(t) {
 function populateDocumentSelect() {
     let selectElement = document.getElementById("document-select");
     selectElement.innerHTML = "";
-    
+
     // New natural sorting function
     const naturalSort = (a, b) => {
         // Extract numbers from file names
-        const extractNumbers = str => str.split(/(\d+)/).map(part => 
+        const extractNumbers = str => str.split(/(\d+)/).map(part =>
             /^\d+$/.test(part) ? parseInt(part) : part.toLowerCase()
         );
-        
+
         const aParts = extractNumbers(a.name);
         const bParts = extractNumbers(b.name);
-        
+
         // Compare parts
         for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
             if (aParts[i] !== bParts[i]) {
@@ -590,7 +590,7 @@ function populateDocumentSelect() {
         loadDocument(selectElement.value = currentDocIndex);
     }
     updateRemoveButtonVisibility();
-    selectElement.addEventListener("change", function() {
+    selectElement.addEventListener("change", function () {
         loadDocument(this.selectedIndex);
     });
 }
@@ -819,15 +819,15 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             ? 9 <= tags.length && null === selectedTagIndex
                 ? ((o.textContent = "You can only create a maximum of 9 tags."), (o.style.display = "block"))
                 : tags.some((e) => e.name.toLowerCase() === t.toLowerCase()) && null === selectedTagIndex
-                ? ((o.textContent = "A tag with this name already exists."), (o.style.display = "block"))
-                : ((o.style.display = "none"),
-                  null !== selectedTagIndex ? (tags[selectedTagIndex] = { name: t, color: n }) : tags.push({ name: t, color: n }),
-                  saveTagsToLocalStorage(),
-                  (document.getElementById("tag-input").value = ""),
-                  (document.getElementById("tag-color").value = "#007BFF"),
-                  (selectedTagIndex = null),
-                  updateTagList(),
-                  updateTagDropdown())
+                    ? ((o.textContent = "A tag with this name already exists."), (o.style.display = "block"))
+                    : ((o.style.display = "none"),
+                        null !== selectedTagIndex ? (tags[selectedTagIndex] = { name: t, color: n }) : tags.push({ name: t, color: n }),
+                        saveTagsToLocalStorage(),
+                        (document.getElementById("tag-input").value = ""),
+                        (document.getElementById("tag-color").value = "#007BFF"),
+                        (selectedTagIndex = null),
+                        updateTagList(),
+                        updateTagDropdown())
             : ((o.textContent = "Tag name can't be empty!"), (o.style.display = "block"));
     }),
     document.getElementById("delete-tag").addEventListener("click", (e) => {
@@ -835,13 +835,13 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             (e = document.getElementById("error-message")),
             null !== selectedTagIndex
                 ? (tags.splice(selectedTagIndex, 1),
-                  saveTagsToLocalStorage(),
-                  updateTagList(),
-                  updateTagDropdown(),
-                  (selectedTagIndex = null),
-                  (document.getElementById("tag-input").value = ""),
-                  (document.getElementById("tag-color").value = "#007BFF"),
-                  (e.style.display = "none"))
+                    saveTagsToLocalStorage(),
+                    updateTagList(),
+                    updateTagDropdown(),
+                    (selectedTagIndex = null),
+                    (document.getElementById("tag-input").value = ""),
+                    (document.getElementById("tag-color").value = "#007BFF"),
+                    (e.style.display = "none"))
                 : ((e.textContent = "Please select a tag to delete."), (e.style.display = "block"));
     }),
     document.getElementById("tag-popup").addEventListener("click", () => {
@@ -880,28 +880,72 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.getElementById("next-page").addEventListener("click", () => {
         pageNum < pageCount && (renderPage(++pageNum), saveDocumentState());
     }),
-    document.getElementById("folder-select").addEventListener("click", () => {
-        document.getElementById("file-input").click();
-    }),
-    document.getElementById("file-input").addEventListener("change", (e) => {
-        let n = [],
-            o = 0,
-            a = e.target.files.length;
-        for (let t of e.target.files) {
-            // Check for unsupported file types
-            if (getFileType(t.name) === "unknown") {
-                // Skip this file without showing an alert
-                continue; 
-            }
-            var l = new FileReader();
-            (l.onload = function (e) {
-                (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
-                    n.push(e),
-                    ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
-            }),
-                l.readAsDataURL(t);
+
+    // this is for drop box
+document.addEventListener("DOMContentLoaded", function() {
+    const folderSelect = document.getElementById('folder-select');
+    const fileInput = document.getElementById('file-input');
+    const uploadPopup = document.getElementById('uploadPopup');
+    const closePopupBtn = document.getElementById('closePopupBtn');
+    const uploadLocalBtn = document.getElementById('uploadLocalBtn');
+    const uploadDropboxBtn = document.getElementById('uploadDropboxBtn');
+
+    // Function to open the popup
+    function openUploadPopup() {
+        uploadPopup.style.display = 'flex';
+    }
+
+    // Function to close the popup
+    function closeUploadPopup() {
+        uploadPopup.style.display = 'none';
+    }
+
+    // Event listeners
+    folderSelect.addEventListener('click', openUploadPopup);
+
+    closePopupBtn.addEventListener('click', closeUploadPopup);
+
+    uploadLocalBtn.addEventListener('click', () => {
+        console.log('Upload from Local Storage clicked');
+        fileInput.click(); // Trigger file input click when "Upload from Local Storage" is clicked
+    });
+
+    uploadDropboxBtn.addEventListener('click', () => {
+        console.log('Upload from Dropbox Storage clicked');
+        // Add actual Dropbox upload logic here if needed
+    });
+
+    // Handle file input change (original functionality)
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files.length > 0) {
+            console.log('Files selected:', files);
+            // Add your file handling logic here (e.g., upload, process)
         }
-    }),
+        closeUploadPopup(); // Close popup after selection
+    });
+});
+
+//   ----------------------
+document.getElementById("file-input").addEventListener("change", (e) => {
+    let n = [],
+        o = 0,
+        a = e.target.files.length;
+    for (let t of e.target.files) {
+        // Check for unsupported file types
+        if (getFileType(t.name) === "unknown") {
+            // Skip this file without showing an alert
+            continue;
+        }
+        var l = new FileReader();
+        (l.onload = function (e) {
+            (e = { name: t.name, type: getFileType(t.name), content: e.target.result }),
+                n.push(e),
+                ++o === a && ((fileArray = [...fileArray, ...n]), saveFilesToLocalStorage(), populateDocumentSelect(), 0 < n.length) && loadDocument(fileArray.length - n.length);
+        }),
+            l.readAsDataURL(t);
+    }
+}),
     document.getElementById("remove-file").addEventListener("click", () => {
         let e = parseInt(document.getElementById("document-select").value);
         if (0 <= e) {
@@ -958,12 +1002,12 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                const promises = fileArray.map(file => 
+                const promises = fileArray.map(file =>
                     deleteFileFromIndexedDB(file.name)
                         .then(() => console.log(`File ${file.name} deleted from IndexedDB`))
                         .catch(err => console.error(`Error deleting file ${file.name}:`, err))
                 );
-                
+
                 Promise.all(promises)
                     .then(() => {
                         fileArray = [];
@@ -1023,7 +1067,7 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                                 o.some((e) => e.name === t.name) || o.push(t);
                             });
                     }),
-                    "data:text/csv;charset=utf-8,Document Name," + o.map((e) => e.name).join(",") + "\n");
+                        "data:text/csv;charset=utf-8,Document Name," + o.map((e) => e.name).join(",") + "\n");
             pinnedDocs.forEach((e) => {
                 let n = e.name + ",";
                 o.forEach((t) => {
@@ -1043,7 +1087,7 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         currentDocIndex < fileArray.length - 1 && loadDocument(currentDocIndex + 1);
     }),
     // Start of Selection
-    window.loadDocumentAtPage = function(index, pageNum) {
+    window.loadDocumentAtPage = function (index, pageNum) {
         console.debug(`Attempting to load document at index: ${index} and page number: ${pageNum}`);
         try {
             loadDocumentContent(index);
@@ -1069,104 +1113,104 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
             console.error(`Failed to load document at index ${index}:`, error);
         }
     };
-    document.getElementById("search").addEventListener("click", () => {
-        document.getElementById("search").classList.add("active");
-        document.getElementById("search-doc").classList.remove("active");
-        let searchText = document.getElementById("search-text").value.toLowerCase().trim();
-        let resultsList = document.getElementById("results-list");
-        resultsList.innerHTML = ""; // Clear previous results
+document.getElementById("search").addEventListener("click", () => {
+    document.getElementById("search").classList.add("active");
+    document.getElementById("search-doc").classList.remove("active");
+    let searchText = document.getElementById("search-text").value.toLowerCase().trim();
+    let resultsList = document.getElementById("results-list");
+    resultsList.innerHTML = ""; // Clear previous results
 
-        if (!searchText) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Empty Search',
-                text: 'Please enter some text to search.',
-                customClass: {
-                    popup: 'small-swal'
-                }
-            });
-            let li = document.createElement("li");
-            li.textContent = "No results found";
-            li.style.color = "white";
-            resultsList.appendChild(li);
-            return;
-        }
+    if (!searchText) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Empty Search',
+            text: 'Please enter some text to search.',
+            customClass: {
+                popup: 'small-swal'
+            }
+        });
+        let li = document.createElement("li");
+        li.textContent = "No results found";
+        li.style.color = "white";
+        resultsList.appendChild(li);
+        return;
+    }
 
-        document.getElementById("spinner-search").style.display = "block";
-        setTimeout(() => {
-            let found = false,
-                promises = [];
+    document.getElementById("spinner-search").style.display = "block";
+    setTimeout(() => {
+        let found = false,
+            promises = [];
 
-            fileArray.forEach((file, index) => {
-                if (file.type === "pdf") {
-                    let loadingTask = pdfjsLib.getDocument({ data: atob(file.content.split(",")[1]) });
-                    let promise = loadingTask.promise.then(pdfDoc => {
-                        let numPages = pdfDoc.numPages;
-                        let pagePromises = [];
-                        let pagesFound = [];
-                        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                            let pagePromise = pdfDoc.getPage(pageNum).then(page => {
-                                return page.getTextContent().then(textContent => {
-                                    let text = textContent.items.map(item => item.str).join(" ").toLowerCase();
-                                    if (text.includes(searchText)) {
-                                        pagesFound.push(pageNum);
-                                    }
+        fileArray.forEach((file, index) => {
+            if (file.type === "pdf") {
+                let loadingTask = pdfjsLib.getDocument({ data: atob(file.content.split(",")[1]) });
+                let promise = loadingTask.promise.then(pdfDoc => {
+                    let numPages = pdfDoc.numPages;
+                    let pagePromises = [];
+                    let pagesFound = [];
+                    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                        let pagePromise = pdfDoc.getPage(pageNum).then(page => {
+                            return page.getTextContent().then(textContent => {
+                                let text = textContent.items.map(item => item.str).join(" ").toLowerCase();
+                                if (text.includes(searchText)) {
+                                    pagesFound.push(pageNum);
+                                }
+                            });
+                        });
+                        pagePromises.push(pagePromise);
+                    }
+                    return Promise.all(pagePromises).then(() => {
+                        if (pagesFound.length > 0) {
+                            found = true;
+                            let li = document.createElement("li");
+                            let docLink = document.createElement("a");
+                            docLink.textContent = file.name;
+                            docLink.href = "#";
+                            docLink.style.color = "white";
+                            docLink.addEventListener("click", (e) => {
+                                e.preventDefault();
+                                loadDocument(index).then(() => {
+                                    navigatePage(pagesFound[0] - 1); // Navigate to the first found page
                                 });
                             });
-                            pagePromises.push(pagePromise);
-                        }
-                        return Promise.all(pagePromises).then(() => {
-                            if (pagesFound.length > 0) {
-                                found = true;
-                                let li = document.createElement("li");
-                                let docLink = document.createElement("a");
-                                docLink.textContent = file.name;
-                                docLink.href = "#";
-                                docLink.style.color = "white";
-                                docLink.addEventListener("click", (e) => {
+                            li.appendChild(docLink);
+
+                            // Sort pagesFound to ensure the page numbers are in order
+                            pagesFound.sort((a, b) => a - b);
+
+                            pagesFound.forEach(pageNum => {
+                                let pageLink = document.createElement("a");
+                                pageLink.textContent = "- Page " + pageNum.toString();
+                                pageLink.href = "#";
+                                pageLink.className = "page-number";
+                                pageLink.style.color = "white";
+                                pageLink.addEventListener("click", (e) => {
                                     e.preventDefault();
-                                    loadDocument(index).then(() => {
-                                        navigatePage(pagesFound[0] - 1); // Navigate to the first found page
-                                    });
+                                    loadDocumentAtPage(index, pageNum);
                                 });
-                                li.appendChild(docLink);
+                                li.appendChild(pageLink);
+                            });
 
-                                // Sort pagesFound to ensure the page numbers are in order
-                                pagesFound.sort((a, b) => a - b);
-
-                                pagesFound.forEach(pageNum => {
-                                    let pageLink = document.createElement("a");
-                                    pageLink.textContent = "- Page " + pageNum.toString();
-                                    pageLink.href = "#";
-                                    pageLink.className = "page-number";
-                                    pageLink.style.color = "white";
-                                    pageLink.addEventListener("click", (e) => {
-                                        e.preventDefault();
-                                        loadDocumentAtPage(index, pageNum);
-                                    });
-                                    li.appendChild(pageLink);
-                                });
-                                
-                                resultsList.appendChild(li);
-                            }
-                        });
+                            resultsList.appendChild(li);
+                        }
                     });
-                    promises.push(promise);
-                }
-                // Add similar logic for other file types if needed
-            });
+                });
+                promises.push(promise);
+            }
+            // Add similar logic for other file types if needed
+        });
 
-            Promise.all(promises).then(() => {
-                if (!found) {
-                    let li = document.createElement("li");
-                    li.textContent = "No matches found";
-                    li.style.color = "white";
-                    resultsList.appendChild(li);
-                }
-                document.getElementById("spinner-search").style.display = "none";
-            });
-        }, 2500); // Increased delay to observe the results
-    }),
+        Promise.all(promises).then(() => {
+            if (!found) {
+                let li = document.createElement("li");
+                li.textContent = "No matches found";
+                li.style.color = "white";
+                resultsList.appendChild(li);
+            }
+            document.getElementById("spinner-search").style.display = "none";
+        });
+    }, 2500); // Increased delay to observe the results
+}),
     document.getElementById("search-doc").addEventListener("click", () => {
         document.getElementById("search-doc").classList.add("active");
         document.getElementById("search").classList.remove("active");
@@ -1192,22 +1236,22 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
         }
 
         (document.getElementById("spinner-search").style.display = "block")
-            setTimeout(() => {
-                let a = document.getElementById("search-text").value.toLowerCase(),
-                    l = document.getElementById("results-list");
-                if (((l.innerHTML = ""), "pdf" === fileArray[currentDocIndex].type)) {
-                    var t = [];
-                    for (let e = 1; e <= pageCount; e++) t.push(pdfDoc.getPage(e).then((e) => e.getTextContent()));
-                    Promise.all(t).then((e) => {
-                        let o = !1;
-                        e.forEach((e, t) => {
-                            var n;
-                            e.items
-                                .map((e) => e.str)
-                                .join(" ")
-                                .toLowerCase()
-                                .includes(a) &&
-                                ((o = !0),
+        setTimeout(() => {
+            let a = document.getElementById("search-text").value.toLowerCase(),
+                l = document.getElementById("results-list");
+            if (((l.innerHTML = ""), "pdf" === fileArray[currentDocIndex].type)) {
+                var t = [];
+                for (let e = 1; e <= pageCount; e++) t.push(pdfDoc.getPage(e).then((e) => e.getTextContent()));
+                Promise.all(t).then((e) => {
+                    let o = !1;
+                    e.forEach((e, t) => {
+                        var n;
+                        e.items
+                            .map((e) => e.str)
+                            .join(" ")
+                            .toLowerCase()
+                            .includes(a) &&
+                            ((o = !0),
                                 (e = document.createElement("li")),
                                 ((n = document.createElement("a")).textContent = "Page " + (t + 1)),
                                 (n.href = "#"),
@@ -1217,12 +1261,12 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
                                 }),
                                 e.appendChild(n),
                                 l.appendChild(e));
-                        }),
-                            o || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)),
-                            (document.getElementById("spinner-search").style.display = "none");
-                    });
-                } else (l.innerHTML = "<li>Search is not supported for this file type</li>"), (document.getElementById("spinner-search").style.display = "none");
-            }, 1250);
+                    }),
+                        o || (((e = document.createElement("li")).textContent = "No matches found"), (e.style.color = "white"), l.appendChild(e)),
+                        (document.getElementById("spinner-search").style.display = "none");
+                });
+            } else (l.innerHTML = "<li>Search is not supported for this file type</li>"), (document.getElementById("spinner-search").style.display = "none");
+        }, 1250);
     }),
     document.getElementById("search-text").addEventListener("keypress", (e) => {
         "Enter" === e.key && document.getElementById("search-doc").click();

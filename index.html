@@ -53,6 +53,8 @@
           <img src="src/images/logo.svg" alt="Logo" />
         </a>
       </figure>
+
+      
       <div class="folder-select">
         <button id="folder-select">
           <img src="src/images/upload-file.svg" alt="Upload" />Add File
@@ -63,8 +65,26 @@
           multiple
           accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpeg,.jpg,.png,.gif,.tiff"
           style="display: none; font-size: 36px"
-        />&nbsp;&nbsp;
+        />
+    
+        <!-- Popup Container -->
+        <div id="uploadPopup" class="popup">
+          <div class="popup-content">
+            <button id="closePopupBtn" class="close-btn">X</button>
+            <div class="upload-text">
+              <img src="drag-drop-icon.svg" alt="Drag & Drop Icon" class="drag-icon">
+              <p>Drag & Drop Files or</p>
+              <p>Or Upload from Dropbox</p>
+            </div>
+            <div class="upload-buttons">
+              <button id="uploadLocalBtn" class="upload-btn local">Upload from Local Storage</button>
+              <button id="uploadDropboxBtn" class="upload-btn dropbox">Upload from Dropbox Storage</button>
+            </div>
+          </div>
+        </div>
       </div>
+
+
       <div class="document-select">
         <button id="prev-doc">
           <img src="src/images/left-double-arrow.svg" alt="Left Arrow" />
