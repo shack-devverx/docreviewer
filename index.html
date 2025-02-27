@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>documentreview.law</title>
     <link rel="stylesheet" href="https://use.typekit.net/hdi0iou.css" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
     <script>
       var tlJsHost =
         "https:" === window.location.protocol
@@ -54,8 +56,7 @@
         </a>
       </figure>
 
-      
-      <div class="folder-select">
+      <div class="folder-select ">
         <button id="folder-select">
           <img src="src/images/upload-file.svg" alt="Upload" />Add File
         </button>
@@ -69,21 +70,61 @@
     
         <!-- Popup Container -->
         <div id="uploadPopup" class="popup">
-          <div class="popup-content">
-            <button id="closePopupBtn" class="close-btn">X</button>
-            <div class="upload-text">
-              <img src="drag-drop-icon.svg" alt="Drag & Drop Icon" class="drag-icon">
-              <p>Drag & Drop Files or</p>
-              <p>Or Upload from Dropbox</p>
+          <section
+          class="flex flex-col justify-center items-center px-20 py-14 text-2xl font-bold leading-none rounded-3xl border border-solid bg-stone-950 border-white border-opacity-80 max-w-[690px]"
+        >
+          <button class="self-end text-white text-2xl font-bold" id="closePopupBtn">✖</button>
+          <div class="flex flex-col items-center max-w-full w-[461px]">
+            <img
+              src="src/images/dropbox.svg"
+              alt="Upload icon"
+              class="object-contain max-w-full aspect-[1.54] rounded-[100px] w-[210px]"
+            />
+            <h2 class="mt-9 text-5xl text-white max-md:text-4xl">
+              <span>Drag &amp; Drop</span>
+              <span>Files or</span>
+            </h2>
+            <p class="mt-11 text-violet-500 max-md:mt-10">
+              <span class="text-white">Or Upload from</span>
+              <span class="text-[#5300C9]">Dropbox</span>
+            </p>
+            <div class="flex flex-col gap-7 mt-4 w-full ">
+
+              <button
+                id="uploadLocalBtn"
+                aria-label="Upload from Local Storage"
+              >
+                <div class="flex  justify-center gap-1 items-center bg-[#39138F] rounded-lg w-full p-2 ">
+                  <img
+                    src="src/images/openlocalstoragesmallicon.svg"
+                    alt="Local storage icon"
+                  />
+                  <span class="self-stretch my-auto font-bold text-2xl ">
+                    Upload from Local Storage
+                  </span>
+                </div>
+              </button>
+              <button
+                id="uploadDropboxBtn"
+                aria-label="Upload from Local Storage"
+              >
+                <div class="flex gap-1 justify-center items-center bg-white rounded-lg w-full p-2 ">
+                  <img
+                    src="src/images/opendropboxsmallicon.svg"
+                    alt="Local storage icon"
+                  />
+                  <span class="self-stretch my-auto font-bold text-2xl text-gray-400 ">
+                    Upload from Dropbox
+                  </span>
+                </div>
+              </button>
             </div>
-            <div class="upload-buttons">
-              <button id="uploadLocalBtn" class="upload-btn local">Upload from Local Storage</button>
-              <button id="uploadDropboxBtn" class="upload-btn dropbox">Upload from Dropbox Storage</button>
-            </div>
+           
           </div>
+        </section>        
         </div>
       </div>
-
+  <!-- popup container ends -->
 
       <div class="document-select">
         <button id="prev-doc">
