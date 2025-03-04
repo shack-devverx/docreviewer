@@ -6,6 +6,8 @@
     <title>documentreview.law</title>
     <link rel="stylesheet" href="https://use.typekit.net/hdi0iou.css" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/dropbox@10.34.0/dist/Dropbox-sdk.min.js"></script>
+    <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="kibwqto5p1y8t4r"></script>
 
     <script>
       var tlJsHost =
@@ -71,7 +73,7 @@
         <!-- Popup Container -->
         <div id="uploadPopup" class="popup">
           <section
-          class="flex flex-col justify-center items-center px-20 py-14 text-2xl font-bold leading-none rounded-3xl border border-solid bg-stone-950 border-white border-opacity-80 max-w-[690px]"
+          class="flex flex-col justify-center items-center px-20 py-5 text-2xl font-bold leading-none rounded-3xl border border-solid bg-stone-950 border-white border-opacity-80 max-w-[690px]"
         >
           <button class="self-end text-white text-2xl font-bold" id="closePopupBtn">✖</button>
           <div class="flex flex-col items-center max-w-full w-[461px]">
@@ -80,9 +82,9 @@
               alt="Upload icon"
               class="object-contain max-w-full aspect-[1.54] rounded-[100px] w-[210px]"
             />
-            <h2 class="mt-9 text-5xl text-white max-md:text-4xl">
-              <span>Drag &amp; Drop</span>
-              <span>Files or</span>
+            <h2 class="mt-9 text-[#ffffffcc] max-md:text-4xl">
+              <span class="text-[#ffffffcc] font-bold  text-[44px]">Drag &amp; Drop</span>
+              <span class="text-[#ffffffcc] font-bold   text-[44px]  " >Files or</span>
             </h2>
             <p class="mt-11 text-violet-500 max-md:mt-10">
               <span class="text-white">Or Upload from</span>
@@ -100,7 +102,7 @@
                     alt="Local storage icon"
                   />
                   <span class="self-stretch my-auto font-bold text-2xl ">
-                    Upload from Local Storage
+                    Upload from your Computer
                   </span>
                 </div>
               </button>

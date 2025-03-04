@@ -1374,3 +1374,100 @@ document.getElementById("search").addEventListener("click", () => {
     }),
     // Update the file input to restrict file selection
     document.getElementById("file-input").setAttribute("accept", ".pdf,.docx,.xlsx,.txt,.jpeg,.jpg,.png,.gif,.tiff");
+
+
+// ------------------dropbox
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const folderSelect = document.getElementById('folder-select');
+        const uploadPopup = document.getElementById('uploadPopup');
+        const closePopupBtn = document.getElementById('closePopupBtn');
+        const uploadLocalBtn = document.getElementById('uploadLocalBtn');
+        const uploadDropboxBtn = document.getElementById('uploadDropboxBtn');
+        const dropboxAlert = document.getElementById('dropboxAlert');
+        const alertOkBtn = document.getElementById('alertOkBtn');
+    
+        // Initialize Dropbox client with your access token (for SDK if needed)
+        const dbx = new Dropbox.Dropbox({ accessToken: 'YOUR_ACCESS_TOKEN_HERE' });
+    
+        // Function to open the popup
+        function openUploadPopup() {
+            uploadPopup.style.display = 'flex';
+        }
+    
+        // Function to close the popup
+        function closeUploadPopup() {
+            uploadPopup.style.display = 'none';
+        }
+    
+        // Function to show Dropbox alert
+        function showDropboxAlert() {
+            dropboxAlert.classList.remove('hidden');
+        }
+    
+        // Function to hide Dropbox alert
+        function hideDropboxAlert() {
+            dropboxAlert.classList.add('hidden');
+        }
+    
+        // Event listeners
+        folderSelect.addEventListener('click', openUploadPopup);
+    
+        closePopupBtn.addEventListener('click', closeUploadPopup);
+    
+        // uploadLocalBtn.addEventListener('click', () => {
+        //     console.log('Upload from Local Storage clicked');
+        //     // Trigger file input logic if you want to keep local upload (not shown in HTML anymore)
+        //     // For now, this is a placeholder since file input is removed
+        //     alert('Local upload functionality removed; use Dropbox instead.');
+        // });
+    
+        uploadDropboxBtn.addEventListener('click', () => {
+            console.log('Upload from Dropbox Storage clicked');
+            // Use Dropbox Chooser to select files
+            const options = {
+                success: function(files) {
+                    if (files.length > 0) {
+                        const file = files[0]; // Get the first selected file
+                        console.log('Selected file from Dropbox:', file);
+                        // Upload file using Dropbox SDK (optional, if you want to move it)
+                        dbx.filesDownload({ path: file.path_lower })
+                            .then(response => {
+                                console.log('File downloaded from Dropbox:', response);
+                                alert('File selected from Dropbox successfully!');
+                                closeUploadPopup(); // Close popup after selection
+                            })
+                            .catch(error => {
+                                console.error('Error downloading file from Dropbox:', error);
+                                alert('Error selecting file from Dropbox: ' + error.message);
+                            });
+                    } else {
+                        showDropboxAlert(); // Show alert if no file selected
+                    }
+                },
+                cancel: function() {
+                    console.log('Dropbox Chooser cancelled');
+                    showDropboxAlert(); // Show alert if cancelled
+                },
+                linkType: "direct", // Get direct links instead of preview links
+                multiselect: false, // Single file select for simplicity
+                extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.jpeg', '.jpg', '.png', '.gif', '.tiff'] // Match file types
+            };
+    
+            // Open Dropbox Chooser
+            Dropbox.choose(options);
+        });
+    
+        alertOkBtn.addEventListener('click', hideDropboxAlert);
+    
+        // Handle file input change (removed since we’re using Dropbox Chooser, but keeping as placeholder)
+        // If you want to re-add local upload, add back the file input in HTML and this listener
+        // const fileInput = document.getElementById('file-input');
+        // fileInput.addEventListener('change', (e) => {
+        //     const files = e.target.files;
+        //     if (files.length > 0) {
+        //         console.log('Files selected:', files);
+        //     }
+        //     closeUploadPopup(); // Close popup after selection
+        // });
+    });
