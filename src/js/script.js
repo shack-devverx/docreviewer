@@ -59,100 +59,6 @@ function updateTagDropdown() {
             });
     });
 }
-// function updatePinnedDocsList() {
-//     let d = document.getElementById("pinned-list");
-//     d.innerHTML = "";
-
-//     // Only show Select All if there are pinned docs
-//     if (pinnedDocs.length > 0) {
-//         // Add "Select All" checkbox
-//         let selectAllCheckbox = document.createElement("input");
-//         selectAllCheckbox.type = "checkbox";
-//         selectAllCheckbox.id = "select-all-pinned";
-//         selectAllCheckbox.addEventListener("change", function() {
-//             const allCheckboxes = document.querySelectorAll(".pinned-checkbox");
-//             allCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
-//             updateDeleteButtonState();
-//         });
-
-//         let selectAllLabel = document.createElement("label");
-//         selectAllLabel.textContent = "Select All";
-//         selectAllLabel.htmlFor = "select-all-pinned";
-
-//         d.appendChild(selectAllCheckbox);
-//         d.appendChild(selectAllLabel);
-//     }
-
-//     pinnedDocs.forEach((o, e) => {
-//         let t = document.createElement("li");
-
-//         // Add checkbox for each pinned document
-//         let checkbox = document.createElement("input");
-//         checkbox.type = "checkbox";
-//         checkbox.className = "pinned-checkbox";
-//         checkbox.addEventListener("change", updateDeleteButtonState);
-//         t.appendChild(checkbox);
-
-//         let textSpan = document.createElement("span");
-//         textSpan.textContent = o.name;
-//         t.appendChild(textSpan);
-
-//         var n = document.createElement("span");
-//         (n.innerHTML = `
-//             <svg fill="#fff" width="16" height="16" viewBox="-3 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-trash-f"><path d="M12 2h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zm3.8 6-.613 9.2a3 3 0 0 1-2.993 2.8H5.826a3 3 0 0 1-2.993-2.796L2.205 8zM7 9a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v7a1 1 0 0 0 2 0v-7a1 1 0 0 0-1-1"></path></svg>
-//          `),
-//         n.style.cursor = "pointer";
-//         n.style.marginLeft = "10px";
-//         n.addEventListener("click", () => {
-//             unpinDocument(e);
-//         });
-
-//         let a = document.createElement("select");
-//         a.classList.add("tag-dropdown");
-//         a.innerHTML = '<option value="">Select Tag</option>';
-//         tags.forEach((e) => {
-//             var t = document.createElement("option");
-//             t.value = e.name;
-//             t.textContent = e.name;
-//             a.appendChild(t);
-//         });
-//         a.addEventListener("change", () => {
-//             var e = tags.find((e) => e.name === a.value);
-//             e && addTagToDocument(o, e);
-//             a.value = "";
-//         });
-
-//         let l = document.createElement("div");
-//         l.style.marginTop = "5px";
-//         if (o.tags) {
-//             o.tags.forEach((e) => {
-//                 var t = document.createElement("span");
-//                 t.textContent = e.name;
-//                 t.className = "assigned-tag";
-//                 t.style.backgroundColor = e.color;
-//                 t.style.color = getContrastColor(e.color);
-//                 var n = document.createElement("span");
-//                 // n.textContent = "❌";
-//                 (n.innerHTML = `
-//                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-//                         <path d="M3 9L9 3M3 3L9 9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-//                     </svg>
-//                  `),
-//                 n.style.cursor = "pointer";
-//                 n.addEventListener("click", () => removeTagFromDocument(o, e));
-//                 t.appendChild(n);
-//                 l.appendChild(t);
-//             });
-//         }
-
-//         t.appendChild(n);
-//         t.appendChild(a);
-//         t.appendChild(l);
-//         d.appendChild(t);
-//     });
-
-//     savePinnedDocsToLocalStorage();
-// }
 function updatePinnedDocsList() {
     let d = document.getElementById("pinned-list");
     d.innerHTML = "";
@@ -360,27 +266,6 @@ function removeTagFromDocument(e, t) {
 function savePinnedDocsToLocalStorage() {
     localStorage.setItem("pinnedDocs", JSON.stringify(pinnedDocs));
 }
-// function loadDocument(e) {
-//     var t, n, o, a;
-//     e < 0 ||
-//         e >= fileArray.length ||
-//         ((currentDocIndex = e),
-//         (t = fileArray[e]),
-//         hideAllViewers(),
-//         (n = "pdf" === t.type),
-//         (o = "image" === t.type),
-//         (document.getElementById("prev-page").disabled = !n),
-//         (document.getElementById("next-page").disabled = !n),
-//         (document.getElementById("zoom-in").disabled = !(n || o)),
-//         (document.getElementById("zoom-out").disabled = !(n || o)),
-//         (document.getElementById("rotate").disabled = !(n || o)),
-//         (a = JSON.parse(localStorage.getItem("docState_" + t.name)) || {}),
-//         (zoomLevel = a.zoomLevel || 1.25),
-//         (pageNum = a.pageNum || 1),
-//         (rotationAngle = a.rotationAngle || 0),
-//         n ? displayPDF(t.content) : "docx" === t.type ? displayDocx(t.content) : "xlsx" === t.type ? displayXlsx(t.content) : "txt" === t.type ? displayTxtFile(t.content) : o && displayImage(t.content),
-//         (document.getElementById("document-select").value = e));
-// }
 function loadDocument(e) {
     e < 0 ||
         e >= fileArray.length ||
@@ -533,21 +418,6 @@ function loadDocumentChunk(t) {
     }
     n < fileArray.length && setTimeout(() => loadDocumentChunk(n), 0);
 }
-// function populateDocumentSelectbk() { 
-//     let o = document.getElementById("document-select");
-//     (o.innerHTML = ""),
-//         fileArray.sort((e, t) => e.name.localeCompare(t.name)),
-//         fileArray.forEach((e, t) => {
-//             var n = document.createElement("option");
-//             (n.value = t), (n.textContent = e.name), o.appendChild(n);
-//         }),
-//         0 < fileArray.length && loadDocument((o.value = currentDocIndex)),
-//         updateRemoveButtonVisibility(),
-//         o.addEventListener("change", function () {
-//             loadDocument(this.selectedIndex);
-//         });
-// }
-
 function populateDocumentSelect() {
     let selectElement = document.getElementById("document-select");
     selectElement.innerHTML = "";
@@ -698,8 +568,6 @@ function updateHelpWindowWithShortcuts() {
         (e.innerHTML = [
             { description: "Next Document", windows: "Ctrl + →", mac: "" },
             { description: "Previous Document", windows: "Ctrl + ←", mac: "" },
-            // { description: "Next Document", windows: "Ctrl + â†’", mac: "Cmd + â†’" },
-            // { description: "Previous Document", windows: "Ctrl + â†", mac: "Cmd + â†" },
             { description: "Zoom In", windows: "Ctrl + Alt + =", mac: "Cmd + Shift + =" },
             { description: "Zoom Out", windows: "Ctrl + Alt + -", mac: "Cmd + Shift + -" },
             { description: "Focus Search Box", windows: "Ctrl + F", mac: "Cmd + F" },
@@ -855,11 +723,6 @@ document.addEventListener("contextmenu", (e) => e.preventDefault()),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updateTagDropdown(), updatePinnedDocsList();
     }),
-    // document.getElementById("unpin-all").addEventListener("click", () => {
-    //     confirm(
-    //         "Are you sure you want to clear all pins and tags? This action cannot be undone. It is recommended you download the record of your pins and tags before proceeding. If you are sure you want to clear all the pins and tags, click delete."
-    //     ) && ((pinnedDocs = []), updatePinnedDocsList(), alert("All pins and tags have been cleared."));
-    // }),
     document.addEventListener("DOMContentLoaded", () => {
         updateTagList(), updatePinnedDocsList();
     }),
@@ -1378,96 +1241,260 @@ document.getElementById("search").addEventListener("click", () => {
 
 // ------------------dropbox
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const folderSelect = document.getElementById('folder-select');
-        const uploadPopup = document.getElementById('uploadPopup');
-        const closePopupBtn = document.getElementById('closePopupBtn');
-        const uploadLocalBtn = document.getElementById('uploadLocalBtn');
-        const uploadDropboxBtn = document.getElementById('uploadDropboxBtn');
-        const dropboxAlert = document.getElementById('dropboxAlert');
-        const alertOkBtn = document.getElementById('alertOkBtn');
-    
-        // Initialize Dropbox client with your access token (for SDK if needed)
-        const dbx = new Dropbox.Dropbox({ accessToken: 'YOUR_ACCESS_TOKEN_HERE' });
-    
-        // Function to open the popup
-        function openUploadPopup() {
-            uploadPopup.style.display = 'flex';
-        }
-    
-        // Function to close the popup
-        function closeUploadPopup() {
-            uploadPopup.style.display = 'none';
-        }
-    
-        // Function to show Dropbox alert
-        function showDropboxAlert() {
-            dropboxAlert.classList.remove('hidden');
-        }
-    
-        // Function to hide Dropbox alert
-        function hideDropboxAlert() {
-            dropboxAlert.classList.add('hidden');
-        }
-    
-        // Event listeners
-        folderSelect.addEventListener('click', openUploadPopup);
-    
-        closePopupBtn.addEventListener('click', closeUploadPopup);
-    
-        // uploadLocalBtn.addEventListener('click', () => {
-        //     console.log('Upload from Local Storage clicked');
-        //     // Trigger file input logic if you want to keep local upload (not shown in HTML anymore)
-        //     // For now, this is a placeholder since file input is removed
-        //     alert('Local upload functionality removed; use Dropbox instead.');
-        // });
-    
-        uploadDropboxBtn.addEventListener('click', () => {
-            console.log('Upload from Dropbox Storage clicked');
-            // Use Dropbox Chooser to select files
-            const options = {
-                success: function(files) {
-                    if (files.length > 0) {
-                        const file = files[0]; // Get the first selected file
-                        console.log('Selected file from Dropbox:', file);
-                        // Upload file using Dropbox SDK (optional, if you want to move it)
-                        dbx.filesDownload({ path: file.path_lower })
-                            .then(response => {
-                                console.log('File downloaded from Dropbox:', response);
-                                alert('File selected from Dropbox successfully!');
-                                closeUploadPopup(); // Close popup after selection
-                            })
-                            .catch(error => {
-                                console.error('Error downloading file from Dropbox:', error);
-                                alert('Error selecting file from Dropbox: ' + error.message);
-                            });
-                    } else {
-                        showDropboxAlert(); // Show alert if no file selected
-                    }
-                },
-                cancel: function() {
-                    console.log('Dropbox Chooser cancelled');
-                    showDropboxAlert(); // Show alert if cancelled
-                },
-                linkType: "direct", // Get direct links instead of preview links
-                multiselect: false, // Single file select for simplicity
-                extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.jpeg', '.jpg', '.png', '.gif', '.tiff'] // Match file types
-            };
-    
-            // Open Dropbox Chooser
-            Dropbox.choose(options);
-        });
-    
-        alertOkBtn.addEventListener('click', hideDropboxAlert);
-    
-        // Handle file input change (removed since we’re using Dropbox Chooser, but keeping as placeholder)
-        // If you want to re-add local upload, add back the file input in HTML and this listener
-        // const fileInput = document.getElementById('file-input');
-        // fileInput.addEventListener('change', (e) => {
-        //     const files = e.target.files;
-        //     if (files.length > 0) {
-        //         console.log('Files selected:', files);
-        //     }
-        //     closeUploadPopup(); // Close popup after selection
-        // });
+document.addEventListener("DOMContentLoaded", function() {
+    const folderSelect = document.getElementById('folder-select');
+    const uploadPopup = document.getElementById('uploadPopup');
+    const closePopupBtn = document.getElementById('closePopupBtn');
+    const uploadLocalBtn = document.getElementById('uploadLocalBtn');
+    const uploadDropboxBtn = document.getElementById('uploadDropboxBtn');
+    const dropboxAlert = document.getElementById('dropboxAlert');
+    const alertOkBtn = document.getElementById('alertOkBtn');
+    const mainContent = document.getElementById('main-content');
+    const pdfViewer = document.getElementById('pdf-viewer');
+    const pdfCanvas = document.getElementById('pdf-canvas');
+    const docxViewer = document.getElementById('docx-viewer');
+    const xlsxViewer = document.getElementById('xlsx-viewer');
+    const txtViewer = document.getElementById('txt-viewer');
+    const imageViewer = document.getElementById('image-viewer');
+
+    // Initialize file array to store files (local and Dropbox)
+    let fileArray = JSON.parse(localStorage.getItem('fileArray')) || [];
+
+    // Initialize Dropbox client with your access token
+    const dbx = new Dropbox.Dropbox({
+        accessToken: 'sl.u.AFkuMMOtxFGpoNegEoqeBwDL8saaSkvTokekopU8peQQzlzNOce32z_LyKwquF5IRRUpWIohzmm11j-Yx89YQAa4PcDgeK6y5Qtx1SM82Cgv42Ms3mLquIGPYjydjYaP_KihnlodM97bYMJP9VV_Ckd9jadZOZw7o2o6fdY7aKHfVQbfndu5GU4x6hRRVjvHm0lBWTBMMVgzgZ97-fW_ifIOAssJAX9CHP2nDVE6skqQFXMjgY2w_PgwGZo93SN-y5QMDXUJPrTa3ke5imcOgOJxB0iur4pN8acx9kRfLQljy1ke5AKA0WzDvT3WXdoVl5hy8Ybgi6f7oXT1qVggyp3qooCucejzXHfLYnSUAFTgEZyPk_kEUIbYcGo1ErNzXVSSCFoZrxVs6Qz4oOZENKY8QEmYPKjIoYuE3G-CaX6YOS5JOjMg-ZdVkrsfyGqZzk78BXNXKnzShgM91WpiIdiDH3yzelaKYMsGqXiuxDsXQ-5HgN1d3bC1BDZcb7HtZpFzLgY-dKsdMZkf8foDPndISrA0Dq4LOKXWkD3qaFBKMwc_-ieqHtbmWNvOapYAeAmIJYFRLmCMyyNOoIvrNwYVdnus6PIy4cvpsufNEhVnDhyEuAMqJVW3Hpt3RayFveab3I_irvL_reJFbE1REH_89eAwTrzmleLJm69UTvr7lpwd9KietmbSUtSZLqda882Rxa24o6Xb6rI4oiBh7VUGAWy2Okqy9hDo8hRR5neQJxQMN3GwChHZyGwcRnNQRuGkqVAe9zMHhJtzWy1du1NriNLpO6ADfujKglMUJlRqrG5PG3T8ZYFHM94NvTUASG0zHen4Cfey3Sc-our4ROy6ktHcEe0VaC3lLFPXVoAy4X9aiC6vu4puU6B711CBibgTpJBhqptLHauuQb6vApud2lAr88O9IRQWLO2dWLr3i14mCn5cItyVYdW2mkynz07o8F_It3Vm0RiKQYxehEpS5qiC0mIiPXtmStE1bObDMf-9H0sXqHGZgWSd9pyJxIZ6BRRobX1rxsCfpv0YtzoncV1nYmZavZFH6IUnmFjfxqqlHJouidKm5v10ZYC372LvIHjZB9VM3BO1U6sc2MYEM7v4dfg_DNLBuMiBlk-PkK-qdWRUHRxSPBPxY7an2jFn8e-JfcDoF69i88NjDQM3kEDsEqRv1a67Fk1L8LywUzwr47gaPsTt8yPGBVvA9lttQRPv4LgZ0SF4riNXWbyTPhKmywrjeCoUNBTMBtPpvm2yJGENU7dqXa_TtD3RyZgLGyujJjA68lWaP_CHrNiuUGj-Wqt9S-OIMeamaZxnm6sKcHX38KYeNK_fGUjto0IbH-daUYYBNu32Ov8GyIFNbiD4CqJjvCDWmpjlmGRi0vVDKOvxSOuBg777nt0VcCYInxPet-7fCP0BdQSk6hMMkT2AyoGrBlLOdk0X-ihV8g'
     });
+
+    // Load pdf.js library
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+    // Function to get file type based on extension
+    function getFileType(fileName) {
+        const extension = fileName.split('.').pop().toLowerCase();
+        const mimeTypes = {
+            'pdf': 'application/pdf',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt': 'application/vnd.ms-powerpoint',
+            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'txt': 'text/plain',
+            'rtf': 'application/rtf',
+            'jpeg': 'image/jpeg',
+            'jpg': 'image/jpeg',
+            'png': 'image/png',
+            'gif': 'image/gif',
+            'tiff': 'image/tiff'
+        };
+        return mimeTypes[extension] || 'application/octet-stream';
+    }
+
+    // Function to save files to localStorage
+    function saveFilesToLocalStorage() {
+        localStorage.setItem('fileArray', JSON.stringify(fileArray));
+    }
+
+    // Function to populate document select in main-content
+    function populateDocumentSelect() {
+        const select = document.getElementById('documentSelect') || document.createElement('select');
+        select.id = 'documentSelect';
+        select.innerHTML = ''; // Clear existing options
+        fileArray.forEach((file, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = file.name + ` (${index + 1})`; // Differentiate same file names
+            select.appendChild(option);
+        });
+        mainContent.insertBefore(select, mainContent.firstChild); // Add select at the top of main-content
+        console.log('Appended documentSelect to main-content:', select);
+        // Add event listener to load document on selection
+        select.addEventListener('change', (e) => {
+            loadDocument(e.target.value);
+        });
+    }
+
+    // Function to load and display a document in main-content
+    function loadDocument(index) {
+        const file = fileArray[index];
+        if (file) {
+            // Clear existing viewers
+            pdfViewer.style.display = 'none';
+            docxViewer.style.display = 'none';
+            xlsxViewer.style.display = 'none';
+            txtViewer.style.display = 'none';
+            imageViewer.style.display = 'none';
+
+            if (file.type === 'application/pdf') {
+                pdfViewer.style.display = 'block';
+                pdfCanvas.height = 0; // Clear previous canvas
+                pdfjsLib.getDocument(file.content).promise.then(pdf => {
+                    pdf.getPage(1).then(page => {
+                        const viewport = page.getViewport({ scale: 1.5 });
+                        pdfCanvas.height = viewport.height;
+                        pdfCanvas.width = viewport.width;
+                        const context = pdfCanvas.getContext('2d');
+                        page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        }).promise.then(() => {
+                            console.log('Rendered PDF page 1 in pdf-canvas');
+                        });
+                    }).catch(err => console.error('PDF page render error:', err));
+                }).catch(err => {
+                    console.error('PDF load error:', err);
+                    const a = document.createElement('a');
+                    a.href = file.content;
+                    a.download = file.name;
+                    a.textContent = 'Download PDF (Rendering failed): ' + file.name;
+                    pdfViewer.appendChild(a);
+                });
+            } else if (file.type.startsWith('image/')) {
+                imageViewer.style.display = 'block';
+                imageViewer.src = file.content;
+                imageViewer.style.maxWidth = '100%';
+            } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                docxViewer.style.display = 'block';
+                const a = document.createElement('a');
+                a.href = file.content;
+                a.download = file.name;
+                a.textContent = 'Download DOCX: ' + file.name;
+                docxViewer.appendChild(a);
+            } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                xlsxViewer.style.display = 'block';
+                const a = document.createElement('a');
+                a.href = file.content;
+                a.download = file.name;
+                a.textContent = 'Download XLSX: ' + file.name;
+                xlsxViewer.appendChild(a);
+            } else if (file.type === 'text/plain') {
+                txtViewer.style.display = 'block';
+                const a = document.createElement('a');
+                a.href = file.content;
+                a.download = file.name;
+                a.textContent = 'Download TXT: ' + file.name;
+                txtViewer.appendChild(a);
+            } else {
+                // Default to download for unsupported types
+                const viewer = document.querySelector(`#${file.type.replace('/', '-')}-viewer`) || pdfViewer;
+                viewer.style.display = 'block';
+                const a = document.createElement('a');
+                a.href = file.content;
+                a.download = file.name;
+                a.textContent = 'Download ' + file.name;
+                viewer.appendChild(a);
+            }
+            console.log('Loaded document in main-content for index:', index);
+        }
+    }
+
+    // Function to open the popup
+    function openUploadPopup() {
+        uploadPopup.classList.remove('hidden');
+        uploadPopup.classList.add('flex');
+        console.log('Opened uploadPopup, classList:', uploadPopup.classList);
+    }
+
+    // Function to close the popup
+    function closeUploadPopup() {
+        uploadPopup.classList.remove('flex');
+        uploadPopup.classList.add('hidden');
+        console.log('Closed uploadPopup, classList:', uploadPopup.classList);
+    }
+
+    // Function to show Dropbox alert
+    function showDropboxAlert() {
+        dropboxAlert.classList.remove('hidden');
+    }
+
+    // Function to hide Dropbox alert
+    function hideDropboxAlert() {
+        dropboxAlert.classList.add('hidden');
+    }
+
+    // Event listeners
+    folderSelect.addEventListener('click', openUploadPopup);
+
+    closePopupBtn.addEventListener('click', closeUploadPopup);
+
+    uploadLocalBtn.addEventListener('click', () => {
+        console.log('Upload from Local Storage clicked');
+    });
+
+    uploadDropboxBtn.addEventListener('click', () => {
+        console.log('Upload from Dropbox Storage clicked');
+        const options = {
+            success: function(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+                    console.log('Selected file from Dropbox:', file);
+                    console.log('File ID:', file.id);
+                    if (!file.id) {
+                        console.error('File ID is undefined or empty');
+                        alert('Error: Selected file does not have a valid ID.');
+                        return;
+                    }
+                    dbx.filesDownload({ path: file.id })
+                        .then(response => {
+                            console.log('File downloaded from Dropbox (full response):', response);
+                            const fileBlob = response.result ? response.result.fileBlob : null;
+                            console.log('Extracted fileBlob:', fileBlob);
+                            if (fileBlob instanceof Blob) {
+                                const reader = new FileReader();
+                                reader.onload = function(event) {
+                                    console.log('FileReader onload - content length:', event.target.result.length);
+                                    const correctMimeType = getFileType(file.name);
+                                    const fileContent = event.target.result.replace('data:application/octet-stream;', `data:${correctMimeType};`);
+                                    const newFile = {
+                                        name: file.name,
+                                        type: correctMimeType,
+                                        content: fileContent
+                                    };
+                                    fileArray.push(newFile);
+                                    console.log('Updated fileArray:', fileArray);
+                                    saveFilesToLocalStorage();
+                                    populateDocumentSelect();
+                                    loadDocument(fileArray.length - 1);
+                                    alert('File selected from Dropbox successfully!');
+                                    closeUploadPopup(); // Close popup after successful upload
+                                };
+                                reader.onerror = function(error) {
+                                    console.error('FileReader error:', error);
+                                    alert('Error reading file content: ' + error);
+                                };
+                                reader.readAsDataURL(fileBlob);
+                            } else {
+                                console.error('fileBlob is not a Blob object or is null:', fileBlob);
+                                alert('Error: No file content received. Check console for details.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error downloading file from Dropbox:', error);
+                            alert('Error selecting file from Dropbox: ' + error.message);
+                        });
+                } else {
+                    showDropboxAlert();
+                }
+            },
+            cancel: function() {
+                console.log('Dropbox Chooser cancelled');
+                showDropboxAlert();
+            },
+            linkType: "direct",
+            multiselect: false,
+            extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.jpeg', '.jpg', '.png', '.gif', '.tiff'],
+            folderselect: false,
+            iframe: false
+        };
+        Dropbox.choose(options);
+    });
+
+    alertOkBtn.addEventListener('click', hideDropboxAlert);
+
+    // Initial population and load (for existing files)
+    if (fileArray.length > 0) {
+        populateDocumentSelect();
+        loadDocument(0); // Load the first file by default
+    }
+});
