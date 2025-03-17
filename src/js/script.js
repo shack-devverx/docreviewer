@@ -1243,164 +1243,25 @@ document.getElementById("search").addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", function() {
     const folderSelect = document.getElementById('folder-select');
+    const fileInput = document.getElementById('file-input');
     const uploadPopup = document.getElementById('uploadPopup');
     const closePopupBtn = document.getElementById('closePopupBtn');
     const uploadLocalBtn = document.getElementById('uploadLocalBtn');
     const uploadDropboxBtn = document.getElementById('uploadDropboxBtn');
     const dropboxAlert = document.getElementById('dropboxAlert');
     const alertOkBtn = document.getElementById('alertOkBtn');
-    const mainContent = document.getElementById('main-content');
-    const pdfViewer = document.getElementById('pdf-viewer');
-    const pdfCanvas = document.getElementById('pdf-canvas');
-    const docxViewer = document.getElementById('docx-viewer');
-    const xlsxViewer = document.getElementById('xlsx-viewer');
-    const txtViewer = document.getElementById('txt-viewer');
-    const imageViewer = document.getElementById('image-viewer');
-
-    // Initialize file array to store files (local and Dropbox)
-    let fileArray = JSON.parse(localStorage.getItem('fileArray')) || [];
 
     // Initialize Dropbox client with your access token
-    const dbx = new Dropbox.Dropbox({
-        accessToken: 'sl.u.AFkuMMOtxFGpoNegEoqeBwDL8saaSkvTokekopU8peQQzlzNOce32z_LyKwquF5IRRUpWIohzmm11j-Yx89YQAa4PcDgeK6y5Qtx1SM82Cgv42Ms3mLquIGPYjydjYaP_KihnlodM97bYMJP9VV_Ckd9jadZOZw7o2o6fdY7aKHfVQbfndu5GU4x6hRRVjvHm0lBWTBMMVgzgZ97-fW_ifIOAssJAX9CHP2nDVE6skqQFXMjgY2w_PgwGZo93SN-y5QMDXUJPrTa3ke5imcOgOJxB0iur4pN8acx9kRfLQljy1ke5AKA0WzDvT3WXdoVl5hy8Ybgi6f7oXT1qVggyp3qooCucejzXHfLYnSUAFTgEZyPk_kEUIbYcGo1ErNzXVSSCFoZrxVs6Qz4oOZENKY8QEmYPKjIoYuE3G-CaX6YOS5JOjMg-ZdVkrsfyGqZzk78BXNXKnzShgM91WpiIdiDH3yzelaKYMsGqXiuxDsXQ-5HgN1d3bC1BDZcb7HtZpFzLgY-dKsdMZkf8foDPndISrA0Dq4LOKXWkD3qaFBKMwc_-ieqHtbmWNvOapYAeAmIJYFRLmCMyyNOoIvrNwYVdnus6PIy4cvpsufNEhVnDhyEuAMqJVW3Hpt3RayFveab3I_irvL_reJFbE1REH_89eAwTrzmleLJm69UTvr7lpwd9KietmbSUtSZLqda882Rxa24o6Xb6rI4oiBh7VUGAWy2Okqy9hDo8hRR5neQJxQMN3GwChHZyGwcRnNQRuGkqVAe9zMHhJtzWy1du1NriNLpO6ADfujKglMUJlRqrG5PG3T8ZYFHM94NvTUASG0zHen4Cfey3Sc-our4ROy6ktHcEe0VaC3lLFPXVoAy4X9aiC6vu4puU6B711CBibgTpJBhqptLHauuQb6vApud2lAr88O9IRQWLO2dWLr3i14mCn5cItyVYdW2mkynz07o8F_It3Vm0RiKQYxehEpS5qiC0mIiPXtmStE1bObDMf-9H0sXqHGZgWSd9pyJxIZ6BRRobX1rxsCfpv0YtzoncV1nYmZavZFH6IUnmFjfxqqlHJouidKm5v10ZYC372LvIHjZB9VM3BO1U6sc2MYEM7v4dfg_DNLBuMiBlk-PkK-qdWRUHRxSPBPxY7an2jFn8e-JfcDoF69i88NjDQM3kEDsEqRv1a67Fk1L8LywUzwr47gaPsTt8yPGBVvA9lttQRPv4LgZ0SF4riNXWbyTPhKmywrjeCoUNBTMBtPpvm2yJGENU7dqXa_TtD3RyZgLGyujJjA68lWaP_CHrNiuUGj-Wqt9S-OIMeamaZxnm6sKcHX38KYeNK_fGUjto0IbH-daUYYBNu32Ov8GyIFNbiD4CqJjvCDWmpjlmGRi0vVDKOvxSOuBg777nt0VcCYInxPet-7fCP0BdQSk6hMMkT2AyoGrBlLOdk0X-ihV8g'
-    });
-
-    // Load pdf.js library
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
-
-    // Function to get file type based on extension
-    function getFileType(fileName) {
-        const extension = fileName.split('.').pop().toLowerCase();
-        const mimeTypes = {
-            'pdf': 'application/pdf',
-            'doc': 'application/msword',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'xls': 'application/vnd.ms-excel',
-            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'ppt': 'application/vnd.ms-powerpoint',
-            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'txt': 'text/plain',
-            'rtf': 'application/rtf',
-            'jpeg': 'image/jpeg',
-            'jpg': 'image/jpeg',
-            'png': 'image/png',
-            'gif': 'image/gif',
-            'tiff': 'image/tiff'
-        };
-        return mimeTypes[extension] || 'application/octet-stream';
-    }
-
-    // Function to save files to localStorage
-    function saveFilesToLocalStorage() {
-        localStorage.setItem('fileArray', JSON.stringify(fileArray));
-    }
-
-    // Function to populate document select in main-content
-    function populateDocumentSelect() {
-        const select = document.getElementById('documentSelect') || document.createElement('select');
-        select.id = 'documentSelect';
-        select.innerHTML = ''; // Clear existing options
-        fileArray.forEach((file, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = file.name + ` (${index + 1})`; // Differentiate same file names
-            select.appendChild(option);
-        });
-        mainContent.insertBefore(select, mainContent.firstChild); // Add select at the top of main-content
-        console.log('Appended documentSelect to main-content:', select);
-        // Add event listener to load document on selection
-        select.addEventListener('change', (e) => {
-            loadDocument(e.target.value);
-        });
-    }
-
-    // Function to load and display a document in main-content
-    function loadDocument(index) {
-        const file = fileArray[index];
-        if (file) {
-            // Clear existing viewers
-            pdfViewer.style.display = 'none';
-            docxViewer.style.display = 'none';
-            xlsxViewer.style.display = 'none';
-            txtViewer.style.display = 'none';
-            imageViewer.style.display = 'none';
-
-            if (file.type === 'application/pdf') {
-                pdfViewer.style.display = 'block';
-                pdfCanvas.height = 0; // Clear previous canvas
-                pdfjsLib.getDocument(file.content).promise.then(pdf => {
-                    pdf.getPage(1).then(page => {
-                        const viewport = page.getViewport({ scale: 1.5 });
-                        pdfCanvas.height = viewport.height;
-                        pdfCanvas.width = viewport.width;
-                        const context = pdfCanvas.getContext('2d');
-                        page.render({
-                            canvasContext: context,
-                            viewport: viewport
-                        }).promise.then(() => {
-                            console.log('Rendered PDF page 1 in pdf-canvas');
-                        });
-                    }).catch(err => console.error('PDF page render error:', err));
-                }).catch(err => {
-                    console.error('PDF load error:', err);
-                    const a = document.createElement('a');
-                    a.href = file.content;
-                    a.download = file.name;
-                    a.textContent = 'Download PDF (Rendering failed): ' + file.name;
-                    pdfViewer.appendChild(a);
-                });
-            } else if (file.type.startsWith('image/')) {
-                imageViewer.style.display = 'block';
-                imageViewer.src = file.content;
-                imageViewer.style.maxWidth = '100%';
-            } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                docxViewer.style.display = 'block';
-                const a = document.createElement('a');
-                a.href = file.content;
-                a.download = file.name;
-                a.textContent = 'Download DOCX: ' + file.name;
-                docxViewer.appendChild(a);
-            } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                xlsxViewer.style.display = 'block';
-                const a = document.createElement('a');
-                a.href = file.content;
-                a.download = file.name;
-                a.textContent = 'Download XLSX: ' + file.name;
-                xlsxViewer.appendChild(a);
-            } else if (file.type === 'text/plain') {
-                txtViewer.style.display = 'block';
-                const a = document.createElement('a');
-                a.href = file.content;
-                a.download = file.name;
-                a.textContent = 'Download TXT: ' + file.name;
-                txtViewer.appendChild(a);
-            } else {
-                // Default to download for unsupported types
-                const viewer = document.querySelector(`#${file.type.replace('/', '-')}-viewer`) || pdfViewer;
-                viewer.style.display = 'block';
-                const a = document.createElement('a');
-                a.href = file.content;
-                a.download = file.name;
-                a.textContent = 'Download ' + file.name;
-                viewer.appendChild(a);
-            }
-            console.log('Loaded document in main-content for index:', index);
-        }
-    }
+    const dbx = new Dropbox.Dropbox({ accessToken: 'sl.u.AFkNHG7v9mIG84KJFGr7c6FhR7dVEtN-0vgC1FI_2OD7qxgUsVQpdWN5KF03uh9dpjetmYArX2DMXAarj1WCBX5_GQskSnWMV0mQ2fMrninJ9hOcoY96BdYmCuB3rwfeTAcYLCQ3t_VR7a1vnvK3maT3thmak3D7Act0HcdH8Amp7pf44bZ800_XhoZb2K7TxqvDAmGQu3qafSkQDJlaQFBny0KqbrvYqdBYZKCbVfoVGN92QYzs-BNHAfv78fJPYbMyGyhbd9J4WltODwcAjZrl3EetocCtCpWoxrfbW0v4QqVOMFlqhROWfBIIIqXMFu8P1clC4BtVBf_WJBGpf6SKcPyYURjH-Wmc5ZqF0dM9H5-5B3G962Vdjxd_zKUXNaqNHjb32md37gyYs-jK_HdXVtZuUb-etAkJ8xbT6tQCjx5QSBJt6EhdtrvITXStc9lyqrrbwr8VF8r8n8ZJYl_gPdC3k-ebUwD2HvvTs9J25DQpuY9T0-C1djkODQB6P9dXaJykPDQ23gZxkn5RSKpZDx5C0OUuYT9OpL3L53zpgkCdrs6oaBI_ncH5t-JRwjVyFc41BS4CK2Az-gcGsVD8FJR3_5ozYLsAGzvg_rAFfZoyM9KtPbMTiVrwQZ8q5zsXK5SxA0Ze4Q1ro-nphT_jTJQTtXkieiy6dvu2vpcGRnMn3DEXWbRygIX6LQoPD0YsmgAEHDxMnv8ljw0nNuvrXAme5_bMoYDY5TwCRNmeQyEpv6eiawm_lgHlrEmb6viCXcbqJTWL4NYlrgfrHdgXXA--ZEv_B7yhyMHCcUrUJNpBMhsvx4Anem-SvCyebw9CM1GtEx5IzZkwLVnu08DnuNWIZbe4m9QvXS644pJrOdhInNJHsrGatrESNviwdXoCsXW1jVO-jzyaTsRi2UyZCaIplz1p30SZWL6rFRNMKSGM2UIroRddyCtiHtnQVoLPWoeKumSQXL1sQI5XaxlM7GRUoGqwEzU_3CFuJ8ehwI_leBIczQySKIeOe9CpyGXpMZQ9dKzVtOPcSR824v5JO4dVWEOH8_A_rQYS-n7Nzd2Vc4w8D57DpRu6SI-j3WuAzxuB8Ypm3u0hcsTaP6VA75lpC35B3VBw2HvTW09pwW8AEdAxQpL1sQjTLJxX7PP2Vpz7tiTUDT1POoIXUKHatdCaDZES6G5rnceYNxcKuzhiYg-DBQu6zunIewrVRI9CXHEDyiHA5n-HPZkeSEl9h3CTiV4Xfx-8tynRXkbrKhmfctk_zIzCzOegQIGPpjGtfJUJ6jMCh3NMUlXkPA_dwmFbWkwQA9SHlgbD6un8Ayq9uBHwKt08gHVd513GW9DW-0QZT1FKVPiX9-yOPyG8WrkzC7eODWV8hiEsna6FXBxa8b2r5rYbv8BvtUcnHfhcnSFq6pEzo9IhoUpBRE9__LDXziWLUknRQcsgGAQUeQ' });
 
     // Function to open the popup
     function openUploadPopup() {
-        uploadPopup.classList.remove('hidden');
-        uploadPopup.classList.add('flex');
-        console.log('Opened uploadPopup, classList:', uploadPopup.classList);
+        uploadPopup.style.display = 'flex';
     }
 
     // Function to close the popup
     function closeUploadPopup() {
-        uploadPopup.classList.remove('flex');
-        uploadPopup.classList.add('hidden');
-        console.log('Closed uploadPopup, classList:', uploadPopup.classList);
+        uploadPopup.style.display = 'none';
     }
 
     // Function to show Dropbox alert
@@ -1418,9 +1279,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     closePopupBtn.addEventListener('click', closeUploadPopup);
 
-    uploadLocalBtn.addEventListener('click', () => {
-        console.log('Upload from Local Storage clicked');
-    });
+   
 
     uploadDropboxBtn.addEventListener('click', () => {
         console.log('Upload from Dropbox Storage clicked');
@@ -1437,36 +1296,31 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                     dbx.filesDownload({ path: file.id })
                         .then(response => {
-                            console.log('File downloaded from Dropbox (full response):', response);
-                            const fileBlob = response.result ? response.result.fileBlob : null;
-                            console.log('Extracted fileBlob:', fileBlob);
-                            if (fileBlob instanceof Blob) {
+                            console.log('File downloaded from Dropbox:', response);
+                            // Extract the Blob from the response
+                            const fileBlob = response.result.fileBlob;
+                            if (fileBlob) {
+                                // Create a URL for the Blob
+                                const url = window.URL.createObjectURL(fileBlob);
+                                // Read the file content as Data URL
                                 const reader = new FileReader();
                                 reader.onload = function(event) {
-                                    console.log('FileReader onload - content length:', event.target.result.length);
-                                    const correctMimeType = getFileType(file.name);
-                                    const fileContent = event.target.result.replace('data:application/octet-stream;', `data:${correctMimeType};`);
+                                    const fileContent = event.target.result;
                                     const newFile = {
                                         name: file.name,
-                                        type: correctMimeType,
+                                        type: getFileType(file.name),
                                         content: fileContent
                                     };
                                     fileArray.push(newFile);
-                                    console.log('Updated fileArray:', fileArray);
                                     saveFilesToLocalStorage();
                                     populateDocumentSelect();
                                     loadDocument(fileArray.length - 1);
                                     alert('File selected from Dropbox successfully!');
-                                    closeUploadPopup(); // Close popup after successful upload
-                                };
-                                reader.onerror = function(error) {
-                                    console.error('FileReader error:', error);
-                                    alert('Error reading file content: ' + error);
+                                    closeUploadPopup();
                                 };
                                 reader.readAsDataURL(fileBlob);
                             } else {
-                                console.error('fileBlob is not a Blob object or is null:', fileBlob);
-                                alert('Error: No file content received. Check console for details.');
+                                alert('Error: No file content received.');
                             }
                         })
                         .catch(error => {
@@ -1492,9 +1346,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     alertOkBtn.addEventListener('click', hideDropboxAlert);
 
-    // Initial population and load (for existing files)
-    if (fileArray.length > 0) {
-        populateDocumentSelect();
-        loadDocument(0); // Load the first file by default
-    }
+    // Handle file input change (original functionality)
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files.length > 0) {
+            console.log('Files selected:', files);
+            // Add your file handling logic here (e.g., upload, process)
+        }
+        closeUploadPopup(); // Close popup after selection
+    });
 });
