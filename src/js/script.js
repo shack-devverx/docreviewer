@@ -1251,8 +1251,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const dropboxAlert = document.getElementById('dropboxAlert');
     const alertOkBtn = document.getElementById('alertOkBtn');
 
-    // Initialize Dropbox client with your access token
-    const dbx = new Dropbox.Dropbox({ accessToken: 'sl.u.AFkNHG7v9mIG84KJFGr7c6FhR7dVEtN-0vgC1FI_2OD7qxgUsVQpdWN5KF03uh9dpjetmYArX2DMXAarj1WCBX5_GQskSnWMV0mQ2fMrninJ9hOcoY96BdYmCuB3rwfeTAcYLCQ3t_VR7a1vnvK3maT3thmak3D7Act0HcdH8Amp7pf44bZ800_XhoZb2K7TxqvDAmGQu3qafSkQDJlaQFBny0KqbrvYqdBYZKCbVfoVGN92QYzs-BNHAfv78fJPYbMyGyhbd9J4WltODwcAjZrl3EetocCtCpWoxrfbW0v4QqVOMFlqhROWfBIIIqXMFu8P1clC4BtVBf_WJBGpf6SKcPyYURjH-Wmc5ZqF0dM9H5-5B3G962Vdjxd_zKUXNaqNHjb32md37gyYs-jK_HdXVtZuUb-etAkJ8xbT6tQCjx5QSBJt6EhdtrvITXStc9lyqrrbwr8VF8r8n8ZJYl_gPdC3k-ebUwD2HvvTs9J25DQpuY9T0-C1djkODQB6P9dXaJykPDQ23gZxkn5RSKpZDx5C0OUuYT9OpL3L53zpgkCdrs6oaBI_ncH5t-JRwjVyFc41BS4CK2Az-gcGsVD8FJR3_5ozYLsAGzvg_rAFfZoyM9KtPbMTiVrwQZ8q5zsXK5SxA0Ze4Q1ro-nphT_jTJQTtXkieiy6dvu2vpcGRnMn3DEXWbRygIX6LQoPD0YsmgAEHDxMnv8ljw0nNuvrXAme5_bMoYDY5TwCRNmeQyEpv6eiawm_lgHlrEmb6viCXcbqJTWL4NYlrgfrHdgXXA--ZEv_B7yhyMHCcUrUJNpBMhsvx4Anem-SvCyebw9CM1GtEx5IzZkwLVnu08DnuNWIZbe4m9QvXS644pJrOdhInNJHsrGatrESNviwdXoCsXW1jVO-jzyaTsRi2UyZCaIplz1p30SZWL6rFRNMKSGM2UIroRddyCtiHtnQVoLPWoeKumSQXL1sQI5XaxlM7GRUoGqwEzU_3CFuJ8ehwI_leBIczQySKIeOe9CpyGXpMZQ9dKzVtOPcSR824v5JO4dVWEOH8_A_rQYS-n7Nzd2Vc4w8D57DpRu6SI-j3WuAzxuB8Ypm3u0hcsTaP6VA75lpC35B3VBw2HvTW09pwW8AEdAxQpL1sQjTLJxX7PP2Vpz7tiTUDT1POoIXUKHatdCaDZES6G5rnceYNxcKuzhiYg-DBQu6zunIewrVRI9CXHEDyiHA5n-HPZkeSEl9h3CTiV4Xfx-8tynRXkbrKhmfctk_zIzCzOegQIGPpjGtfJUJ6jMCh3NMUlXkPA_dwmFbWkwQA9SHlgbD6un8Ayq9uBHwKt08gHVd513GW9DW-0QZT1FKVPiX9-yOPyG8WrkzC7eODWV8hiEsna6FXBxa8b2r5rYbv8BvtUcnHfhcnSFq6pEzo9IhoUpBRE9__LDXziWLUknRQcsgGAQUeQ' });
+    // Dropbox App credentials
+    const APP_KEY = 'kibwqto5p1y8t4r'; // Your app key
+    const APP_SECRET = '3l2etd4s2juimgk'; // Your app secret
+    const REDIRECT_URI = 'http://localhost:5501'; // Your redirect URI
+    let dbx; // Dropbox client instance
 
     // Function to open the popup
     function openUploadPopup() {
@@ -1274,14 +1277,137 @@ document.addEventListener("DOMContentLoaded", function() {
         dropboxAlert.classList.add('hidden');
     }
 
+    // Step 1: Initiate OAuth flow
+    function initiateDropboxAuth() {
+        console.log('Initiating Dropbox OAuth flow...');
+        const authUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+        window.location.href = authUrl;
+    }
+
+    // Step 2: Handle the redirect and exchange code for token
+    function handleAuthCallback() {
+        console.log('Checking for authorization code in URL...');
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        if (code) {
+            console.log('Found authorization code:', code);
+            fetch('https://api.dropboxapi.com/oauth2/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    code: code,
+                    grant_type: 'authorization_code',
+                    client_id: APP_KEY,
+                    client_secret: APP_SECRET, // Using the provided secret key
+                    redirect_uri: REDIRECT_URI,
+                }),
+            })
+            .then(response => {
+                console.log('Token response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Token response data:', data);
+                const accessToken = data.access_token;
+                if (accessToken) {
+                    dbx = new Dropbox.Dropbox({ accessToken });
+                    localStorage.setItem('dropbox_token', accessToken);
+                    console.log('Dropbox authenticated successfully. Token:', accessToken);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    console.error('No access token received:', data);
+                    alert('Failed to authenticate with Dropbox. Check console for details.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching access token:', error);
+                alert('Error during authentication: ' + error.message);
+            });
+        } else {
+            console.log('No code in URL, using stored token if available...');
+        }
+    }
+
+    // Initialize Dropbox client
+    function initializeDropbox() {
+        const storedToken = localStorage.getItem('dropbox_token');
+        if (storedToken) {
+            dbx = new Dropbox.Dropbox({ accessToken: storedToken });
+            console.log('Using stored Dropbox token:', storedToken);
+        } else {
+            console.log('No stored token, checking for redirect...');
+            handleAuthCallback(); // Check for redirect
+            if (!dbx) {
+                console.log('No token or redirect, initiating OAuth...');
+                initiateDropboxAuth(); // Start OAuth if no token
+            }
+        }
+    }
+
+    // Call initialization on load
+    initializeDropbox();
+
+    uploadPopup.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.add('dragover');
+      });
+
+      uploadPopup.addEventListener('dragenter', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.add('dragover');
+      });
+
+      uploadPopup.addEventListener('dragleave', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.remove('dragover');
+      });
+
+      uploadPopup.addEventListener('drop', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+          Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              const fileContent = event.target.result;
+              const newFile = {
+                name: file.name,
+                type: getFileType(file.name), // Assuming this function exists
+                content: fileContent
+              };
+              fileArray.push(newFile);
+              saveFilesToLocalStorage(); // Assuming this function exists
+              populateDocumentSelect(); // Assuming this function exists
+              loadDocument(fileArray.length - 1); // Assuming this function exists
+            };
+            reader.readAsDataURL(file);
+          });
+          closeUploadPopup();
+        } else {
+          showDropboxAlert();
+        }
+      });
+
     // Event listeners
     folderSelect.addEventListener('click', openUploadPopup);
-
     closePopupBtn.addEventListener('click', closeUploadPopup);
 
-   
+    const connectDropboxBtn = document.getElementById('connectDropboxBtn');
+    if (connectDropboxBtn) {
+        connectDropboxBtn.addEventListener('click', initiateDropboxAuth);
+    }
 
     uploadDropboxBtn.addEventListener('click', () => {
+        if (!dbx) {
+            console.log('Dropbox not connected, prompting authentication...');
+            alert('Please connect to Dropbox first.');
+            initiateDropboxAuth();
+            return;
+        }
         console.log('Upload from Dropbox Storage clicked');
         const options = {
             success: function(files) {
@@ -1297,12 +1423,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     dbx.filesDownload({ path: file.id })
                         .then(response => {
                             console.log('File downloaded from Dropbox:', response);
-                            // Extract the Blob from the response
                             const fileBlob = response.result.fileBlob;
                             if (fileBlob) {
-                                // Create a URL for the Blob
                                 const url = window.URL.createObjectURL(fileBlob);
-                                // Read the file content as Data URL
                                 const reader = new FileReader();
                                 reader.onload = function(event) {
                                     const fileContent = event.target.result;
@@ -1346,13 +1469,67 @@ document.addEventListener("DOMContentLoaded", function() {
 
     alertOkBtn.addEventListener('click', hideDropboxAlert);
 
-    // Handle file input change (original functionality)
     fileInput.addEventListener('change', (e) => {
         const files = e.target.files;
         if (files.length > 0) {
             console.log('Files selected:', files);
-            // Add your file handling logic here (e.g., upload, process)
         }
-        closeUploadPopup(); // Close popup after selection
+        closeUploadPopup();
     });
 });
+
+// ------------------dropbox
+
+// ----------------- Production Modal
+document.addEventListener("DOMContentLoaded", function() {
+    // Get the button and modal elements
+    const productionTagBtn = document.getElementById('production-tag');
+    const processingModal = document.getElementById('processingModal');
+    const closeModalBtn = document.querySelector('.close-button');
+  
+    // Function to open the modal
+    function openProcessingModal() {
+      processingModal.classList.remove('hidden');
+    }
+  
+    // Function to close the modal
+    function closeProcessingModal() {
+      processingModal.classList.add('hidden');
+    }
+  
+    // Event listener to open the modal
+    productionTagBtn.addEventListener('click', openProcessingModal);
+  
+    // Event listener to close the modal
+    closeModalBtn.addEventListener('click', closeProcessingModal);
+  
+    // Toggle visibility of Bates and Legend fields
+    const batesCheckbox = document.querySelector('#processingModal section:nth-of-type(2) .checkbox-icon');
+    const legendCheckbox = document.querySelector('#processingModal section:nth-of-type(3) .checkbox-icon');
+    const batesFields = document.querySelector('.bates-fields');
+    const legendFields = document.querySelector('.legend-fields');
+  
+    function toggleCheckbox(checkbox, fields) {
+      checkbox.addEventListener('click', () => {
+        checkbox.classList.toggle('checked');
+        if (checkbox.classList.contains('checked')) {
+          // Show checkmark
+          checkbox.innerHTML = `
+            <path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z" fill="#FEF7FF"></path>
+            <path d="M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#39138F"></path>
+          `;
+          fields.classList.remove('hidden');
+        } else {
+          // Show empty checkbox
+          checkbox.innerHTML = `
+            <path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z" fill="#FEF7FF"></path>
+          `;
+          fields.classList.add('hidden');
+        }
+      });
+    }
+  
+    // Initialize checkbox toggles
+    toggleCheckbox(batesCheckbox, batesFields);
+    toggleCheckbox(legendCheckbox, legendFields);
+  });

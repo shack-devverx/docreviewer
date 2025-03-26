@@ -76,16 +76,25 @@
 
         <!-- Popup Container -->
         <div id="uploadPopup" class="popup">
+          <style>
+            @font-face {
+              font-family: "Gresco Trial";
+              src: url("src/fonts/GrescoTrial.ttf") format("opentype");
+              font-weight: normal;
+              font-style: normal;
+            }
+
+            #uploadPopup * {
+              font-family: "Gresco Trial", sans-serif !important;
+            }
+          </style>
           <section
-            class="flex flex-col justify-center items-center px-20 py-5 text-2xl font-bold leading-none rounded-3xl border border-solid bg-stone-950 border-white border-opacity-80 max-w-[690px]"
+            class="flex flex-col justify-center items-center p-4 text-2xl font-bold leading-none rounded-3xl border border-solid bg-stone-950 border-white border-opacity-80 max-w-[690px]"
           >
-            <button
-              class="self-end text-white text-2xl font-bold"
-              id="closePopupBtn"
-            >
-              ✖
+            <button class="self-end text-white font-bold" id="closePopupBtn">
+              <img src="src/images/closepopup.svg" alt="close popup" />
             </button>
-            <div class="flex flex-col items-center max-w-full w-[461px]">
+            <div class="flex flex-col items-center max-w-full w-[461px] mx-20">
               <img
                 src="src/images/dropbox.svg"
                 alt="Upload icon"
@@ -93,23 +102,22 @@
               />
               <h2 class="mt-9 text-[#ffffffcc] max-md:text-4xl">
                 <span class="text-[#ffffffcc] font-bold text-[44px]"
-                  >Drag &amp; Drop</span
+                  >Drag & Drop</span
                 >
                 <span class="text-[#ffffffcc] font-bold text-[44px]"
-                  >Files or</span
-                >
+                  >Files
+                </span>
               </h2>
               <p class="mt-11 text-violet-500 max-md:mt-10">
-                <span class="text-white">Or Upload from</span>
-                <span class="text-[#5300C9]">Dropbox</span>
+                <span class="text-white">Or Click Below to Upload Files</span>
               </p>
-              <div class="flex flex-col gap-7 mt-4 w-full">
+              <div class="flex flex-col gap-3 mt-4 w-full">
                 <button
                   id="uploadLocalBtn"
                   aria-label="Upload from Local Storage"
                 >
                   <div
-                    class="flex justify-center gap-1 items-center bg-[#39138F] rounded-lg w-full p-2"
+                    class="flex justify-center gap-2 items-center bg-[#39138F] rounded-4xl py-3 w-full p-2"
                   >
                     <img
                       src="src/images/openlocalstoragesmallicon.svg"
@@ -125,7 +133,7 @@
                   aria-label="Upload from Local Storage"
                 >
                   <div
-                    class="flex gap-1 justify-center items-center bg-white rounded-lg w-full p-2"
+                    class="flex gap-2 justify-center items-center bg-white rounded-4xl py-3 w-full p-2"
                   >
                     <img
                       src="src/images/opendropboxsmallicon.svg"
@@ -142,8 +150,202 @@
             </div>
           </section>
         </div>
+        <!-- popup container ends -->
+
+        <!--Production Modal Overlay -->
+        <!-- <section
+          id="processingModal"
+          class="fixed inset-0 flex justify-center items-center p-4 backdrop-blur-[5px] bg-black bg-opacity-80 z-[1000] hidden"
+        >
+          Modal Container commented out for now
+          <article
+            class="relative px-6 py-8 rounded-2xl border border-solid animate-[popupFadeIn_0.3s_ease-out] bg-stone-950 border-white border-opacity-80 shadow-[0_8px_20px_rgba(0,0,0,0.3)] min-w-max"
+          >
+            Modal Headercommented out for now
+            <header class="relative">
+              <div class="flex justify-between gap-3">
+                <h1
+                  class=" text-5xl font-bold tracking-tighter text-center text-white leading-[54px] max-sm:text-4xl max-sm:leading-10"
+                >
+                  Document Processing Tool
+                </h1>
+                Close Buttoncommented out for now
+                <button
+                  class="close-button "
+                >
+                  X
+                  <i class="ti ti-x" style="font-size: 24px"></i>
+                </button>
+              </div>
+
+              <p
+                class="mb-6 text-sm font-medium tracking-normal leading-6 text-white text-center"
+              >
+                Follow the steps below to process your documents for production.
+              </p>
+              Close Buttoncommented out for now
+              <button
+                class="close-button absolute top-2 right-2 flex justify-center items-center p-1 text-white rounded-full cursor-pointer border-[none] duration-[0.2s] transition-[background] hover:bg-gray-700"
+              >
+                <i class="ti ti-x" style="font-size: 20px"></i>
+              </button>
+            </header>
+
+            Step 1commented out for now
+            <section class="mb-4">
+              <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
+                Step 1
+              </h2>
+              <div class="ml-12 max-sm:ml-8">
+                <h3 class="mb-1 text-sm font-bold text-white">
+                  Choose Documents
+                </h3>
+                <div class="flex flex-col gap-1">
+                  <label class="text-sm font-semibold text-white"
+                    >Select Tag</label
+                  >
+                  <input
+                    type="text"
+                    value="Hot Tag"
+                    class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+                  />
+                </div>
+              </div>
+            </section>
+
+            Step 2commented out for now
+            <section class="mb-4">
+              <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
+                Step 2
+              </h2>
+              <div class="ml-12 max-sm:ml-8">
+                <div class="flex gap-2 items-center mb-2">
+                  <label class="flex items-center gap-2">
+                    <div>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="checkbox-icon"
+                      >
+                        <path
+                          d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"
+                          fill="#FEF7FF"
+                        ></path>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-white">
+                      Add Bates Stamps?
+                    </span>
+                  </label>
+                </div>
+                <div
+                  class="bates-fields hidden flex gap-2 mt-2 max-sm:flex-col"
+                >
+                  <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-white"
+                      >Prefix</label
+                    >
+                    <input
+                      type="text"
+                      value="DEF1"
+                      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-white">
+                      Number of Leading Zeros
+                    </label>
+                    <input
+                      type="text"
+                      value="6"
+                      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-white">
+                      Starting Number
+                    </label>
+                    <input
+                      type="text"
+                      value="1"
+                      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            Step 3commented out for now
+            <section class="mb-4">
+              <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
+                Step 3
+              </h2>
+              <div class="ml-12 max-sm:ml-8">
+                <div class="flex gap-2 items-center mb-2">
+                  <label class="flex items-center gap-2">
+                    <div>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="checkbox-icon"
+                      >
+                        <path
+                          d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z"
+                          fill="#FEF7FF"
+                        ></path>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-white">
+                      Add a Legend?
+                    </span>
+                  </label>
+                </div>
+                <div class="legend-fields hidden flex flex-col gap-1">
+                  <label class="text-sm font-semibold text-white">Legend</label>
+                  <input
+                    type="text"
+                    value="CONFIDENTIAL"
+                    class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+                  />
+                </div>
+              </div>
+            </section>
+
+            Action Buttonscommented out for now
+            <footer
+              class="flex gap-2 justify-center mt-6 max-sm:flex-col max-sm:items-center"
+            >
+              <div class="flex flex-col gap-1 w-[120px] max-sm:w-full">
+                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
+                  Step 4
+                </h2>
+                <button
+                  class="px-3 py-1 w-full text-sm font-semibold bg-violet-900 rounded-lg border-[none] text-white text-opacity-80 hover:bg-violet-800 transition"
+                >
+                  Run Production
+                </button>
+              </div>
+              <div class="flex flex-col gap-1 w-[120px] max-sm:w-full">
+                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
+                  Step 5
+                </h2>
+                <button
+                  class="px-3 py-1 w-full text-sm font-semibold rounded border border-white border-solid text-white text-opacity-80 hover:bg-gray-800 transition"
+                >
+                  Download
+                </button>
+              </div>
+            </footer>
+          </article>
+        </section> -->
+        <!--Production Modal Overlay -->
       </div>
-      <!-- popup container ends -->
 
       <div class="document-select">
         <button id="prev-doc">
@@ -184,6 +386,11 @@
       <button id="add-tag">
         <img src="src/images/tag.svg" alt="Tag" />
       </button>
+      <span class="line"></span>
+      <!-- <button id="production-tag">
+        <img src="src/images/production.svg" alt="Tag" />
+      </button> -->
+
       <div class="toolbar-right-area">
         <div class="toolbar-button">
           <button class="button" id="flag-doc">
