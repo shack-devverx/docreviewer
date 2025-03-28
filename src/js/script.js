@@ -1255,6 +1255,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const APP_KEY = 'kibwqto5p1y8t4r'; // Your app key
     const APP_SECRET = '3l2etd4s2juimgk'; // Your app secret
     const REDIRECT_URI = 'http://localhost:5501'; // Your redirect URI
+
     let dbx; // Dropbox client instance
 
     // Function to open the popup
@@ -1281,6 +1282,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function initiateDropboxAuth() {
         console.log('Initiating Dropbox OAuth flow...');
         const authUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+        console.log('Redirecting to Dropbox auth URL:', authUrl);
         window.location.href = authUrl;
     }
 
@@ -1300,7 +1302,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     code: code,
                     grant_type: 'authorization_code',
                     client_id: APP_KEY,
-                    client_secret: APP_SECRET, // Using the provided secret key
+                    client_secret: APP_SECRET,
                     redirect_uri: REDIRECT_URI,
                 }),
             })
@@ -1311,11 +1313,16 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 console.log('Token response data:', data);
                 const accessToken = data.access_token;
+                const refreshToken = data.refresh_token;
                 if (accessToken) {
                     dbx = new Dropbox.Dropbox({ accessToken });
                     localStorage.setItem('dropbox_token', accessToken);
+                    if (refreshToken) {
+                        localStorage.setItem('dropbox_refresh_token', refreshToken);
+                    }
                     console.log('Dropbox authenticated successfully. Token:', accessToken);
                     window.history.replaceState({}, document.title, window.location.pathname);
+                    alert('Dropbox authentication successful! Please click "Upload from Dropbox" again to select a file.');
                 } else {
                     console.error('No access token received:', data);
                     alert('Failed to authenticate with Dropbox. Check console for details.');
@@ -1326,145 +1333,196 @@ document.addEventListener("DOMContentLoaded", function() {
                 alert('Error during authentication: ' + error.message);
             });
         } else {
-            console.log('No code in URL, using stored token if available...');
+            console.log('No code in URL, proceeding with stored token if available...');
         }
     }
 
-    // Initialize Dropbox client
+    // Function to initialize Dropbox client
     function initializeDropbox() {
         const storedToken = localStorage.getItem('dropbox_token');
         if (storedToken) {
             dbx = new Dropbox.Dropbox({ accessToken: storedToken });
             console.log('Using stored Dropbox token:', storedToken);
+            // Validate the token
+            dbx.usersGetCurrentAccount()
+                .then(response => {
+                    console.log('Token is valid. User account:', response);
+                })
+                .catch(error => {
+                    console.error('Token validation failed:', error);
+                    if (error.status === 401) {
+                        localStorage.removeItem('dropbox_token');
+                        localStorage.removeItem('dropbox_refresh_token');
+                        dbx = null;
+                        console.log('Token invalid or expired, removed from storage.');
+                    }
+                });
         } else {
-            console.log('No stored token, checking for redirect...');
-            handleAuthCallback(); // Check for redirect
-            if (!dbx) {
-                console.log('No token or redirect, initiating OAuth...');
-                initiateDropboxAuth(); // Start OAuth if no token
-            }
+            console.log('No stored token.');
+            dbx = null;
         }
     }
 
-    // Call initialization on load
-    initializeDropbox();
-
-    uploadPopup.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        uploadPopup.classList.add('dragover');
-      });
-
-      uploadPopup.addEventListener('dragenter', (event) => {
-        event.preventDefault();
-        uploadPopup.classList.add('dragover');
-      });
-
-      uploadPopup.addEventListener('dragleave', (event) => {
-        event.preventDefault();
-        uploadPopup.classList.remove('dragover');
-      });
-
-      uploadPopup.addEventListener('drop', (event) => {
-        event.preventDefault();
-        uploadPopup.classList.remove('dragover');
-
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-          Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              const fileContent = event.target.result;
-              const newFile = {
-                name: file.name,
-                type: getFileType(file.name), // Assuming this function exists
-                content: fileContent
-              };
-              fileArray.push(newFile);
-              saveFilesToLocalStorage(); // Assuming this function exists
-              populateDocumentSelect(); // Assuming this function exists
-              loadDocument(fileArray.length - 1); // Assuming this function exists
-            };
-            reader.readAsDataURL(file);
-          });
-          closeUploadPopup();
-        } else {
-          showDropboxAlert();
-        }
-      });
-
-    // Event listeners
-    folderSelect.addEventListener('click', openUploadPopup);
-    closePopupBtn.addEventListener('click', closeUploadPopup);
-
-    const connectDropboxBtn = document.getElementById('connectDropboxBtn');
-    if (connectDropboxBtn) {
-        connectDropboxBtn.addEventListener('click', initiateDropboxAuth);
-    }
-
-    uploadDropboxBtn.addEventListener('click', () => {
+    // Function to show the Dropbox Chooser
+    function showDropboxChooser() {
         if (!dbx) {
             console.log('Dropbox not connected, prompting authentication...');
             alert('Please connect to Dropbox first.');
             initiateDropboxAuth();
             return;
         }
-        console.log('Upload from Dropbox Storage clicked');
-        const options = {
-            success: function(files) {
-                if (files.length > 0) {
-                    const file = files[0];
-                    console.log('Selected file from Dropbox:', file);
-                    console.log('File ID:', file.id);
-                    if (!file.id) {
-                        console.error('File ID is undefined or empty');
-                        alert('Error: Selected file does not have a valid ID.');
-                        return;
-                    }
-                    dbx.filesDownload({ path: file.id })
-                        .then(response => {
-                            console.log('File downloaded from Dropbox:', response);
-                            const fileBlob = response.result.fileBlob;
-                            if (fileBlob) {
-                                const url = window.URL.createObjectURL(fileBlob);
-                                const reader = new FileReader();
-                                reader.onload = function(event) {
-                                    const fileContent = event.target.result;
-                                    const newFile = {
-                                        name: file.name,
-                                        type: getFileType(file.name),
-                                        content: fileContent
-                                    };
-                                    fileArray.push(newFile);
-                                    saveFilesToLocalStorage();
-                                    populateDocumentSelect();
-                                    loadDocument(fileArray.length - 1);
-                                    alert('File selected from Dropbox successfully!');
-                                    closeUploadPopup();
-                                };
-                                reader.readAsDataURL(fileBlob);
-                            } else {
-                                alert('Error: No file content received.');
+        // Validate token before showing Chooser
+        dbx.usersGetCurrentAccount()
+            .then(() => {
+                console.log('Token is valid, showing Dropbox Chooser...');
+                const options = {
+                    success: function(files) {
+                        console.log('Chooser success callback triggered. Files:', files);
+                        if (files.length > 0) {
+                            const file = files[0];
+                            console.log('Selected file from Dropbox:', file);
+                            console.log('File ID:', file.id);
+                            if (!file.id) {
+                                console.error('File ID is undefined or empty');
+                                alert('Error: Selected file does not have a valid ID.');
+                                return;
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error downloading file from Dropbox:', error);
-                            alert('Error selecting file from Dropbox: ' + error.message);
-                        });
-                } else {
-                    showDropboxAlert();
+                            dbx.filesDownload({ path: file.id })
+                                .then(response => {
+                                    console.log('File downloaded from Dropbox:', response);
+                                    const fileBlob = response.result.fileBlob;
+                                    if (fileBlob) {
+                                        const url = window.URL.createObjectURL(fileBlob);
+                                        const reader = new FileReader();
+                                        reader.onload = function(event) {
+                                            const fileContent = event.target.result;
+                                            const newFile = {
+                                                name: file.name,
+                                                type: getFileType(file.name),
+                                                content: fileContent
+                                            };
+                                            fileArray.push(newFile);
+                                            saveFilesToLocalStorage();
+                                            populateDocumentSelect();
+                                            loadDocument(fileArray.length - 1);
+                                            alert('File selected from Dropbox successfully!');
+                                            closeUploadPopup();
+                                        };
+                                        reader.readAsDataURL(fileBlob);
+                                    } else {
+                                        alert('Error: No file content received.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error downloading file from Dropbox:', error);
+                                    if (error.status === 401) {
+                                        localStorage.removeItem('dropbox_token');
+                                        localStorage.removeItem('dropbox_refresh_token');
+                                        dbx = null;
+                                        alert('Dropbox session expired. Please reconnect.');
+                                        initiateDropboxAuth();
+                                    } else {
+                                        alert('Error selecting file from Dropbox: ' + error.message);
+                                    }
+                                });
+                        } else {
+                            console.log('No files selected in Chooser.');
+                            showDropboxAlert();
+                        }
+                    },
+                    cancel: function() {
+                        console.log('Chooser cancel callback triggered.');
+                        showDropboxAlert();
+                    },
+                    linkType: "direct",
+                    multiselect: false,
+                    extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.jpeg', '.jpg', '.png', '.gif', '.tiff'],
+                    folderselect: false,
+                    iframe: false
+                };
+                try {
+                    console.log('Opening Dropbox Chooser...');
+                    Dropbox.choose(options);
+                } catch (error) {
+                    console.error('Error opening Dropbox Chooser:', error);
+                    alert('Error opening Dropbox Chooser: ' + error.message);
                 }
-            },
-            cancel: function() {
-                console.log('Dropbox Chooser cancelled');
-                showDropboxAlert();
-            },
-            linkType: "direct",
-            multiselect: false,
-            extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.jpeg', '.jpg', '.png', '.gif', '.tiff'],
-            folderselect: false,
-            iframe: false
-        };
-        Dropbox.choose(options);
+            })
+            .catch(error => {
+                console.error('Token validation failed before showing Chooser:', error);
+                if (error.status === 401) {
+                    localStorage.removeItem('dropbox_token');
+                    localStorage.removeItem('dropbox_refresh_token');
+                    dbx = null;
+                    alert('Dropbox session expired. Please reconnect.');
+                    initiateDropboxAuth();
+                } else {
+                    alert('Error validating Dropbox token: ' + error.message);
+                }
+            });
+    }
+
+    // Check for redirect on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code')) {
+        console.log('Redirect detected, handling auth callback...');
+        handleAuthCallback();
+    } else {
+        console.log('No redirect code in URL on page load.');
+    }
+
+    // Drag and drop event listeners
+    uploadPopup.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.add('dragover');
+    });
+
+    uploadPopup.addEventListener('dragenter', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.add('dragover');
+    });
+
+    uploadPopup.addEventListener('dragleave', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.remove('dragover');
+    });
+
+    uploadPopup.addEventListener('drop', (event) => {
+        event.preventDefault();
+        uploadPopup.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const fileContent = event.target.result;
+                    const newFile = {
+                        name: file.name,
+                        type: getFileType(file.name),
+                        content: fileContent
+                    };
+                    fileArray.push(newFile);
+                    saveFilesToLocalStorage();
+                    populateDocumentSelect();
+                    loadDocument(fileArray.length - 1);
+                };
+                reader.readAsDataURL(file);
+            });
+            closeUploadPopup();
+        } else {
+            showDropboxAlert();
+        }
+    });
+
+    // Event listeners
+    folderSelect.addEventListener('click', openUploadPopup);
+    closePopupBtn.addEventListener('click', closeUploadPopup);
+
+    uploadDropboxBtn.addEventListener('click', () => {
+        console.log('Upload from Dropbox button clicked');
+        initializeDropbox();
+        showDropboxChooser();
     });
 
     alertOkBtn.addEventListener('click', hideDropboxAlert);
