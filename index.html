@@ -34,6 +34,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
     <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <!-- Add these to your head section -->
+    <script src="https://unpkg.com/pdf-lib@1.17.0/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Add SweetAlert2 CSS and JS -->
     <link
@@ -249,40 +254,48 @@
                       </span>
                     </label>
                   </div>
-                  <div
-                    class="bates-fields hidden flex gap-2 mt-2 max-sm:flex-col"
-                  >
-                    <div class="flex flex-col gap-1">
-                      <label class="text-sm font-semibold text-white"
-                        >Prefix</label
-                      >
-                      <input
-                        type="text"
-                        value="DEF1"
-                        class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
-                      />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-sm font-semibold text-white">
-                        Number of Leading Zeros
-                      </label>
-                      <input
-                        type="text"
-                        value="6"
-                        class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
-                      />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-sm font-semibold text-white">
-                        Starting Number
-                      </label>
-                      <input
-                        type="text"
-                        value="1"
-                        class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
-                      />
-                    </div>
-                  </div>
+                <!-- Fix input IDs to match JavaScript -->
+<!-- Bates Fields -->
+<div class="bates-fields hidden flex gap-2 mt-2 max-sm:flex-col">
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-semibold text-white">Prefix</label>
+    <input
+      id="batesPrefix"
+      type="text"
+      value="DEF1"
+      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+    />
+  </div>
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-semibold text-white">Number of Leading Zeros</label>
+    <input
+      id="leadingZeros"
+      type="text"
+      value="6"
+      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+    />
+  </div>
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-semibold text-white">Starting Number</label>
+    <input
+      id="startNumber"
+      type="text"
+      value="1"
+      class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+    />
+  </div>
+</div>
+
+<!-- Legend Field -->
+<div class="legend-fields hidden flex flex-col gap-1">
+  <label class="text-sm font-semibold text-white">Legend</label>
+  <input
+    id="legendText"
+    type="text"
+    value="CONFIDENTIAL"
+    class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
+  />
+</div>
                 </div>
               </div>
             </section>

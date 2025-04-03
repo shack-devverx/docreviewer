@@ -1540,26 +1540,42 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // ----------------- Production Modal
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM fully loaded, initializing modal functionality...");
+  
     // Get the button and modal elements
     const productionTagBtn = document.getElementById('production-tag');
     const processingModal = document.getElementById('processingModal');
     const closeModalBtn = document.querySelector('.close-button');
   
+    if (!productionTagBtn || !processingModal || !closeModalBtn) {
+      console.error("Modal elements not found:", {
+        productionTagBtn,
+        processingModal,
+        closeModalBtn,
+      });
+      return;
+    }
+  
     // Function to open the modal
     function openProcessingModal() {
+      console.log("Opening processing modal...");
       processingModal.classList.remove('hidden');
+      updateProductionTagDropdown();
     }
   
     // Function to close the modal
     function closeProcessingModal() {
+      console.log("Closing processing modal...");
       processingModal.classList.add('hidden');
     }
   
     // Event listener to open the modal
     productionTagBtn.addEventListener('click', openProcessingModal);
+    console.log("Added event listener to production tag button");
   
     // Event listener to close the modal
     closeModalBtn.addEventListener('click', closeProcessingModal);
+    console.log("Added event listener to close button");
   
     // Toggle visibility of Bates and Legend fields
     const batesCheckbox = document.querySelector('#processingModal section:nth-of-type(2) .checkbox-icon');
@@ -1567,138 +1583,288 @@ document.addEventListener("DOMContentLoaded", function() {
     const batesFields = document.querySelector('.bates-fields');
     const legendFields = document.querySelector('.legend-fields');
   
-    function toggleCheckbox(checkbox, fields) {
+    if (!batesCheckbox || !legendCheckbox || !batesFields || !legendFields) {
+      console.error("Checkbox or field elements not found:", {
+        batesCheckbox,
+        legendCheckbox,
+        batesFields,
+        legendFields,
+      });
+      return;
+    }
+  
+    function toggleCheckbox(checkbox, fields, label) {
       checkbox.addEventListener('click', () => {
-        checkbox.classList.toggle('checked');
-        if (checkbox.classList.contains('checked')) {
-          // Show checkmark
+        const isChecked = checkbox.classList.toggle('checked');
+        checkbox.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+        console.log(`${label} checkbox toggled:`, isChecked ? "Checked" : "Unchecked");
+        if (isChecked) {
           checkbox.innerHTML = `
             <path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z" fill="#FEF7FF"></path>
             <path d="M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#39138F"></path>
           `;
           fields.classList.remove('hidden');
+          console.log(`${label} fields shown`);
         } else {
-          // Show empty checkbox
           checkbox.innerHTML = `
             <path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z" fill="#FEF7FF"></path>
           `;
           fields.classList.add('hidden');
+          console.log(`${label} fields hidden`);
         }
       });
     }
   
     // Initialize checkbox toggles
-    toggleCheckbox(batesCheckbox, batesFields);
-    toggleCheckbox(legendCheckbox, legendFields);
-  });
-
-  // PDF Merging Functions
-async function mergeDocuments(taggedDocs) {
-    const { PDFDocument } = PDFLib;
-    const mergedPdf = await PDFDocument.create();
-    
-    for (const doc of taggedDocs) {
-      let pdfBytes;
-      
-      if (doc.type !== 'pdf') {
-        const converted = await convertToPdf(doc);
-        pdfBytes = converted;
-      } else {
-        const response = await fetch(doc.content);
-        pdfBytes = await response.arrayBuffer();
+    toggleCheckbox(batesCheckbox, batesFields, "Bates");
+    toggleCheckbox(legendCheckbox, legendFields, "Legend");
+    console.log("Initialized checkbox toggles");
+  
+    // Get modal input values
+    function getModalInputs() {
+      console.log("Retrieving modal inputs...");
+      const leadingZeros = parseInt(document.getElementById('leadingZeros').value, 10);
+      const startNumber = parseInt(document.getElementById('startNumber').value, 10);
+  
+      if (isNaN(leadingZeros) || leadingZeros < 0) {
+        console.error("Invalid leading zeros value:", leadingZeros);
+        throw new Error('Number of leading zeros must be a non-negative number');
+      }
+      if (isNaN(startNumber) || startNumber < 1) {
+        console.error("Invalid starting number value:", startNumber);
+        throw new Error('Starting number must be a positive number');
       }
   
-      const pdfDoc = await PDFDocument.load(pdfBytes);
-      const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-      copiedPages.forEach(page => mergedPdf.addPage(page));
+      const inputs = {
+        selectedTag: document.getElementById('productionTag').value,
+        addBates: batesCheckbox.classList.contains('checked'),
+        batesPrefix: document.getElementById('batesPrefix').value,
+        leadingZeros,
+        startNumber,
+        addLegend: legendCheckbox.classList.contains('checked'),
+        legendText: document.getElementById('legendText').value,
+      };
+      console.log("Modal inputs retrieved:", inputs);
+      return inputs;
     }
   
-    return await mergedPdf.save();
-  }
-  
-  async function convertToPdf(doc) {
-    const { PDFDocument, rgb } = PDFLib;
-    const pdfDoc = await PDFDocument.create();
-    
-    switch(doc.type) {
-      case 'image':
-        const img = await pdfDoc.embedJpg(doc.content);
-        const imgPage = pdfDoc.addPage([img.width, img.height]);
-        imgPage.drawImage(img, { x: 0, y: 0 });
-        break;
-        
-      case 'docx':
-        const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await fetch(doc.content).then(r => r.arrayBuffer()) });
-        const { default: html2pdf } = await import('html2pdf.js');
-        const result = await html2pdf().from(html).outputPdf('arraybuffer');
-        return result;
-        
-      case 'txt':
-        const text = await fetch(doc.content).then(r => r.text());
-        const txtPage = pdfDoc.addPage([612, 792]); // Letter size
-        txtPage.drawText(text, { 
-          x: 50, 
-          y: 742, // Start from top
-          size: 12, 
-          color: rgb(0, 0, 0),
-          maxWidth: 522 // Page width - margins
-        });
-        break;
+    // Update tag dropdown in processing modal
+    function updateProductionTagDropdown() {
+      console.log("Updating production tag dropdown...");
+      const select = document.getElementById('productionTag');
+      if (!select) {
+        console.error("Production tag dropdown not found");
+        return;
+      }
+      select.innerHTML = '<option value="">Select Tag</option>';
+      if (!tags || !Array.isArray(tags)) {
+        console.error("Tags array is not defined or not an array:", tags);
+        return;
+      }
+      tags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag.name;
+        option.textContent = tag.name;
+        select.appendChild(option);
+      });
+      console.log("Production tag dropdown updated with tags:", tags.map(tag => tag.name));
     }
   
-    return await pdfDoc.save();
-  }
+    // PDF Merging Function with Bates Stamps and Legends
+    async function mergeDocuments(taggedDocs) {
+      console.log("Starting document merging process for", taggedDocs.length, "documents...");
+      const { PDFDocument, StandardFonts, rgb, degrees } = PDFLib;
+      const mergedPdf = await PDFDocument.create();
+      let helveticaFont;
+      try {
+        helveticaFont = await mergedPdf.embedFont(StandardFonts.Helvetica);
+        console.log("Helvetica font embedded successfully");
+      } catch (error) {
+        console.error("Failed to embed Helvetica font:", error);
+        throw error;
+      }
   
-  // Update tag dropdown in processing modal
-  function updateProductionTagDropdown() {
-    const select = document.getElementById('productionTag');
-    select.innerHTML = '<option value="">Select Tag</option>';
-    tags.forEach(tag => {
-      const option = document.createElement('option');
-      option.value = tag.name;
-      option.textContent = tag.name;
-      select.appendChild(option);
+      const inputs = getModalInputs();
+      let currentBatesNumber = inputs.startNumber;
+  
+      for (const doc of taggedDocs) {
+        console.log("Processing document:", doc.name || doc.content);
+        let pdfBytes;
+  
+        try {
+          if (doc.type !== 'pdf') {
+            console.log("Converting non-PDF document to PDF:", doc.type);
+            pdfBytes = await convertToPdf(doc);
+          } else {
+            console.log("Fetching PDF document...");
+            const response = await fetch(doc.content);
+            pdfBytes = await response.arrayBuffer();
+          }
+        } catch (error) {
+          console.error("Error converting/loading document:", doc.name || doc.content, error);
+          continue;
+        }
+  
+        try {
+          const pdfDoc = await PDFDocument.load(pdfBytes);
+          console.log("Loaded PDF document with", pdfDoc.getPageCount(), "pages");
+          const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+  
+          copiedPages.forEach(page => {
+            console.log("Processing page for Bates and Legend...");
+            if (inputs.addBates) {
+              const formattedNumber = `${inputs.batesPrefix}${currentBatesNumber.toString().padStart(inputs.leadingZeros, '0')} (${new Date().toISOString().split('T')[0]})`;
+              const textWidth = helveticaFont.widthOfTextAtSize(formattedNumber, 10);
+              page.drawText(formattedNumber, {
+                x: 50,
+                y: 20,
+                size: 10,
+                font: helveticaFont,
+                color: rgb(0, 0, 0),
+              });
+              console.log("Added Bates stamp:", formattedNumber);
+              currentBatesNumber++;
+            } else {
+              console.log("Bates stamps not enabled, skipping...");
+            }
+  
+            if (inputs.addLegend && inputs.legendText) {
+              const textWidth = helveticaFont.widthOfTextAtSize(inputs.legendText, 12);
+              page.drawText(inputs.legendText, {
+                x: page.getWidth() - textWidth - 50,
+                y: page.getHeight() - 40,
+                size: 12,
+                font: helveticaFont,
+                color: rgb(0.5, 0.5, 0.5),
+                opacity: 0.5,
+                rotate: degrees(-45),
+              });
+              console.log("Added legend:", inputs.legendText);
+            } else {
+              console.log("Legend not enabled or no legend text, skipping...");
+            }
+  
+            mergedPdf.addPage(page);
+            console.log("Page added to merged PDF");
+          });
+        } catch (error) {
+          console.error("Error processing pages for document:", doc.name || doc.content, error);
+          continue;
+        }
+      }
+  
+      const finalPdf = await mergedPdf.save();
+      console.log("Merged PDF created successfully, size:", finalPdf.length, "bytes");
+      return finalPdf;
+    }
+  
+    async function convertToPdf(doc) {
+      console.log("Converting document to PDF, type:", doc.type);
+      const { PDFDocument, rgb } = PDFLib;
+      const pdfDoc = await PDFDocument.create();
+  
+      try {
+        switch (doc.type) {
+          case 'image':
+            console.log("Embedding image...");
+            const img = await pdfDoc.embedJpg(doc.content);
+            const imgPage = pdfDoc.addPage([img.width, img.height]);
+            imgPage.drawImage(img, { x: 0, y: 0 });
+            console.log("Image embedded successfully");
+            break;
+  
+          case 'docx':
+            console.log("Converting DOCX to HTML...");
+            const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await fetch(doc.content).then(r => r.arrayBuffer()) });
+            console.log("Converting HTML to PDF...");
+            const { default: html2pdf } = await import('html2pdf.js');
+            const result = await html2pdf().from(html).outputPdf('arraybuffer');
+            console.log("DOCX converted to PDF successfully");
+            return result;
+  
+          case 'txt':
+            console.log("Converting text to PDF...");
+            const text = await fetch(doc.content).then(r => r.text());
+            const txtPage = pdfDoc.addPage([612, 792]); // Letter size
+            txtPage.drawText(text, {
+              x: 50,
+              y: 742,
+              size: 12,
+              color: rgb(0, 0, 0),
+              maxWidth: 522,
+            });
+            console.log("Text converted to PDF successfully");
+            break;
+  
+          default:
+            console.error("Unsupported document type:", doc.type);
+            throw new Error(`Unsupported document type: ${doc.type}`);
+        }
+  
+        const pdfBytes = await pdfDoc.save();
+        console.log("Converted PDF saved, size:", pdfBytes.length, "bytes");
+        return pdfBytes;
+      } catch (error) {
+        console.error("Error converting document to PDF:", doc.name || doc.content, error);
+        throw error;
+      }
+    }
+  
+    // Add event listener for production button
+    document.getElementById('runProduction').addEventListener('click', async () => {
+      console.log("Run Production button clicked");
+      let inputs;
+      try {
+        inputs = getModalInputs();
+      } catch (error) {
+        console.error("Input validation failed:", error.message);
+        Swal.fire('Invalid Input', error.message, 'error');
+        return;
+      }
+  
+      console.log("Filtering documents by tag:", inputs.selectedTag);
+      const taggedDocs = pinnedDocs.filter(doc =>
+        doc.tags?.some(tag => tag.name === inputs.selectedTag)
+      );
+  
+      if (!inputs.selectedTag || taggedDocs.length === 0) {
+        console.warn("No documents found with the selected tag:", inputs.selectedTag);
+        Swal.fire('No documents found with this tag!');
+        return;
+      }
+      console.log("Found", taggedDocs.length, "documents with tag:", inputs.selectedTag);
+  
+      const loading = Swal.fire({
+        title: 'Processing...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      console.log("Showing loading indicator");
+  
+      try {
+        const mergedPdf = await mergeDocuments(taggedDocs);
+        const blob = new Blob([mergedPdf], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+  
+        const downloadBtn = document.getElementById('downloadMerged');
+        downloadBtn.href = url;
+        downloadBtn.download = `merged-${inputs.selectedTag}.pdf`;
+        downloadBtn.style.display = 'block';
+        console.log("Download button updated with URL:", url);
+  
+        loading.close();
+        console.log("Loading indicator closed");
+        Swal.fire('Documents processed successfully!');
+        console.log("Success message shown");
+      } catch (error) {
+        loading.close();
+        console.error("Processing error:", error);
+        Swal.fire('Error processing documents!');
+        console.log("Error message shown");
+      }
     });
-  }
   
-  // Add event listener for production button
-  document.getElementById('runProduction').addEventListener('click', async () => {
-    const selectedTag = document.getElementById('productionTag').value;
-    const taggedDocs = pinnedDocs.filter(doc => 
-      doc.tags?.some(tag => tag.name === selectedTag)
-    );
-  
-    if (!selectedTag || taggedDocs.length === 0) {
-      Swal.fire('No documents found with this tag!');
-      return;
-    }
-  
-    const loading = Swal.fire({
-      title: 'Processing...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-    
-    try {
-      const mergedPdf = await mergeDocuments(taggedDocs);
-      const blob = new Blob([mergedPdf], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      
-      const downloadBtn = document.getElementById('downloadMerged');
-      downloadBtn.href = url;
-      downloadBtn.download = `merged-${selectedTag}.pdf`;
-      downloadBtn.style.display = 'block';
-      
-      loading.close();
-      Swal.fire('Documents merged successfully!');
-    } catch (error) {
-      loading.close();
-      console.error('Merge error:', error);
-      Swal.fire('Error processing documents!');
-    }
-  });
-  
-  // Initialize production tag dropdown when tags update
-  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize production tag dropdown
     updateProductionTagDropdown();
+    console.log("Initial setup complete");
   });
