@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://use.typekit.net/hdi0iou.css" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/dropbox@10.34.0/dist/Dropbox-sdk.min.js"></script>
+    <!-- Add these after existing script tags -->
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script
       type="text/javascript"
       src="https://www.dropbox.com/static/api/2/dropins.js"
@@ -201,28 +204,22 @@
               </button>
             </header>
 
-            <section class="mb-4">
-              <div class="flex flex-row gap-6 items-center">
-                <h2 class="mb-1 text-base text-[#979797] font-medium leading-4">
-                  Step 1
-                </h2>
-                <h3 class="mb-1 text-sm font-bold text-white">
-                  Choose Documents
-                </h3>
-              </div>
-              <div class="ml-12 max-sm:ml-8">
-                <div class="flex flex-col gap-1 ml-6">
-                  <label class="text-sm font-semibold text-white"
-                    >Select Tag</label
-                  >
-                  <input
-                    type="text"
-                    value="Hot Tag"
-                    class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white text-opacity-40 w-[120px] max-sm:w-full"
-                  />
-                </div>
-              </div>
-            </section>
+          <!-- Replace the Step 1 section with this -->
+<section class="mb-4">
+  <div class="flex flex-row gap-6 items-center">
+    <h2 class="mb-1 text-base text-[#979797] font-medium leading-4">Step 1</h2>
+    <h3 class="mb-1 text-sm font-bold text-white">Choose Documents</h3>
+  </div>
+  <div class="ml-12 max-sm:ml-8">
+    <div class="flex flex-col gap-1 ml-6">
+      <select id="productionTag" 
+              class="px-2 py-1 text-xs font-medium rounded-lg border border-white border-solid bg-gray-950 text-white w-[120px] max-sm:w-full">
+        <option value="">Select Tag</option>
+        <!-- Options will be populated dynamically -->
+      </select>
+    </div>
+  </div>
+</section>
 
             <section class="mb-4">
               <div class="flex flex-row gap-6 items-center">
@@ -331,30 +328,18 @@
               </div>
             </section>
 
-            <footer
-              class="flex gap-6 justify-center mt-6 max-sm:flex-col max-sm:items-center"
-            >
+            <footer class="flex gap-6 justify-center mt-6 max-sm:flex-col max-sm:items-center">
               <div class="flex flex-col gap-1 w-[120px] max-sm:w-full">
-                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
-                  Step 4
-                </h2>
-                <div class="px-3 py-2 min-w-max font-semibold  text-[15px] font-semibold  rounded-lg  text-white text-opacity-80 hover:bg-violet-800 transition"
-                style="background-color: #39138F;"
-                >
-
-                Run Production
-                </div>
-                
+                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">Step 4</h2>
+                <button id="runProduction" class="px-3 py-2 min-w-max font-semibold text-[15px] rounded-lg text-white text-opacity-80 hover:bg-violet-800 transition" style="background-color: #39138F;">
+                  Run Production
+                </button>
               </div>
               <div class="flex flex-col gap-1 w-[120px] max-sm:w-full">
-                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">
-                  Step 5
-                </h2>
-                <div
-                  class="px-3 py-2 w-full text-sm font-semibold rounded border border-white border-solid-1px text-white text-opacity-80 hover:bg-gray-800 transition"
-                >
+                <h2 class="mb-1 text-sm font-medium leading-4 text-neutral-400">Step 5</h2>
+                <a id="downloadMerged" class="px-3 py-2 w-full text-sm font-semibold rounded border border-white border-solid-1px text-white text-opacity-80 hover:bg-gray-800 transition cursor-pointer text-center">
                   Download
-                </d>
+                </a>
               </div>
             </footer>
           </article>

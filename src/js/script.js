@@ -1591,3 +1591,114 @@ document.addEventListener("DOMContentLoaded", function() {
     toggleCheckbox(batesCheckbox, batesFields);
     toggleCheckbox(legendCheckbox, legendFields);
   });
+
+  // PDF Merging Functions
+async function mergeDocuments(taggedDocs) {
+    const { PDFDocument } = PDFLib;
+    const mergedPdf = await PDFDocument.create();
+    
+    for (const doc of taggedDocs) {
+      let pdfBytes;
+      
+      if (doc.type !== 'pdf') {
+        const converted = await convertToPdf(doc);
+        pdfBytes = converted;
+      } else {
+        const response = await fetch(doc.content);
+        pdfBytes = await response.arrayBuffer();
+      }
+  
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+      copiedPages.forEach(page => mergedPdf.addPage(page));
+    }
+  
+    return await mergedPdf.save();
+  }
+  
+  async function convertToPdf(doc) {
+    const { PDFDocument, rgb } = PDFLib;
+    const pdfDoc = await PDFDocument.create();
+    
+    switch(doc.type) {
+      case 'image':
+        const img = await pdfDoc.embedJpg(doc.content);
+        const imgPage = pdfDoc.addPage([img.width, img.height]);
+        imgPage.drawImage(img, { x: 0, y: 0 });
+        break;
+        
+      case 'docx':
+        const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await fetch(doc.content).then(r => r.arrayBuffer()) });
+        const { default: html2pdf } = await import('html2pdf.js');
+        const result = await html2pdf().from(html).outputPdf('arraybuffer');
+        return result;
+        
+      case 'txt':
+        const text = await fetch(doc.content).then(r => r.text());
+        const txtPage = pdfDoc.addPage([612, 792]); // Letter size
+        txtPage.drawText(text, { 
+          x: 50, 
+          y: 742, // Start from top
+          size: 12, 
+          color: rgb(0, 0, 0),
+          maxWidth: 522 // Page width - margins
+        });
+        break;
+    }
+  
+    return await pdfDoc.save();
+  }
+  
+  // Update tag dropdown in processing modal
+  function updateProductionTagDropdown() {
+    const select = document.getElementById('productionTag');
+    select.innerHTML = '<option value="">Select Tag</option>';
+    tags.forEach(tag => {
+      const option = document.createElement('option');
+      option.value = tag.name;
+      option.textContent = tag.name;
+      select.appendChild(option);
+    });
+  }
+  
+  // Add event listener for production button
+  document.getElementById('runProduction').addEventListener('click', async () => {
+    const selectedTag = document.getElementById('productionTag').value;
+    const taggedDocs = pinnedDocs.filter(doc => 
+      doc.tags?.some(tag => tag.name === selectedTag)
+    );
+  
+    if (!selectedTag || taggedDocs.length === 0) {
+      Swal.fire('No documents found with this tag!');
+      return;
+    }
+  
+    const loading = Swal.fire({
+      title: 'Processing...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+    
+    try {
+      const mergedPdf = await mergeDocuments(taggedDocs);
+      const blob = new Blob([mergedPdf], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      const downloadBtn = document.getElementById('downloadMerged');
+      downloadBtn.href = url;
+      downloadBtn.download = `merged-${selectedTag}.pdf`;
+      downloadBtn.style.display = 'block';
+      
+      loading.close();
+      Swal.fire('Documents merged successfully!');
+    } catch (error) {
+      loading.close();
+      console.error('Merge error:', error);
+      Swal.fire('Error processing documents!');
+    }
+  });
+  
+  // Initialize production tag dropdown when tags update
+  document.addEventListener('DOMContentLoaded', () => {
+    updateProductionTagDropdown();
+  });
