@@ -1278,63 +1278,100 @@ document.addEventListener("DOMContentLoaded", function() {
         dropboxAlert.classList.add('hidden');
     }
 
-    // Step 1: Initiate OAuth flow
+    // Step 1: Initiate OAuth flow in a centered popup window
     function initiateDropboxAuth() {
-        console.log('Initiating Dropbox OAuth flow...');
+        console.log('Initiating Dropbox OAuth flow in popup window...');
         const authUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-        console.log('Redirecting to Dropbox auth URL:', authUrl);
-        window.location.href = authUrl;
+        console.log('Dropbox auth URL:', authUrl);
+
+        // Define popup dimensions
+        const width = 600;
+        const height = 500;
+
+        // Calculate the position to center the popup
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+
+        // Open a popup window at the center of the screen
+        const popup = window.open(
+            authUrl,
+            'dropboxAuth',
+            `width=${width},height=${height},scrollbars=yes,left=${left},top=${top}`
+        );
+        if (!popup) {
+            console.error('Popup blocked by browser. Please allow popups for this site.');
+            alert('Popup blocked by browser. Please allow popups for this site and try again.');
+            return;
+        }
+
+        // Poll the popup window to detect when it redirects to the REDIRECT_URI
+        const interval = setInterval(() => {
+            try {
+                if (popup.closed) {
+                    clearInterval(interval);
+                    console.log('Popup window closed by user.');
+                    return;
+                }
+
+                const popupUrl = popup.location.href;
+                if (popupUrl && popupUrl.startsWith(REDIRECT_URI)) {
+                    const urlParams = new URLSearchParams(new URL(popupUrl).search);
+                    const code = urlParams.get('code');
+                    if (code) {
+                        console.log('Authorization code received from popup:', code);
+                        clearInterval(interval);
+                        popup.close();
+                        handleAuthCallback(code);
+                    }
+                }
+            } catch (error) {
+                // Cross-origin errors are expected until the redirect happens
+                console.log('Waiting for redirect in popup...');
+            }
+        }, 500);
     }
 
-    // Step 2: Handle the redirect and exchange code for token
-    function handleAuthCallback() {
-        console.log('Checking for authorization code in URL...');
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        if (code) {
-            console.log('Found authorization code:', code);
-            fetch('https://api.dropboxapi.com/oauth2/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    code: code,
-                    grant_type: 'authorization_code',
-                    client_id: APP_KEY,
-                    client_secret: APP_SECRET,
-                    redirect_uri: REDIRECT_URI,
-                }),
-            })
-            .then(response => {
-                console.log('Token response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Token response data:', data);
-                const accessToken = data.access_token;
-                const refreshToken = data.refresh_token;
-                if (accessToken) {
-                    dbx = new Dropbox.Dropbox({ accessToken });
-                    localStorage.setItem('dropbox_token', accessToken);
-                    if (refreshToken) {
-                        localStorage.setItem('dropbox_refresh_token', refreshToken);
-                    }
-                    console.log('Dropbox authenticated successfully. Token:', accessToken);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    alert('Dropbox authentication successful! Please click "Upload from Dropbox" again to select a file.');
-                } else {
-                    console.error('No access token received:', data);
-                    alert('Failed to authenticate with Dropbox. Check console for details.');
+    // Step 2: Handle the authorization code
+    function handleAuthCallback(code) {
+        console.log('Handling authorization code:', code);
+        fetch('https://api.dropboxapi.com/oauth2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                code: code,
+                grant_type: 'authorization_code',
+                client_id: APP_KEY,
+                client_secret: APP_SECRET,
+                redirect_uri: REDIRECT_URI,
+            }),
+        })
+        .then(response => {
+            console.log('Token response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Token response data:', data);
+            const accessToken = data.access_token;
+            const refreshToken = data.refresh_token;
+            if (accessToken) {
+                dbx = new Dropbox.Dropbox({ accessToken });
+                localStorage.setItem('dropbox_token', accessToken);
+                if (refreshToken) {
+                    localStorage.setItem('dropbox_refresh_token', refreshToken);
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching access token:', error);
-                alert('Error during authentication: ' + error.message);
-            });
-        } else {
-            console.log('No code in URL, proceeding with stored token if available...');
-        }
+                console.log('Dropbox authenticated successfully. Token:', accessToken);
+                alert('Dropbox authentication successful! Please click "Upload from Dropbox" again to select a file.');
+            } else {
+                console.error('No access token received:', data);
+                alert('Failed to authenticate with Dropbox. Check console for details.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching access token:', error);
+            alert('Error during authentication: ' + error.message);
+        });
     }
 
     // Function to initialize Dropbox client
@@ -1466,7 +1503,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('code')) {
         console.log('Redirect detected, handling auth callback...');
-        handleAuthCallback();
+        handleAuthCallback(urlParams.get('code'));
     } else {
         console.log('No redirect code in URL on page load.');
     }
